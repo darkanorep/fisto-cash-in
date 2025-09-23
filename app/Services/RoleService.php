@@ -8,7 +8,7 @@ class RoleService {
 
     public function getRoles(Request $request) {
         
-        return Role::get()->toArray();
+        return Role::query()->paginate(10);
     }
     
     public function createRole($data) {

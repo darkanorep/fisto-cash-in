@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class RolesController extends Controller
     }
 
     public function index(Request $request) {
-        return $this->roleService->getRoles($request)->paginate(10);
+        return RoleResource::collection($this->roleService->getRoles($request));
     }
 
     public function store(RoleRequest $request) {
