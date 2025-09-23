@@ -2,13 +2,16 @@
 
 namespace App\Services;
 use App\Models\Role;
+use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
 
 class RoleService {
 
+    use ApiResponse;
+
     public function getRoles(Request $request) {
         
-        return Role::query()->paginate(10);
+        return Role::dynamicPaginate();
     }
     
     public function createRole($data) {
@@ -22,7 +25,7 @@ class RoleService {
     public function updateRole($role, $data) {
         $role->update($data);
         
-        return response()->json(['message' => 'Role updated successfully', 'role' => $role], 200);
+        return $role;
     }
 
     public function changeStatus($id) {
@@ -34,7 +37,7 @@ class RoleService {
             $role->delete();
         }
 
-        return response()->json(['message' => 'Role status changed successfully'], 200);
+        return $role;
     }
     
 }
