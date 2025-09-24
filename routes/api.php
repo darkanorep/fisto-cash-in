@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +20,9 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::resource('roles', 'App\Http\Controllers\RolesController');
+Route::resource('roles', RoleController::class)->only([
+    'index', 'show', 'store', 'update', 'destroy'
+]);
+Route::resource('permissions', PermissionController::class)->only([
+    'index', 'show', 'store', 'update', 'destroy'
+]);

@@ -8,7 +8,7 @@ use App\Services\RoleService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
 
-class RolesController extends Controller
+class RoleController extends Controller
 {
     use ApiResponse;
     protected $roleService;

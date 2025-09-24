@@ -35,4 +35,11 @@ class PermissionRequest extends FormRequest
             ]
         ];
     }
+
+    public function attributes()
+    {
+        return [
+            'role_id' => 'role'
+        ];
+    }
 }

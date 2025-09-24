@@ -12,4 +12,8 @@ class Permission extends Model
 
     protected $fillable = ["name", "role_id"];
     protected $hidden = ["created_at", "role_id"];
+
+    public function role() {
+        return $this->belongsTo(Role::class)->withTrashed();
+    }
 }

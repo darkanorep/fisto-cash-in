@@ -17,7 +17,10 @@ class PermissionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'role_id' => $this->role_id,
+            'role' => $this->role ? [
+                'id' => $this->role->id,
+                'name' => $this->role->name
+            ] : null,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at
         ];
