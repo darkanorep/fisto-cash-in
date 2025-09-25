@@ -33,6 +33,11 @@ class PermissionController extends Controller
     }
 
     public function show($id) {
+
+        if (!$this->permissionService->getPermissionById($id)) {
+            return $this->responseNotFound('Permission not found');
+        }
+
         return $this->responseSuccess('Permission fetched successfully', new PermissionResource($this->permissionService->getPermissionById($id)));
     }
 

@@ -8,18 +8,23 @@ use Illuminate\Http\Request;
 class RoleService {
 
     use ApiResponse;
+    protected $role;
+
+    public function __construct(Role $role) {
+        $this->role = $role;
+    }
 
     public function getRoles(Request $request) {
-        
-        return Role::dynamicPaginate();
+
+        return $this->role->dynamicPaginate();
     }
     
     public function createRole($data) {
-        return Role::create($data);
+        return $this->role->create($data);
     }
 
     public function getRoleById($id) {
-        return Role::find($id);
+        return $this->role->find($id);
     }
 
     public function updateRole($role, $data) {
@@ -29,7 +34,7 @@ class RoleService {
     }
 
     public function changeStatus($id) {
-        $role = Role::withTrashed()->find($id);
+        $role = $this->role->withTrashed()->find($id);
 
         if ($role->trashed()) {
             $role->restore();

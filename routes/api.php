@@ -20,9 +20,5 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::resource('roles', RoleController::class)->only([
-    'index', 'show', 'store', 'update', 'destroy'
-]);
-Route::resource('permissions', PermissionController::class)->only([
-    'index', 'show', 'store', 'update', 'destroy'
-]);
+Route::resource('roles', RoleController::class)->only(['index', 'store', 'update', 'destroy']);
+Route::resource('permissions', PermissionController::class)->only(['index','store', 'update', 'destroy']);

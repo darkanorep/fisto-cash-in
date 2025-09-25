@@ -7,16 +7,22 @@ use Illuminate\Http\Request;
 
 class PermissionService
 {
+    protected $permission;
+
+    public function __construct(Permission $permission) {
+        $this->permission = $permission;
+    }
+    
     public function getPermissions(Request $request) {
-        return Permission::dynamicPaginate();
+        return $this->permission->with('role')->dynamicPaginate();
     }
 
     public function createPermission($data) {
-        return Permission::create($data);
+        return $this->permission->create($data);
     }
 
     public function getPermissionById($id) {
-        return Permission::find($id);
+        return $this->permission->with('role')->find($id);
     }
 
     public function updatePermission($Permission, $data) {
@@ -26,14 +32,14 @@ class PermissionService
     }
 
     public function changeStatus($id) {
-        $Permission = Permission::withTrashed()->find($id);
+        $permission = $this->permission->withTrashed()->find($id);
 
-        if ($Permission->trashed()) {
-            $Permission->restore();
+        if ($permission->trashed()) {
+            $permission->restore();
         } else {
-            $Permission->delete();
+            $permission->delete();
         }
 
-        return $Permission;
+        return $permission;
     }
 }

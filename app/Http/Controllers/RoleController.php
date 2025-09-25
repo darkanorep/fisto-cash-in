@@ -33,6 +33,11 @@ class RoleController extends Controller
     }
 
     public function show($id) {
+
+        if (!$this->roleService->getRoleById($id)) {
+            return $this->responseNotFound('Role not found');
+        }
+
         return $this->responseSuccess('Role fetched successfully', new RoleResource($this->roleService->getRoleById($id)));
     }
 
