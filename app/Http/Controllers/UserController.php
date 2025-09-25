@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,10 @@ class UserController extends Controller
 
     public function index(Request $request) {
         $users = $this->userService->getUsers($request);
+
+        $users->getCollection()->transform(function ($item) {
+            return new UserResource($item);
+        });
 
         return $this->responseSuccess('Users fetched successfully', $users);
     }

@@ -18,7 +18,7 @@ class UserService
 
     public function getUsers(Request $request)
     {
-        return $this->user->dynamicPaginate();
+        return $this->user->with('roles')->dynamicPaginate();
     }
 
     public function createUser($data)
