@@ -34,12 +34,11 @@ class UserController extends Controller
     }
 
     public function show($id) {
-        $user = $this->userService->getUserById($id);
-        if (!$user) {
+        if (!$this->userService->getUserById($id)) {
             return $this->responseNotFound('User not found');
         }
 
-        return $this->responseSuccess('User fetched successfully', $user);
+        return $this->responseSuccess('User fetched successfully', new UserResource($this->userService->getUserById($id)));
     }
 
     public function update(UserRequest $request, $id) {
@@ -49,7 +48,7 @@ class UserController extends Controller
             return $this->responseNotFound('User not found');
         }
         $updatedUser = $this->userService->updateUser($user, $data);
-        return $this->responseSuccess('User updated successfully', $updatedUser);
+        return $this->responseSuccess('User updated successfully', new UserResource($updatedUser));
     }
 
     public function destroy($id) {

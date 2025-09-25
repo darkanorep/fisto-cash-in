@@ -31,12 +31,14 @@ class UserService
 
     public function getUserById($id) 
     {
-        return $this->user->find($id);
+        return $this->user->with('roles')->find($id);
     }
 
     public function updateUser($user, $data)
     {
         $user->update($data);
+        $user->roles()->detach();
+        $user->roles()->sync($data['role_id']);
         return $user;
     }
 
