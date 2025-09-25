@@ -13,11 +13,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'employee_id',
         'first_name',
@@ -29,22 +24,34 @@ class User extends Authenticatable
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public function getFullNameAttribute()
+    {
+        $fullName = $this->first_name;
+
+        if ($this->middle_name) {
+            $fullName .= ' ' . $this->middle_name;
+        }
+
+        $fullName .= ' ' . $this->last_name;
+
+        if ($this->suffix) {
+            $fullName .= ', ' . $this->suffix;
+        }
+
+        return $fullName;
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_users', 'user_id', 'role_id');
+    }
 }

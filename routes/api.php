@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,5 +21,6 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::resource('roles', RoleController::class)->only(['index', 'store', 'update', 'destroy']);
-Route::resource('permissions', PermissionController::class)->only(['index','store', 'update', 'destroy']);
+Route::resource('roles', RoleController::class);
+Route::resource('permissions', PermissionController::class);
+Route::resource('users', UserController::class);

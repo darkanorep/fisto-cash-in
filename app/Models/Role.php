@@ -12,4 +12,9 @@ class Role extends Model
 
     protected $fillable = ["name"];
     protected $hidden = ["created_at"];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'role_users', 'role_id', 'user_id');
+    }
 }

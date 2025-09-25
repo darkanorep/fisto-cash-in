@@ -43,7 +43,6 @@ class RoleController extends Controller
 
     public function update(RoleRequest $request, $id) {
         $data = $request->validated();
-
         $role = $this->roleService->getRoleById($id);
         if (!$role) {
             return $this->responseNotFound('Role not found');

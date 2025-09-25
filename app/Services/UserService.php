@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Essa\APIToolKit\Api\ApiResponse;
-use Illuminate\Http\Client\Request;
+use Illuminate\Http\Request;
 
 class UserService
 {
@@ -23,7 +23,10 @@ class UserService
 
     public function createUser($data)
     {
-        return $this->user->create($data);
+        $user = $this->user->create($data);
+        $user->roles()->sync($data['role_id']);
+
+        return $user;
     }
 
     public function getUserById($id) 

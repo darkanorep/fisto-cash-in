@@ -42,8 +42,8 @@ class PermissionController extends Controller
     }
 
     public function update(PermissionRequest $request, $id) {
-        $data = $request->validated();
 
+        $data = $request->validated();
         $permission = $this->permissionService->getPermissionById($id);
         if (!$permission) {
             return $this->responseNotFound('Permission not found');
