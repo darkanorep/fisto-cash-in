@@ -17,4 +17,6 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class, 'role_users', 'role_id', 'user_id');
     }
+
+    const ADMIN = 'Admin';
 }
