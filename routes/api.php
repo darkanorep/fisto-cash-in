@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
-    Route::group(['middleware' => 'admin'], function() {
+    Route::group(['middleware' => 'admin',  'prefix' => 'admin'], function() {
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
         Route::resource('users', UserController::class);
