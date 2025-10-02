@@ -52,6 +52,11 @@ class RoleController extends Controller
     }
 
     public function destroy($id) {
-        return $this->responseSuccess('Role changed status successfully', $this->roleService->changeStatus($id));
+        $role = $this->roleService->changeStatus($id);
+        if (!$role) {
+            return $this->responseNotFound('Role not found');
+        }
+
+        return $this->responseSuccess('Role status changed successfully', $role);
     }
 }

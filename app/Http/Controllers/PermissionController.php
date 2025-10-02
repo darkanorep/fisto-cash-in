@@ -53,7 +53,12 @@ class PermissionController extends Controller
     }
 
     public function destroy($id) {
-        return $this->responseSuccess('Permission changed status successfully', $this->permissionService->changeStatus($id));
+        $permission = $this->permissionService->changeStatus($id);
+        if (!$permission) {
+            return $this->responseNotFound('Permission not found');
+        }
+
+        return $this->responseSuccess('Permission status changed successfully', $permission);
     }
 
 }
