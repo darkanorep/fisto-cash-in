@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('banks', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
+            $table->string('name');
+            $table->string('account_number')->unique();
+            $table->string('branch')->nullable();
             $table->timestamps();
         });
     }
