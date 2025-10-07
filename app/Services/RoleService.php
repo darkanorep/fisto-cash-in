@@ -16,7 +16,7 @@ class RoleService {
 
     public function getRoles(Request $request) {
 
-        return $this->role->dynamicPaginate();
+        return $this->role->useFilters()->dynamicPaginate();
     }
     
     public function createRole($data) {

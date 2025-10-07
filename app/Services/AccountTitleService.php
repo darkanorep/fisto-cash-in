@@ -15,7 +15,7 @@ class AccountTitleService
     }
 
     public function getAccountTitles(Request $request) {
-        return $this->accountTitle->dynamicPaginate();
+        return $this->accountTitle->useFilters()->dynamicPaginate();
     }
 
     public function createAccountTitle($data) {

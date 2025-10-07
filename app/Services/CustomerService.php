@@ -13,7 +13,7 @@ class CustomerService
     }
 
     public function getAllCustomers() {
-        return $this->customer->dynamicPaginate();
+        return $this->customer->useFilters()->dynamicPaginate();
     }
 
     public function createCustomer($data) {
