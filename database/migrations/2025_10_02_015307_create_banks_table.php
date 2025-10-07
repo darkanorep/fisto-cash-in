@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('account_number')->unique();
             $table->string('branch')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
