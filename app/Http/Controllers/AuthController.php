@@ -2,17 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    protected $user;
-
-    public function __construct()
-    {
-        $this->user = auth()->user();
-    }
-
 
     public function login(Request $request)
     {
@@ -22,7 +16,7 @@ class AuthController extends Controller
             $user = auth()->user();
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            $cookie = cookie('sanctum', $token, 3600);
+            $cookie = cookie('sanctum', $token);
 
             return response()->json([
                 'message' => 'Login successful',
@@ -42,5 +36,18 @@ class AuthController extends Controller
         $cookie = cookie()->forget('sanctum');
 
         return response()->json(['message' => 'Logged out successfully'])->withCookie($cookie);
+    }
+
+    public function resetPassword($id) {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->password = bcrypt($user->username);
+        $user->save();
+
+        return response()->json(['message' => 'Password reset successfully']);
     }
 }

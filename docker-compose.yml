@@ -19,7 +19,7 @@ services:
     container_name: laravel_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "0.0.0.0:8080:80"  # Bind to all interfaces on port 8080
     volumes:
       - .:/var/www/html
       - ./docker/nginx/conf.d:/etc/nginx/conf.d

@@ -25,6 +25,7 @@ class BankRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:255', Rule::unique('banks')->ignore($this->bank)],
             'name' => ['required', 'string', 'max:255'],
+            'branch' => ['required', 'string', 'max:255'],
             'account_number' => ['required', 'max:255']
         ];
     }

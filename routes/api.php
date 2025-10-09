@@ -29,14 +29,18 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
-    Route::group(['middleware' => 'admin',  'prefix' => 'admin'], function() {
-        Route::resource('roles', RoleController::class);
-        Route::resource('permissions', PermissionController::class);
-        Route::resource('users', UserController::class);
-        Route::resource('account-titles', AccountTitleController::class);
-        Route::resource('charges', ChargesController::class);
-        Route::resource('customers', CustomerController::class);
-        Route::resource('banks', BankController::class);
+    Route::group(['middleware' => 'admin'], function() {
+        Route::post('reset-password/{id}', [AuthController::class, 'resetPassword']);
+
+        Route::group(['prefix' => 'admin'], function() {
+            Route::resource('roles', RoleController::class);
+            Route::resource('permissions', PermissionController::class);
+            Route::resource('users', UserController::class);
+            Route::resource('account-titles', AccountTitleController::class);
+            Route::resource('charges', ChargesController::class);
+            Route::resource('customers', CustomerController::class);
+            Route::resource('banks', BankController::class);
+        });
     });
     Route::post('logout', [AuthController::class, 'logout']);
 });

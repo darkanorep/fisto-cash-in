@@ -13,10 +13,12 @@ class RoleController extends Controller
     use ApiResponse;
     protected $roleService;
 
+    // Dependency Injection
     public function __construct(RoleService $roleService) {
         $this->roleService = $roleService;
     }
 
+    // List Roles with Pagination and Filtering
     public function index(Request $request) {
         $roles = $this->roleService->getRoles($request);
         
@@ -27,11 +29,13 @@ class RoleController extends Controller
         return $this->responseSuccess('Roles fetched successfully', $roles);
     }
 
+    // Create a new Role
     public function store(RoleRequest $request) {
         $data = $request->validated();
         return $this->responseSuccess('Role created successfully', $this->roleService->createRole($data), 201);
     }
 
+    // Get a specific Role by ID
     public function show($id) {
 
         if (!$this->roleService->getRoleById($id)) {
@@ -41,6 +45,7 @@ class RoleController extends Controller
         return $this->responseSuccess('Role fetched successfully', new RoleResource($this->roleService->getRoleById($id)));
     }
 
+    // Update an existing Role
     public function update(RoleRequest $request, $id) {
         $data = $request->validated();
         $role = $this->roleService->getRoleById($id);
@@ -51,6 +56,7 @@ class RoleController extends Controller
         return $this->responseSuccess('Role updated successfully', $this->roleService->updateRole($role, $data));
     }
 
+    // Soft Delete (Change Status) of a Role
     public function destroy($id) {
         $role = $this->roleService->changeStatus($id);
         if (!$role) {

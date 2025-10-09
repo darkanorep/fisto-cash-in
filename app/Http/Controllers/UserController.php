@@ -13,10 +13,12 @@ class UserController extends Controller
     use ApiResponse;
     private $userService;
 
+    // Dependency Injection
     public function __construct(UserService $userService) {
         $this->userService = $userService;
     }
 
+    // List Users with Pagination and Filtering
     public function index(Request $request) {
         $users = $this->userService->getUsers($request);
 
@@ -27,12 +29,14 @@ class UserController extends Controller
         return $this->responseSuccess('Users fetched successfully', $users);
     }
 
+    // Create a new User
     public function store(UserRequest $request) {
         $data = $request->validated();
 
         return $this->responseSuccess('User created successfully', $this->userService->createUser($data), 201);
     }
 
+    // Get a specific User by ID
     public function show($id) {
         if (!$this->userService->getUserById($id)) {
             return $this->responseNotFound('User not found');
@@ -41,6 +45,7 @@ class UserController extends Controller
         return $this->responseSuccess('User fetched successfully', new UserResource($this->userService->getUserById($id)));
     }
 
+    // Update an existing User
     public function update(UserRequest $request, $id) {
         $data = $request->validated();
         $user = $this->userService->getUserById($id);
@@ -51,6 +56,7 @@ class UserController extends Controller
         return $this->responseSuccess('User updated successfully', new UserResource($updatedUser));
     }
 
+    // Soft Delete (Change Status) of a User
     public function destroy($id) {
         $user = $this->userService->changeStatus($id);
         if (!$user) {

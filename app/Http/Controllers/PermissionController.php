@@ -13,10 +13,12 @@ class PermissionController extends Controller
     use ApiResponse;
     protected $permissionService;
 
+    // Dependency Injection
     public function __construct(PermissionService $permissionService) {
         $this->permissionService = $permissionService;
     }
 
+    // List Permissions with Pagination and Filtering
     public function index(Request $request) {
         $permissions = $this->permissionService->getPermissions($request);
 
@@ -27,11 +29,13 @@ class PermissionController extends Controller
         return $this->responseSuccess('Permissions fetched successfully', $permissions);
     }
 
+    // Create a new Permission
     public function store(PermissionRequest $request) {
         $data = $request->validated();
         return $this->responseSuccess('Permission created successfully', $this->permissionService->createPermission($data), 201);
     }
 
+    // Get a specific Permission by ID
     public function show($id) {
 
         if (!$this->permissionService->getPermissionById($id)) {
@@ -41,6 +45,7 @@ class PermissionController extends Controller
         return $this->responseSuccess('Permission fetched successfully', new PermissionResource($this->permissionService->getPermissionById($id)));
     }
 
+    // Update an existing Permission
     public function update(PermissionRequest $request, $id) {
 
         $data = $request->validated();
@@ -52,6 +57,7 @@ class PermissionController extends Controller
         return $this->responseSuccess('Permission updated successfully', $this->permissionService->updatePermission($permission, $data));
     }
 
+    // Soft Delete (Change Status) of a Permission
     public function destroy($id) {
         $permission = $this->permissionService->changeStatus($id);
         if (!$permission) {

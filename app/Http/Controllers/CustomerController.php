@@ -13,11 +13,13 @@ class CustomerController extends Controller
     protected $customerService;
     use ApiResponse;
 
+    // Dependency Injection
     public function __construct(CustomerService $customerService)
     {
         $this->customerService = $customerService;
     }
 
+    // List Customers with Pagination and Filtering
     public function index(Request $request) {
         $customers = $this->customerService->getAllCustomers($request);
 
@@ -28,11 +30,13 @@ class CustomerController extends Controller
         return $this->responseSuccess('Customers fetched successfully', $customers);
     }
 
+    // Create a new Customer
     public function store(CustomerRequest $request) {
         $data = $request->validated();
         return $this->responseSuccess('Customer created successfully', $this->customerService->createCustomer($data), 201);
     }
 
+    // Get a specific Customer by ID
     public function show($id) {
 
         if (!$this->customerService->getCustomerById($id)) {
@@ -42,6 +46,7 @@ class CustomerController extends Controller
         return $this->responseSuccess('Customer fetched successfully', new CustomerResource($this->customerService->getCustomerById($id)));
     }
 
+    // Update an existing Customer
     public function update(CustomerRequest $request, $id) {
 
         $data = $request->validated();
@@ -53,6 +58,7 @@ class CustomerController extends Controller
         return $this->responseSuccess('Customer updated successfully', $this->customerService->updateCustomer($customer, $data));
     }
 
+    // Soft Delete (Change Status) of a Customer
     public function destroy($id) {
         $customer = $this->customerService->changeStatus($id);
         if (!$customer) {
