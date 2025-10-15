@@ -7,6 +7,7 @@ use App\Http\Controllers\ChargesController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,5 +43,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             Route::resource('banks', BankController::class);
         });
     });
+
+    Route::resource('transactions', TransactionController::class);
     Route::post('logout', [AuthController::class, 'logout']);
 });
