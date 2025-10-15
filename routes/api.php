@@ -27,23 +27,46 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+//Authentication
 Route::post('login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
+
+    //Admin Routes
     Route::group(['middleware' => 'admin'], function() {
+        //Password Reset
         Route::post('reset-password/{id}', [AuthController::class, 'resetPassword']);
 
         Route::group(['prefix' => 'admin'], function() {
+
+            //Roles
             Route::resource('roles', RoleController::class);
+
+            //Permissions
             Route::resource('permissions', PermissionController::class);
+
+            //Users
             Route::resource('users', UserController::class);
+
+            //Account Titles
             Route::resource('account-titles', AccountTitleController::class);
+
+            //One Charging
+            Route::post('charges/sync', [ChargesController::class, 'sync']);
             Route::resource('charges', ChargesController::class);
+
+            //Customers
             Route::resource('customers', CustomerController::class);
+
+            //Banks
             Route::resource('banks', BankController::class);
         });
     });
 
+    //Transactions
     Route::resource('transactions', TransactionController::class);
+    Route::delete('transactions', [TransactionController::class, 'truncate']);
+
+    //Logout
     Route::post('logout', [AuthController::class, 'logout']);
 });

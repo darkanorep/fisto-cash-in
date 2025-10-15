@@ -67,4 +67,9 @@ class ChargesController extends Controller
 
         return $this->responseSuccess('Charge status changed successfully', $charge);
     }
+
+    //Sync from one charging
+    public function sync() {
+        return $this->responseSuccess('Charges synced successfully', $this->chargeService->sync());
+    }
 }
