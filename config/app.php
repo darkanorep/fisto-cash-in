@@ -123,6 +123,7 @@ return [
     */
 
     'key' => env('APP_KEY'),
+    'one_charging_key' => env('ONE_CHARGING_KEY', 'hello world!'),
 
     'cipher' => 'AES-256-CBC',
 

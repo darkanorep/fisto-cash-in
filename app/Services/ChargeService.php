@@ -44,9 +44,8 @@ class ChargeService
         return $charge;
     }
 
-    public function sync(): void 
-    {
-        $url = Http::withHeaders(['API_KEY' => 'hello world!'])->get('https://api-one.rdfmis.com/api/charging_api', ['pagination' => 'none']);
+    public function sync() {
+        $url = Http::withHeaders(['API_KEY' => config('app.one_charging_key')])->get('https://api-one.rdfmis.com/api/charging_api', ['pagination' => 'none']);
 
         $data = json_decode($url->body(), true);
 
