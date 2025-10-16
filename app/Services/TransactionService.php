@@ -6,6 +6,18 @@ use App\Models\Transaction;
 
 class TransactionService
 {
+
+    protected $transaction;
+    public function __construct(Transaction $transaction)
+    {
+        $this->transaction = $transaction;
+    }
+
+    public function getAllTransactions()
+    {
+        return $this->transaction->dynamicPaginate();
+    }
+
     public function createTransaction($data)
     {
         $transactionData = [
@@ -29,11 +41,16 @@ class TransactionService
             'remarks' => $data['remarks'] ?? null,
         ];
 
-        return Transaction::create($transactionData);
+        return $this->transaction->create($transactionData);
+    }
+
+    public function getTransactionById($id)
+    {
+        return $this->transaction->find($id);
     }
 
     public function truncateTransactions(): void
     {
-        Transaction::truncate();
+        $this->transaction->truncate();
     }
 }

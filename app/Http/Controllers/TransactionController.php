@@ -25,6 +25,19 @@ class TransactionController extends Controller
         return $this->responseSuccess('Transaction created successfully', $transaction, 201);
     }
 
+    public function show($id)
+    {
+        $transaction = $this->transactionService->getTransactionById($id);
+
+        if (!$transaction) {
+            return $this->responseError('Transaction not found', 404);
+        }
+
+        // $this->authorize('transaction', $transaction);
+
+        return $this->responseSuccess('Transaction fetched successfully', $transaction);
+    }
+
     public function truncate()
     {
         $this->transactionService->truncateTransactions();

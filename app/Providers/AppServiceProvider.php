@@ -29,8 +29,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('transaction', function (User $user, $transaction = null) {
-            return $user->roles->contains('name', Role::REQUESTOR) || 
-                ($transaction && $transaction->user_id === $user->id);
+            // REQUESTOR role can view all transactions
+            if ($user->roles->contains('name', Role::REQUESTOR) && $transaction && $transaction->user_id === $user->id) {
+                return true;
+            }
         });
     }
 }
