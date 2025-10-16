@@ -28,8 +28,9 @@ class AppServiceProvider extends ServiceProvider
             return $user->roles->contains('name', Role::ADMIN);
         });
 
-        Gate::define('transaction', function (User $user, $transaction) {
-            return $user->roles->contains('name', Role::REQUESTOR) && ($transaction && $transaction->user_id === $user->id);
+        Gate::define('transaction', function (User $user, $transaction = null) {
+            return $user->roles->contains('name', Role::REQUESTOR) || 
+                ($transaction && $transaction->user_id === $user->id);
         });
     }
 }
