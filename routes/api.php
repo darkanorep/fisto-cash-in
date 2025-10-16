@@ -63,9 +63,13 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         });
     });
 
-    //Transactions
-    Route::resource('transactions', TransactionController::class);
-    Route::delete('transactions', [TransactionController::class, 'truncate']);
+
+    Route::group(['middleware' => 'can:transaction'], function () {
+        //Transactions
+        Route::resource('transactions', TransactionController::class);
+        //Transactions - Truncate
+        Route::delete('transactions', [TransactionController::class, 'truncate']);
+    });
 
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
