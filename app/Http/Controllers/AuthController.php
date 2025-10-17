@@ -21,7 +21,8 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Login successful',
                 'access_token' => $token,
-                'user' => $user
+                'user' => $user,
+                'permissions' => $user->with('roles.permissions')->get()->pluck('roles')->flatten()->pluck('permissions')->flatten()->pluck('name')->unique()->values(),
             ])->withCookie($cookie);
         }
 

@@ -21,6 +21,10 @@ class Role extends Model
         return $this->belongsToMany(User::class, 'role_users', 'role_id', 'user_id');
     }
 
+    public function permissions() {
+        return $this->hasMany(Permission::class, 'role_id', 'id');
+    }
+
     const ADMIN = 'Admin';
     const REQUESTOR = 'Requestor';
 }

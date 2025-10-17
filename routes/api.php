@@ -30,14 +30,23 @@ use Illuminate\Support\Facades\Route;
 //Authentication
 Route::post('login', [AuthController::class, 'login']);
 
-Route::group(['middleware' => 'auth:sanctum'], function() {
+Route::group(
+    [
+        // 'middleware' => 'auth:sanctum'
+], function() {
 
     //Admin Routes
-    Route::group(['middleware' => 'admin'], function() {
+    Route::group([
+        // 'middleware' => 'admin'
+    ], function() {
         //Password Reset
         Route::post('reset-password/{id}', [AuthController::class, 'resetPassword']);
 
         Route::group(['prefix' => 'admin'], function() {
+            
+            //TRUNCATE
+            Route::delete('transactions/truncate', [TransactionController::class, 'truncate']);
+            Route::delete('users/truncate', [UserController::class, 'truncate']);
 
             //Roles
             Route::resource('roles', RoleController::class);
@@ -67,7 +76,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
     Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('can:my-transaction,transaction');
     Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->middleware('can:my-transaction,transaction');
-    Route::delete('transactions', [TransactionController::class, 'truncate']);
 
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);

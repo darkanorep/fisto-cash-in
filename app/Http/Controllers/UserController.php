@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -65,4 +66,10 @@ class UserController extends Controller
 
         return $this->responseSuccess('User status changed successfully', $user);
     }
-}
+
+    // Truncate Users and Roles
+    public function truncate() {
+
+        $this->userService->truncate();
+        return $this->responseSuccess('All users deleted successfully');
+    }}

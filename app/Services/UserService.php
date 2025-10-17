@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserService
 {
@@ -24,7 +25,11 @@ class UserService
     public function createUser($data)
     {
         $user = $this->user->create($data);
-        $user->roles()->sync($data['role_id']);
+        $roleIds = $data['role_id'];
+        if (!empty($roleIds)) {
+            $roleIds = is_array($roleIds) ? $roleIds : [$roleIds];
+            $user->roles()->sync($roleIds);
+        }
 
         return $user;
     }
@@ -53,5 +58,11 @@ class UserService
         }
 
         return $user;
+    }
+
+    public function truncate(): void
+    {
+        DB::table('role_users')->truncate();
+        DB::table('users')->truncate();
     }
 }
