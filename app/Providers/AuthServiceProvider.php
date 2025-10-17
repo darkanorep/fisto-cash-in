@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -20,6 +23,26 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('admin', function (User $user) {
+            return $user->roles->contains('name', Role::ADMIN);
+        });
+
+        Gate::define('create-transaction', function (User $user) {
+            return $user->roles->contains('name', Role::REQUESTOR);
+        });
+
+        Gate::define('my-transaction', function (User $user, $transaction = null) {
+            // Handle case where $transaction is a string/ID instead of model instance
+            if (is_string($transaction) || is_numeric($transaction)) {
+                $transaction = \App\Models\Transaction::find($transaction);
+            }
+            
+            // Check if transaction exists and belongs to user
+            if ($transaction && $transaction->user_id === $user->id) {
+                return true;
+            }
+            
+            return false;
+        });
     }
 }

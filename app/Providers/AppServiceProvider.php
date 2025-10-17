@@ -1,10 +1,6 @@
 <?php
 
 namespace App\Providers;
-
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,15 +20,5 @@ class AppServiceProvider extends ServiceProvider
     {
         // $this->registerPolicies();
 
-        Gate::define('admin', function (User $user) {
-            return $user->roles->contains('name', Role::ADMIN);
-        });
-
-        Gate::define('transaction', function (User $user, $transaction = null) {
-            // REQUESTOR role can view all transactions
-            if ($user->roles->contains('name', Role::REQUESTOR) && $transaction && $transaction->user_id === $user->id) {
-                return true;
-            }
-        });
     }
 }
