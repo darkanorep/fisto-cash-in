@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
@@ -40,6 +41,12 @@ class TransactionService
             'charge_name' => $data['charge']['name'],
             'remarks' => $data['remarks'] ?? null,
         ];
+
+        activity()
+        ->on(auth()->user())
+        ->withProperties($transactionData)
+        ->event('created')
+        ->log('Transaction Created');
 
         return $this->transaction->create($transactionData);
     }
@@ -79,5 +86,6 @@ class TransactionService
     public function truncateTransactions(): void
     {
         $this->transaction->truncate();
+        DB::table('activity_log')->truncate();
     }
 }

@@ -32,12 +32,12 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::group(
     [
-        // 'middleware' => 'auth:sanctum'
+        'middleware' => 'auth:sanctum'
 ], function() {
 
     //Admin Routes
     Route::group([
-        // 'middleware' => 'admin'
+        'middleware' => 'admin'
     ], function() {
         //Password Reset
         Route::post('reset-password/{id}', [AuthController::class, 'resetPassword']);
