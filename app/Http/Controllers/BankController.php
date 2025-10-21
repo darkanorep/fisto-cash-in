@@ -34,7 +34,7 @@ class BankController extends Controller
     public function store(BankRequest $request) {
         $data = $request->validated();
 
-        return $this->responseSuccess('Bank created successfully', $this->bankService->createBank($data), 201);
+        return $this->responseCreated('Bank created successfully', new BankResource($this->bankService->createBank($data)));
     }
 
     // Get a specific Bank by ID

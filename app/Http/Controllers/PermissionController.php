@@ -32,7 +32,7 @@ class PermissionController extends Controller
     // Create a new Permission
     public function store(PermissionRequest $request) {
         $data = $request->validated();
-        return $this->responseSuccess('Permission created successfully', $this->permissionService->createPermission($data), 201);
+        return $this->responseCreated('Permission created successfully', new PermissionResource($this->permissionService->createPermission($data)));
     }
 
     // Get a specific Permission by ID

@@ -33,7 +33,7 @@ class AccountTitleController extends Controller
     public function store(AccountTitleRequest $request) {
         $data = $request->validated();
 
-        return $this->responseSuccess('Account Title created successfully', $this->accountTitleService->createAccountTitle($data), 201);
+        return $this->responseCreated('Account Title created successfully', new AccountTitleResource($this->accountTitleService->createAccountTitle($data)));
     }
 
     // Get a specific Account Title by ID

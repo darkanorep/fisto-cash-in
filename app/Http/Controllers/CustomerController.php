@@ -33,7 +33,7 @@ class CustomerController extends Controller
     // Create a new Customer
     public function store(CustomerRequest $request) {
         $data = $request->validated();
-        return $this->responseSuccess('Customer created successfully', $this->customerService->createCustomer($data), 201);
+        return $this->responseCreated('Customer created successfully', new CustomerResource($this->customerService->createCustomer($data)));
     }
 
     // Get a specific Customer by ID

@@ -34,7 +34,7 @@ class UserController extends Controller
     public function store(UserRequest $request) {
         $data = $request->validated();
 
-        return $this->responseSuccess('User created successfully', $this->userService->createUser($data), 201);
+        return $this->responseCreated('User created successfully', new UserResource($this->userService->createUser($data)));
     }
 
     // Get a specific User by ID

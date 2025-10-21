@@ -23,7 +23,7 @@ class TransactionController extends Controller
         $data = $request->validated();
         $transaction = $this->transactionService->createTransaction($data);
 
-        return $this->responseSuccess('Transaction created successfully', $transaction, 201);
+        return $this->responseCreated('Transaction created successfully', new TransactionResource($transaction));
     }
 
     public function show($id)

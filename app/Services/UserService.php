@@ -36,14 +36,18 @@ class UserService
 
     public function getUserById($id) 
     {
-        return $this->user->with('roles')->find($id);
+        return $this->user->with(['roles', 'charge'])->find($id);
     }
 
     public function updateUser($user, $data)
     {
         $user->update($data);
-        $user->roles()->detach();
-        $user->roles()->sync($data['role_id']);
+        $roleIds = $data['role_id'];
+        if (!empty($roleIds)) {
+            $roleIds = is_array($roleIds) ? $roleIds : [$roleIds];
+            $user->roles()->sync($roleIds);
+        }
+
         return $user;
     }
 

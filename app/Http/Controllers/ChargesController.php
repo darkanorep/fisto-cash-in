@@ -34,7 +34,7 @@ class ChargesController extends Controller
     public function store(ChargeRequest $request) {
         $data = $request->validated();
 
-        return $this->responseSuccess('Charge created successfully', $this->chargeService->createCharge($data), 201);
+        return $this->responseCreated('Charge created successfully', new ChargeResource($this->chargeService->createCharge($data)));
     }
 
     // Get a specific Charge by ID

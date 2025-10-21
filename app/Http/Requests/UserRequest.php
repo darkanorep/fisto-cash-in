@@ -42,6 +42,8 @@ class UserRequest extends FormRequest
             ],
             'password' => ['required', 'string', 'min:6', 'max:255'],
             'role_id' => ['required', Rule::exists('roles', 'id')],
+            'charge_id' => ['required', Rule::exists('charges', 'id')],
+            'charge_name' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -50,6 +52,8 @@ class UserRequest extends FormRequest
         return [
             'employee_id' => 'employee ID',
             'role_id' => 'role',
+            'charge_id' => 'one charging',
+            'charge_name' => 'one charging name',
         ];
     }
 }

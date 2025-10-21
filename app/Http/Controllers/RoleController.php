@@ -32,7 +32,7 @@ class RoleController extends Controller
     // Create a new Role
     public function store(RoleRequest $request) {
         $data = $request->validated();
-        return $this->responseSuccess('Role created successfully', $this->roleService->createRole($data), 201);
+        return $this->responseCreated('Role created successfully', new RoleResource($this->roleService->createRole($data)));
     }
 
     // Get a specific Role by ID
