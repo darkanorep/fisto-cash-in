@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use App\Models\Transaction;
+use App\Traits\ActivityLogTrait;
 use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
-
+    use ActivityLogTrait;
     protected $transaction;
     public function __construct(Transaction $transaction)
     {
@@ -42,23 +43,33 @@ class TransactionService
             'remarks' => $data['remarks'] ?? null,
         ];
 
-        activity()
-        ->on(auth()->user())
-        ->withProperties($transactionData)
-        ->event('created')
-        ->log('Transaction Created');
+        $transaction = $this->transaction->create($transactionData);
 
-        return $this->transaction->create($transactionData);
+        if (!empty($data['slip'])) {
+            foreach ($data['slip'] as $slip) {
+                $transaction->slips()->create([
+                    'type' => $slip['type'],
+                    'number' => $slip['number'],
+                    'amount' => $slip['amount'],
+                ]);
+            }
+
+            $this->logActivityOn($transaction, 'Slips Added for Transaction', ['slips' => $data['slip']], 'created');
+        }
+
+        $this->logActivityOn($transaction, 'Transaction Created', $transactionData, 'created');
+
+        return $transaction;
     }
 
     public function getTransactionById($id)
     {
-        return $this->transaction->find($id);
+        return $this->transaction->with(['slips'])->find($id);
     }
 
     public function updateTransaction($transaction, $data) 
     {
-        $data = [
+        $transactionData = [
             'user_id' => auth()->id(),
             'type' => $data['type'],
             'category' => $data['category'] ?? null,
@@ -79,7 +90,24 @@ class TransactionService
             'remarks' => $data['remarks'] ?? null,
         ];
 
-        $transaction->update($data);
+        $transaction->update($transactionData);
+
+        if (!empty($data['slip'])) {
+            $transaction->slips()->delete();
+
+            foreach ($data['slip'] as $slip) {
+                $transaction->slips()->create([
+                    'type' => $slip['type'],
+                    'number' => $slip['number'],
+                    'amount' => $slip['amount'],
+                ]);
+            }
+
+            $this->logActivityOn($transaction, 'Slips Updated for Transaction', ['slips' => $data['slip']], 'updated');
+        }
+
+        $this->logActivityOn($transaction, 'Transaction Updated', $transactionData, 'updated');
+
         return $transaction;
     }
 
@@ -87,5 +115,6 @@ class TransactionService
     {
         $this->transaction->truncate();
         DB::table('activity_log')->truncate();
+        DB::table('slips')->truncate();
     }
 }

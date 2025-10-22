@@ -7,6 +7,7 @@ use App\Http\Controllers\ChargesController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SlipController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -76,6 +77,9 @@ Route::group(
     Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
     Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('can:my-transaction,transaction');
     Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->middleware('can:my-transaction,transaction');
+
+    //Slip
+    Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
 
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);

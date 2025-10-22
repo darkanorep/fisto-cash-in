@@ -69,7 +69,8 @@ class TransactionResource extends JsonResource
                 'id' => $this->user->id,
                 'employee_number' => $this->user->employee_number,
                 'name' => $this->user->getFullNameAttribute(),
-            ]
+            ],
+            'slips' => SlipResource::collection($this->whenLoaded('slips')),
         ];
     }
 }

@@ -38,6 +38,9 @@ class TransactionRequest extends FormRequest
             'remaining_balance' => 'numeric|nullable',
             'charge.id' => 'integer|nullable',
             'charge.name' => 'string|nullable',
+            'slip.*.type' => 'string|nullable',
+            'slip.*.number' => 'string|nullable',
+            'slip.*.amount' => 'numeric|nullable',
             'remarks' => 'string|nullable',
         ];
     }

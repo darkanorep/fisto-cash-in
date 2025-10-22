@@ -27,4 +27,8 @@ class Transaction extends Model
     public function charge() {
         return $this->belongsTo(Charges::class, 'charge_id');
     }
+
+    public function slips() {
+        return $this->hasMany(Slip::class, 'transaction_id');
+    }
 }
