@@ -14,20 +14,33 @@ class AuthController extends Controller
 
         if (auth()->attempt($credentials)) {
             $user = auth()->user();
+            $user->load([
+                'roles.permissions',
+                'charge',
+            ]);
             $token = $user->createToken('auth_token')->plainTextToken;
+
+            $permissions = $user->roles
+                ->flatMap->permissions  
+                ->pluck('name')         
+                ->unique()              
+                ->values();            
+
+            $userData = $user->toArray();
+            unset($userData['roles']);
+            $userData['permissions'] = $permissions;
+            $userData['charge'] = $user->charge;
 
             $cookie = cookie('sanctum', $token);
 
             return response()->json([
                 'message' => 'Login successful',
                 'access_token' => $token,
-                'user' => $user,
-                'permissions' => $user->with('roles.permissions')->get()->pluck('roles')->flatten()->pluck('permissions')->flatten()->pluck('name')->unique()->values(),
+                'user' => $userData,
             ])->withCookie($cookie);
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
-
     }
 
     public function logout()
