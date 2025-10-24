@@ -18,8 +18,21 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
+    public function index(Request $request) {
+
+        $transactions = $this->transactionService->getAllTransactions();
+        $transactions->getCollection()->transform(function ($transaction) {
+            return new TransactionResource($transaction);
+        });
+
+        return $this->responseSuccess('Transactions fetched successfully', $transactions);
+    }
+
     public function store(TransactionRequest $request)
     {
+        //Gate authorization
+        $this->authorize('create-transaction');
+        
         $data = $request->validated();
         $transaction = $this->transactionService->createTransaction($data);
 
@@ -28,6 +41,8 @@ class TransactionController extends Controller
 
     public function show($id)
     {
+        //Gate authorization
+        $this->authorize('my-transaction');
         $transaction = $this->transactionService->getTransactionById($id);
 
         if (!$transaction) {
@@ -39,6 +54,9 @@ class TransactionController extends Controller
 
     public function update(TransactionRequest $request, $id)
     {
+        //Gate authorization
+        $this->authorize('my-transaction');
+
         $transaction = $this->transactionService->getTransactionById($id);
 
         if (!$transaction) {

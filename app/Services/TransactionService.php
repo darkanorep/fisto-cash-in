@@ -17,7 +17,9 @@ class TransactionService
 
     public function getAllTransactions()
     {
-        return $this->transaction->dynamicPaginate();
+        return $this->transaction
+        ->where('user_id', auth()->id())
+        ->dynamicPaginate();
     }
 
     public function createTransaction($data)
