@@ -7,7 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserController extends Controller
 {
@@ -23,11 +23,15 @@ class UserController extends Controller
     public function index(Request $request) {
         $users = $this->userService->getUsers($request);
 
-        $users->getCollection()->transform(function ($item) {
-            return new UserResource($item);
-        });
+        $users instanceof LengthAwarePaginator
+            ? $users->setCollection($users->getCollection()->transform(function ($item) {
+                    return new UserResource($item);
+                })) 
+            : $users = UserResource::collection($users);
 
-        return $this->responseSuccess('Users fetched successfully', $users);
+        return $users->isEmpty()
+            ? $this->responseNotFound('No users found.')
+            : $this->responseSuccess('Users fetched successfully', $users);
     }
 
     // Create a new User

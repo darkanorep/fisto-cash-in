@@ -7,6 +7,7 @@ use App\Http\Resources\CustomerResource;
 use App\Services\CustomerService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
 {
@@ -23,11 +24,15 @@ class CustomerController extends Controller
     public function index(Request $request) {
         $customers = $this->customerService->getAllCustomers($request);
 
-        $customers->getCollection()->transform(function ($customers) {
-            return new CustomerResource($customers);
-        });
+        $customers instanceof LengthAwarePaginator
+            ? $customers->setCollection($customers->getCollection()->transform(function ($item) {
+                    return new CustomerResource($item);
+                })) 
+            : $customers = CustomerResource::collection($customers);
 
-        return $this->responseSuccess('Customers fetched successfully', $customers);
+        return $customers->isEmpty()
+            ? $this->responseNotFound('No Customers found.')
+            : $this->responseSuccess('Customers fetched successfully', $customers);
     }
 
     // Create a new Customer

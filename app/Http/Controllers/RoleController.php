@@ -21,12 +21,16 @@ class RoleController extends Controller
     // List Roles with Pagination and Filtering
     public function index(Request $request) {
         $roles = $this->roleService->getRoles($request);
-        
-        $roles->getCollection()->transform(function ($role) {
-            return new RoleResource($role);
-        });
-        
-        return $this->responseSuccess('Roles fetched successfully', $roles);
+
+        return $roles instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $roles->setCollection($roles->getCollection()->transform(function ($item) {
+                    return new RoleResource($item);
+                })) 
+            : $roles = RoleResource::collection($roles);
+
+        return $roles->isEmpty()
+            ? $this->responseNotFound('No Roles found.')
+            : $this->responseSuccess('Roles fetched successfully', $roles);
     }
 
     // Create a new Role

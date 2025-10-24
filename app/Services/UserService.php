@@ -9,15 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class UserService
 {
-    use ApiResponse;
-
     protected $user;
 
     public function __construct(User $user) {
         $this->user = $user;
     }
 
-    public function getUsers(Request $request)
+    public function getUsers()
     {
         return $this->user->with('roles')->useFilters()->dynamicPaginate();
     }

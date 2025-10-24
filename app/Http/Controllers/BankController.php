@@ -7,6 +7,7 @@ use App\Http\Resources\BankResource;
 use App\Services\BankService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class BankController extends Controller
 {
@@ -23,11 +24,15 @@ class BankController extends Controller
     public function index(Request $request) {
         $banks = $this->bankService->getBanks($request);
 
-        $banks->getCollection()->transform(function ($item) {
-            return new BankResource($item);
-        });
+        return $banks instanceof LengthAwarePaginator
+            ? $banks->setCollection($banks->getCollection()->transform(function ($item) {
+                    return new BankResource($item);
+                })) 
+            : $banks = BankResource::collection($banks);
 
-        return $this->responseSuccess('Banks fetched successfully', $banks);
+        return $banks->isEmpty()
+            ? $this->responseNotFound('No Banks found.')
+            : $this->responseSuccess('Banks fetched successfully', $banks);
     }
 
     // Create a new Bank

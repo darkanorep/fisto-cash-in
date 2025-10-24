@@ -7,6 +7,7 @@ use App\Http\Resources\AccountTitleResource;
 use App\Services\AccountTitleService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AccountTitleController extends Controller
 {
@@ -22,11 +23,15 @@ class AccountTitleController extends Controller
     public function index(Request $request) {
         $accountTitles = $this->accountTitleService->getAccountTitles($request);
 
-        $accountTitles->getCollection()->transform(function ($item) {
-            return new AccountTitleResource($item);
-        });
+        $accountTitles instanceof LengthAwarePaginator
+            ? $accountTitles->setCollection($accountTitles->getCollection()->transform(function ($item) {
+                    return new AccountTitleResource($item);
+                })) 
+            : $accountTitles = AccountTitleResource::collection($accountTitles);
 
-        return $this->responseSuccess('Account Titles fetched successfully', $accountTitles);
+        return $accountTitles->isEmpty()
+            ? $this->responseNotFound('No Account Titles found.')
+            : $this->responseSuccess('Account Titles fetched successfully', $accountTitles);
     }
 
     // Create a new Account Title

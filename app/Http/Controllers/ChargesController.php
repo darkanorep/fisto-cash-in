@@ -7,6 +7,7 @@ use App\Http\Resources\ChargeResource;
 use App\Services\ChargeService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ChargesController extends Controller
 {
@@ -23,11 +24,15 @@ class ChargesController extends Controller
     public function index(Request $request) {
         $charges = $this->chargeService->getAllCharges($request);
 
-        $charges->getCollection()->transform(function ($item) {
-            return new ChargeResource($item);
-        });
+        return $charges instanceof LengthAwarePaginator
+            ? $charges->setCollection($charges->getCollection()->transform(function ($item) {
+                    return new ChargeResource($item);
+                })) 
+            : $charges = ChargeResource::collection($charges);
 
-        return $this->responseSuccess('Charges fetched successfully', $charges);
+        return $charges->isEmpty()
+            ? $this->responseNotFound('No Charges found.')
+            : $this->responseSuccess('Charges fetched successfully', $charges);
     }
 
     // Create a new Charge
