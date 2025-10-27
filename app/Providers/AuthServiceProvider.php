@@ -31,10 +31,15 @@ class AuthServiceProvider extends ServiceProvider
             return $user->roles->contains('name', Role::REQUESTOR);
         });
 
-        Gate::define('my-transaction', function (User $user, $transaction = null) {
+        Gate::define('transaction', function (User $user, $transaction = null) {
             // Handle case where $transaction is a string/ID instead of model instance
             if (is_string($transaction) || is_numeric($transaction)) {
                 $transaction = \App\Models\Transaction::find($transaction);
+            }
+
+            // TAGGER role can access all transactions
+            if ($user->roles->contains('name', Role::TAGGER)) {
+                return true;
             }
             
             // Check if transaction exists and belongs to user
@@ -43,6 +48,10 @@ class AuthServiceProvider extends ServiceProvider
             }
             
             return false;
+        });
+
+        Gate::define('tag-transaction', function (User $user) {
+            return $user->roles->contains('name', Role::TAGGER);
         });
     }
 }

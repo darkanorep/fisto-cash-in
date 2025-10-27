@@ -27,4 +27,5 @@ class Role extends Model
 
     const ADMIN = 'Admin';
     const REQUESTOR = 'Requestor';
+    const TAGGER = 'Tagger';
 }
