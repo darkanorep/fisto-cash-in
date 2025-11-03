@@ -13,7 +13,7 @@ class Permission extends Model
     use HasFactory, SoftDeletes, Filterable;
 
     protected $fillable = ["name", "role_id"];
-    protected $hidden = ["created_at", "role_id"];
+    protected $hidden = ["role_id"];
 
     protected string $default_filters = PermissionFilter::class;
 

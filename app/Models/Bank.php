@@ -20,8 +20,4 @@ class Bank extends Model
         'account_number',
         'branch',
     ];
-
-    protected $hidden = [
-        'created_at',
-    ];
 }

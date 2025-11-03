@@ -46,6 +46,9 @@ class UserResource extends JsonResource
                     'location_name' => $this->charge->location_name,
                 ];
             }),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
         ];
     }
 }

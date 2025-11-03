@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SlipController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -80,6 +81,8 @@ Route::group(
     // Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('can:my-transaction,transaction');
     // Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->middleware('can:my-transaction,transaction');
 
+    //Tagging
+    Route::get('tag-transactions', [TagController::class, 'index']);
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
 

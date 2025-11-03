@@ -23,7 +23,10 @@ class AccountTitleResource extends JsonResource
             'sub_group' => $this->sub_group,
             'financial_statement' => $this->financial_statement,
             'normal_balance' => $this->normal_balance,
-            'unit' => $this->unit
+            'unit' => $this->unit,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
         ];
     }
 }

@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use App\Filters\TransactionFilter;
+use Essa\APIToolKit\Filters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Filterable;
 
     protected $guarded = [];
+    protected string $default_filters = TransactionFilter::class;
+
 
     public function customer() {
         return $this->belongsTo(Customer::class, 'customer_id');
@@ -30,5 +34,12 @@ class Transaction extends Model
 
     public function slips() {
         return $this->hasMany(Slip::class, 'transaction_id');
+    }
+
+    public function scopeStatus($query, $status)
+    {
+        return $query->when($status, function ($q) use ($status) {
+            $q->where('status', $status);
+        });
     }
 }

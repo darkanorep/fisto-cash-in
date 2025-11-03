@@ -24,6 +24,4 @@ class AccountTitle extends Model
         'normal_balance',
         'unit',
     ];
-
-    protected $dates = ['created_at'];
 }

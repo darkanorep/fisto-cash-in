@@ -15,5 +15,4 @@ class Customer extends Model
     protected string $default_filters = CustomerFilter::class;
 
     protected $fillable = ['code', 'name'];
-    protected $hidden = ['created_at'];
 }

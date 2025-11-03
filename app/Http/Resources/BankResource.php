@@ -20,6 +20,9 @@ class BankResource extends JsonResource
             'name' => $this->name,
             'account_number' => $this->account_number,
             'branch' => $this->branch,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
         ];
     }
 }
