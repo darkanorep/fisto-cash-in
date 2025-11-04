@@ -83,6 +83,7 @@ Route::group(
 
     //Tagging
     Route::get('tag-transactions', [TagController::class, 'index']);
+    Route::post('tag-transaction', [TagController::class, 'action']);
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
 

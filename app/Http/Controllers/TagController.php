@@ -29,4 +29,10 @@ class TagController extends Controller
 
         return $this->responseSuccess('Transactions fetched successfully', $transactions);
     }
+
+    public function action(Request $request) {
+        $this->authorize('tag-transaction');
+        return $transaction = $this->tagService->action($request);
+        return $this->responseSuccess('Transaction updated successfully', $transaction);
+    }
 }
