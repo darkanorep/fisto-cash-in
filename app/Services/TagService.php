@@ -53,6 +53,7 @@ class TagService
         $bankDeposit = $request->input('bank_deposit');
         $depositRemarks = $request->input('deposit_remarks');
         $series = $request->input('series');
+        $reason = $request->input('reason');
         $transaction = $this->transaction->findOrFail($transactionId);
 
         switch($status) {
@@ -71,6 +72,17 @@ class TagService
                     $transaction->tag_number = $this->generateTagNumber($series);
                 }
                 break;
+
+            case 'return':
+                $transaction->status = $status;
+                $transaction->is_tagged = null;
+                $transaction->reason = $reason;
+                break;
+
+            case 'void':
+                $transaction->status = $status;
+                $transaction->reason = $reason;
+                break;
         }
 
         $transaction->save();
@@ -80,6 +92,7 @@ class TagService
             'bank_deposit' => $bankDeposit,
             'deposit_remarks' => $depositRemarks,
             'tag_number' => $transaction->tag_number,
+            'reason' => $reason,
         ], $status);
 
         return $transaction;

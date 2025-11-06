@@ -20,7 +20,7 @@ class TransactionController extends Controller
 
     public function index(Request $request) {
 
-        $transactions = $this->transactionService->getAllTransactions();
+        $transactions = $this->transactionService->getAllTransactions($request);
         $transactions->getCollection()->transform(function ($transaction) {
             return new TransactionResource($transaction);
         });

@@ -15,11 +15,18 @@ class TransactionService
         $this->transaction = $transaction;
     }
 
-    public function getAllTransactions()
+    public function getAllTransactions($filters = [])
     {
-        return $this->transaction
-        ->where('user_id', auth()->id())
-        ->dynamicPaginate();
+        $query = $this->transaction->where('user_id', auth()->id());
+
+        // Apply filters if any
+        if (isset($filters['status'])) {
+            $query->status($filters['status']); // This calls your scope
+        } else {
+            $query->whereNotIn('status', ['return', 'void']);
+        }
+
+        return $query->dynamicPaginate();
     }
 
     public function createTransaction($data)
