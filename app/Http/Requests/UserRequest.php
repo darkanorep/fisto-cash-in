@@ -40,7 +40,7 @@ class UserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users')->ignore($this->user)
             ],
-            'password' => ['required', 'string', 'min:6', 'max:255'],
+            'password' => ['nullable', 'string', 'min:6', 'max:255'],
             'role_id' => ['required', Rule::exists('roles', 'id')],
             'charge_id' => ['required', Rule::exists('charges', 'id')],
             'charge_name' => ['required', 'string', 'max:255'],
