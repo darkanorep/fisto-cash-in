@@ -82,6 +82,9 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
 
+
+    //Change Password
+    Route::post('change-password', [AuthController::class, 'changePassword']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
 });

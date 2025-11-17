@@ -52,7 +52,19 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged out successfully'])->withCookie($cookie);
     }
 
+    public function changePassword(Request $request) {
+        $request->validate([
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+        $user = auth()->user();
+        $user->password = bcrypt($request->input('new_password'));
+        $user->save();
+
+        return response()->json(['message' => 'Password changed successfully']);
+    }
+
     public function resetPassword($id) {
+        $this->authorize('admin');
         $user = User::find($id);
 
         if (!$user) {
