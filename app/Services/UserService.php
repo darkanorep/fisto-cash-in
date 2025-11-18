@@ -39,13 +39,20 @@ class UserService
 
     public function updateUser($user, $data)
     {
+        $roleIds = $data['role_id'] ?? [];
+        unset($data['role_id']);
+        
+        if (array_key_exists('password', $data) && (is_null($data['password']) || $data['password'] === '')) {
+            unset($data['password']);
+        }
+        
         $user->update($data);
-        $roleIds = $data['role_id'];
+        
         if (!empty($roleIds)) {
-            $roleIds = is_array($roleIds) ? $roleIds : [$roleIds];
+            $roleIds = is_array($roleIds) ? $roleIds : explode(',', $roleIds);
             $user->roles()->sync($roleIds);
         }
-
+        
         return $user;
     }
 
