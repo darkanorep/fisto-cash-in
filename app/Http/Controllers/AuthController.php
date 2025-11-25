@@ -15,21 +15,29 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
             $user = auth()->user();
             $user->load([
-                'roles.permissions',
+                'roles',
                 'charge',
             ]);
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            // $permissions = $user->roles
+            //     ->flatMap->permissions  
+            //     ->pluck('name')         
+            //     ->unique()              
+            //     ->values(); 
+            
             $permissions = $user->roles
-                ->flatMap->permissions  
-                ->pluck('name')         
+                ->select('permissions')         
+                ->flatten()
                 ->unique()              
-                ->values();            
+                ->values();             
 
             $userData = $user->toArray();
+
             unset($userData['roles']);
             $userData['permissions'] = $permissions;
             $userData['charge'] = $user->charge;
+
 
             $cookie = cookie('sanctum', $token);
 
@@ -41,7 +49,7 @@ class AuthController extends Controller
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
-    }
+    }                                                                                                                                                                                                                                                                                                                                                                          
 
     public function logout()
     {

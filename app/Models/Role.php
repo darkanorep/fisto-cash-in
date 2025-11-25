@@ -12,9 +12,13 @@ class Role extends Model
 {
     use HasFactory, SoftDeletes, Filterable;
 
-    protected $fillable = ["name"];
+    protected $fillable = ["name", "permissions"];
     protected $hidden = ["created_at"];
+    protected $casts = [
+        'permissions' => 'array',
+    ];
     protected string $default_filters = RoleFilter::class;
+
 
     public function users()
     {
