@@ -53,5 +53,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('tag-transaction', function (User $user) {
             return $user->roles->contains('name', Role::TAGGER);
         });
+
+        Gate::define('clear-transaction', function (User $user) {
+            return $user->roles->contains('name', Role::CLEARER);
+        });
     }
 }

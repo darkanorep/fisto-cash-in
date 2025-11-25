@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountTitleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\ChargesController;
+use App\Http\Controllers\ClearController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
@@ -79,6 +80,10 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Tagging
     Route::get('tag-transactions', [TagController::class, 'index']);
     Route::post('tag-transaction', [TagController::class, 'action']);
+
+    //Clearing
+    Route::get('clear-transactions', [ClearController::class, 'index']);
+    Route::post('clear-transaction', [ClearController::class, 'action']);
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
 

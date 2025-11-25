@@ -42,7 +42,7 @@ class TransactionController extends Controller
     public function show($id)
     {
         //Gate authorization
-        $this->authorize('transaction');
+        $this->authorize('transaction'); 
         $transaction = $this->transactionService->getTransactionById($id);
 
         if (!$transaction) {

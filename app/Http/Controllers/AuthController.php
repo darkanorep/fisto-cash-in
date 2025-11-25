@@ -55,6 +55,7 @@ class AuthController extends Controller
     public function changePassword(Request $request) {
         $request->validate([
             'new_password' => 'required|string|min:6|confirmed',
+            'new_password_confirmation' => 'required|string|min:6',
         ]);
         $user = auth()->user();
         $user->password = bcrypt($request->input('new_password'));
