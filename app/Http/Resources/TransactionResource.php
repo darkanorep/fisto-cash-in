@@ -30,7 +30,7 @@ class TransactionResource extends JsonResource
                 'id' => $this->bank->id,
                 'name' => $this->bank->name,
             ],
-            'check' => [
+            'cheque' => [
                 'no' => $this->check_no,
                 'date' => $this->check_date,
             ],
