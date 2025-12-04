@@ -34,6 +34,8 @@ class TransactionRequest extends FormRequest
             'bank.name' => 'string|nullable|required_if:mode_of_payment,check',
             'check.no' => 'string|nullable|required_if:mode_of_payment,check',
             'check.date' => 'date|nullable',
+            'cheque.no' => 'string|nullable|required_if:mode_of_payment,cheque',
+            'cheque.date' => 'date|nullable',
             'amount' => 'numeric|required',
             'remaining_balance' => 'numeric|nullable',
             'charge.id' => 'integer|nullable',
@@ -41,6 +43,7 @@ class TransactionRequest extends FormRequest
             'slip.*.type' => 'string|nullable',
             'slip.*.number' => 'string|nullable',
             'slip.*.amount' => 'numeric|nullable',
+            'slip.*.actual_amount_paid' => 'numeric|nullable',
             'remarks' => 'string|nullable',
         ];
     }

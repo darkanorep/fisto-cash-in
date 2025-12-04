@@ -14,6 +14,7 @@ class Slip extends Model
         'type',
         'number',
         'amount',
+        'actual_amount_paid',
     ];
 
     public function transactions()

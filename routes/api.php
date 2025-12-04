@@ -38,7 +38,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Admin Routes
     Route::group(['middleware' => 'admin'], function() {
         //Password Reset
-        Route::post('reset-password/{id}', [AuthController::class, 'resetPassword']);
+        Route::patch('reset-password/{id}', [AuthController::class, 'resetPassword']);
 
         Route::group(['prefix' => 'admin'], function() {
             
@@ -71,7 +71,9 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     });
 
     //Transactions
+    Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);
+
     // Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
     // Route::get('transactions', [TransactionController::class, 'index'])->middleware('can:my-transaction');
     // Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('can:my-transaction,transaction');
@@ -84,6 +86,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Clearing
     Route::get('clear-transactions', [ClearController::class, 'index']);
     Route::post('clear-transaction', [ClearController::class, 'action']);
+
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
 

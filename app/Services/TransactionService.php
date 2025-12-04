@@ -17,7 +17,7 @@ class TransactionService
 
     public function getAllTransactions($filters = [])
     {
-        $query = $this->transaction->where('user_id', auth()->id());
+        $query = $this->transaction->with(['bank'])->where('user_id', auth()->id());
 
         // Apply filters if any
         if (isset($filters['status'])) {
@@ -43,8 +43,8 @@ class TransactionService
             'mode_of_payment' => $data['mode_of_payment'],
             'bank_id' => $data['bank']['id'] ?? null,
             'bank_name' => $data['bank']['name'] ?? null,
-            'check_no' => $data['cheque']['no'] ?? null,
-            'check_date' => $data['cheque']['date'] ?? null,
+            'check_no' => $data['cheque']['no'] ?? $data['check']['no'] ?? null,
+            'check_date' => $data['cheque']['date'] ?? $data['check']['date'] ?? null,
             'amount' => $data['amount'],
             'remaining_balance' => $data['remaining_balance'] ?? 0,
             'charge_id' => $data['charge']['id'],
@@ -60,6 +60,7 @@ class TransactionService
                     'type' => $slip['type'],
                     'number' => $slip['number'],
                     'amount' => $slip['amount'],
+                    'actual_amount_paid' => $slip['actual_amount_paid'],
                 ]);
             }
 
@@ -73,7 +74,10 @@ class TransactionService
 
     public function getTransactionById($id)
     {
-        return $this->transaction->with(['slips'])->find($id);
+        return $this->transaction->with([
+            'slips',
+            'bank',
+            ])->find($id);
     }
 
     public function updateTransaction($transaction, $data) 
@@ -109,6 +113,7 @@ class TransactionService
                     'type' => $slip['type'],
                     'number' => $slip['number'],
                     'amount' => $slip['amount'],
+                    'actual_amount_paid' => $slip['actual_amount_paid'],
                 ]);
             }
 
@@ -116,6 +121,20 @@ class TransactionService
         }
 
         $this->logActivityOn($transaction, 'Transaction Updated', $transactionData, 'updated');
+
+        return $transaction;
+    }
+
+    public function voidTransaction($transaction, $data)
+    {
+        $transactionData = [
+            'status' => 'void',
+            'reason' => $data['reason'] ?? null,
+        ];
+
+        $transaction->update($transactionData);
+
+        $this->logActivityOn($transaction, 'Transaction Voided', $transactionData, 'voided');
 
         return $transaction;
     }

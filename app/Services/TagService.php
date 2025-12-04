@@ -59,12 +59,14 @@ class TagService
         switch($status) {
 
             case 'receive':
-                $transaction->status = $status;
+                $transaction->reason = null;
+                $transaction->deposit_date = null;
+                $transaction->bank_deposit = null;
+                $transaction->deposit_remarks = null;
                 break;
 
             case 'tag':
                 $transaction->is_tagged = true;
-                $transaction->status = $status;
                 $transaction->deposit_date = $depositDate ?? null;
                 $transaction->bank_deposit = $bankDeposit ?? null;
                 $transaction->deposit_remarks = $depositRemarks ?? null;
@@ -74,17 +76,20 @@ class TagService
                 break;
 
             case 'return':
-                $transaction->status = $status;
-                $transaction->is_tagged = null;
+                $transaction->is_tagged = false;
                 $transaction->reason = $reason;
+                $transaction->deposit_date = $transaction->deposit_date ?? null;
+                $transaction->bank_deposit = $transaction->bank_deposit ?? null;
+                $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
+                $transaction->tag_number = $transaction->tag_number ?? null;
                 break;
 
             case 'void':
-                $transaction->status = $status;
                 $transaction->reason = $reason;
                 break;
         }
 
+        $transaction->status = $status;
         $transaction->save();
         $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
             'status' => $status,

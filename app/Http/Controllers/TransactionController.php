@@ -31,7 +31,7 @@ class TransactionController extends Controller
     public function store(TransactionRequest $request)
     {
         //Gate authorization
-        $this->authorize('create-transaction');
+        // $this->authorize('create-transaction');
         
         $data = $request->validated();
         $transaction = $this->transactionService->createTransaction($data);
@@ -55,7 +55,7 @@ class TransactionController extends Controller
     public function update(TransactionRequest $request, $id)
     {
         //Gate authorization
-        $this->authorize('transaction');
+        // $this->authorize('transaction');
 
         $transaction = $this->transactionService->getTransactionById($id);
 
@@ -67,6 +67,21 @@ class TransactionController extends Controller
         $updatedTransaction = $this->transactionService->updateTransaction($transaction, $data);
 
         return $this->responseSuccess('Transaction updated successfully', $updatedTransaction);
+    }
+
+    public function void(Request $request, $id)
+    {
+        //Gate authorization
+        // $this->authorize('transaction');
+
+        $transaction = $this->transactionService->getTransactionById($id);
+
+        if (!$transaction) {
+            return $this->responseError('Transaction not found', 404);
+        }
+        $this->transactionService->voidTransaction($transaction, $request);
+
+        return $this->responseSuccess('Transaction voided successfully');
     }
 
     public function truncate()

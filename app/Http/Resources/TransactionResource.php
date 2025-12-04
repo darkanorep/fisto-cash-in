@@ -16,6 +16,7 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'status' => $this->status,
             'type' => $this->type,
             'category' => $this->category,
             'reference_no' => $this->reference_no,
@@ -23,13 +24,15 @@ class TransactionResource extends JsonResource
             'payment_date' => $this->payment_date,
             'customer' => [
                 'id' => $this->customer->id,
-                'name' => $this->customer->name,
+                'name' => $this->customer->name,76
             ],
             'mode_of_payment' => $this->mode_of_payment,
-            'bank' => [
-                'id' => $this->bank->id,
-                'name' => $this->bank->name,
-            ],
+            'bank' => $this->whenLoaded('bank', function () {
+                return $this->bank ? [
+                    'id' => $this->bank->id,
+                    'name' => $this->bank->name,
+                ] : null;
+            }),
             'cheque' => [
                 'no' => $this->check_no,
                 'date' => $this->check_date,

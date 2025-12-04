@@ -18,6 +18,7 @@ class SlipResource extends JsonResource
             'type' => $this->type,
             'number' => $this->number,
             'amount' => $this->amount,
+            'actual_amount_paid' => $this->actual_amount_paid,
         ];
     }
 }

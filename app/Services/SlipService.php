@@ -19,7 +19,8 @@ class SlipService
     {
         $transactionIDs = $this->slip->where('type', $type)->where('number', $slipNumber)->pluck('transaction_id');
         $transactionsQuery = $this->transaction->whereIn('id', $transactionIDs)->where('status', '!=', 'void')->select('id', 'amount');
-        $transactionSlips = $this->slip->whereIn('transaction_id', $transactionsQuery->pluck('id'))->get()
+        $transactionSlips = $this->slip->with(['transactions'])->
+        whereIn('transaction_id', $transactionsQuery->pluck('id'))->get()
         ->unique('number')->values();
         
         $totalSlipAmount = $transactionSlips->sum('amount');
@@ -27,6 +28,7 @@ class SlipService
         $remainingAmount = $totalSlipAmount - $totalTransactionAmount;
 
         return [
+            'total_amount_paid' => $totalTransactionAmount,
             'remaining_amount' => $remainingAmount,
             'slips' => SlipResource::collection($transactionSlips),
         ];
