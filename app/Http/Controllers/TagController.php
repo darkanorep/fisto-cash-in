@@ -20,7 +20,7 @@ class TagController extends Controller
 
         $this->authorize('transaction');
         
-        $filters = $request->only(['status']); // Get filters from request
+        $filters = $request->only(['status', 'mode_of_payment']); // Get filters from request
         $transactions = $this->tagService->getTransactions($filters);
         
         $transactions->getCollection()->transform(function ($transaction) {

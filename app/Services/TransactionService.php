@@ -19,10 +19,11 @@ class TransactionService
     {
         $query = $this->transaction->with(['bank'])->where('user_id', auth()->id());
 
-        // Apply filters if any
+        // Apply status filter if provided
         if (isset($filters['status'])) {
             $query->status($filters['status']); // This calls your scope
         } else {
+            // Only exclude void and return statuses when no status filter is provided
             $query->whereNotIn('status', ['return', 'void']);
         }
 

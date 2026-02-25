@@ -42,6 +42,10 @@ class ClearService
             }
         }
 
+        if (isset($filters['mode_of_payment'])) {
+            $query->where('mode_of_payment', $filters['mode_of_payment']);
+        }
+
         return $query->dynamicPaginate();
     }
 
