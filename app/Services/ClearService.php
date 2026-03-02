@@ -15,7 +15,7 @@ class ClearService
     }
 
     public function getTransactions($filters = []) {
-        $query = $this->transaction->query();
+        $query = $this->transaction->with(['bank'])->query();
 
         // Then apply additional conditions based on specific status values
         if (isset($filters['status'])) {
@@ -46,7 +46,7 @@ class ClearService
             $query->where('mode_of_payment', $filters['mode_of_payment']);
         }
 
-        return $query->dynamicPaginate();
+        return $query->with(['bank'])->dynamicPaginate();
     }
 
     public function action($request) {

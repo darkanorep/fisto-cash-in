@@ -46,7 +46,7 @@ class TagService
             $query->where('mode_of_payment', $filters['mode_of_payment']);
         }
 
-        return $query->dynamicPaginate();
+        return $query->with(['bank'])->dynamicPaginate();
     }
 
     public function action($request) {
@@ -77,6 +77,12 @@ class TagService
                 if (!$transaction->tag_number) {
                     $transaction->tag_number = $this->generateTagNumber($series);
                 }
+                break;
+
+            case 'deposit':
+                $transaction->deposit_date = $depositDate ?? null;
+                $transaction->bank_deposit = $bankDeposit ?? null;
+                $transaction->deposit_remarks = $depositRemarks ?? null;
                 break;
 
             case 'return':

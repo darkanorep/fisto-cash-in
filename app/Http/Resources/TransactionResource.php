@@ -74,6 +74,7 @@ class TransactionResource extends JsonResource
                 'name' => $this->user->getFullNameAttribute(),
             ],
             'slips' => SlipResource::collection($this->whenLoaded('slips')),
+            'tag_number' => $this->tag_number,
         ];
     }
 }

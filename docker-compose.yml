@@ -2,9 +2,7 @@
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: rdf-fisto-cash-in:optimized
     container_name: laravel_app
     restart: unless-stopped
     extra_hosts:
