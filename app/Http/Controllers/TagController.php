@@ -11,6 +11,7 @@ class TagController extends Controller
 {
     use ApiResponse;
     protected $tagService;
+    
     public function __construct(TagService $tagService)
     {
         $this->tagService = $tagService;

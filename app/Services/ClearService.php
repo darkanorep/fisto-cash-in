@@ -15,7 +15,7 @@ class ClearService
     }
 
     public function getTransactions($filters = []) {
-        $query = $this->transaction->with(['bank'])->query();
+        $query = $this->transaction->with(['bank']);
 
         // Then apply additional conditions based on specific status values
         if (isset($filters['status'])) {
@@ -24,6 +24,7 @@ class ClearService
                     $query->where([
                         'is_tagged' => true,
                         'is_cleared' => false,
+                        'status' => 'deposit',
                     ]);
                     break;
                 case 'receive':
@@ -39,11 +40,21 @@ class ClearService
                         'status' => 'clear',
                     ]);
                     break;
+                case 'return':
+                    $query->where([
+                        'is_tagged' => true,
+                        'status' => 'return',
+                    ]);
+                    break;
             }
         }
 
         if (isset($filters['mode_of_payment'])) {
             $query->where('mode_of_payment', $filters['mode_of_payment']);
+        }
+
+        if (isset($filters['date_cleared'])) {
+            $query->whereDate('date_cleared', $filters['date_cleared']);
         }
 
         return $query->with(['bank'])->dynamicPaginate();

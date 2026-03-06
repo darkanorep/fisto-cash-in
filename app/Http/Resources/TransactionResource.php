@@ -75,6 +75,10 @@ class TransactionResource extends JsonResource
             ],
             'slips' => SlipResource::collection($this->whenLoaded('slips')),
             'tag_number' => $this->tag_number,
+            'date_cleared' => $this->date_cleared,
+            'bank_deposit' => $this->bank_deposit,
+            'deposit_date' => $this->deposit_date,
+            'reason' => $this->reason,
         ];
     }
 }

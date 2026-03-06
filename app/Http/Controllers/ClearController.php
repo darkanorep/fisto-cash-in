@@ -18,7 +18,7 @@ class ClearController extends Controller
     }
 
     public function index(Request $request) {
-        $filters = $request->only(['status', 'mode_of_payment']); // Get filters from request
+        $filters = $request->only(['status', 'mode_of_payment', 'date_cleared']); // Get filters from request
 
         $transactions = $this->clearService->getTransactions($filters);
 
