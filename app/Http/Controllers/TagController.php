@@ -19,10 +19,9 @@ class TagController extends Controller
 
     public function index(Request $request) {
 
-        $this->authorize('transaction');
+        // $this->authorize('transaction');
         
-        $filters = $request->only(['status', 'mode_of_payment']); // Get filters from request
-        $transactions = $this->tagService->getTransactions($filters);
+        $transactions = $this->tagService->getTransactions($request);
         
         $transactions->getCollection()->transform(function ($transaction) {
             return new TransactionResource($transaction);

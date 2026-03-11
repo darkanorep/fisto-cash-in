@@ -42,4 +42,13 @@ class Transaction extends Model
             $q->where('status', $status);
         });
     }
+
+    public function scopeDepositDate($query, array $dateRange) {
+        $depositDateFrom = $dateRange['deposit_date_from'] ?? null;
+        $depositDateTo = $dateRange['deposit_date_to'] ?? null;
+
+        return $query->when($depositDateFrom && $depositDateTo, function ($q) use ($depositDateFrom, $depositDateTo) {
+            $q->whereBetween('deposit_date', [$depositDateFrom, $depositDateTo]);
+        });
+    }    
 }

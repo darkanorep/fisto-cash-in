@@ -46,7 +46,7 @@ class TagService
             $query->where('mode_of_payment', $filters['mode_of_payment']);
         }
 
-        return $query->with(['bank'])->dynamicPaginate();
+        return $query->with(['bank'])->useFilters()->dynamicPaginate();
     }
 
     public function action($request) {

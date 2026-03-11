@@ -16,7 +16,13 @@ class BankService
 
     public function getBanks(Request $request)
     {
-        return $this->bank->useFilters()->dynamicPaginate();
+        $query = $this->bank->useFilters();
+
+        if ($request->pagination === 'none') {
+            return $query->get();
+        }
+
+        return $query->dynamicPaginate();
     }
 
     public function createBank($data)

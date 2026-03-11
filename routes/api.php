@@ -12,6 +12,7 @@ use App\Http\Controllers\SlipController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,13 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             Route::resource('banks', BankController::class);
         });
     });
+
+    //Dropdown
+    Route::group(['prefix' => 'dropdown'], function () {
+        Route::get('banks', [BankController::class, 'index']);
+        Route::get('customers', [CustomerController::class, 'index']);
+    });
+
 
     //Transactions
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);

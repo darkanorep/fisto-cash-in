@@ -49,55 +49,67 @@ class ClearService
             }
         }
 
-        if (isset($filters['mode_of_payment'])) {
-            $query->where('mode_of_payment', $filters['mode_of_payment']);
+        if (isset($filters['deposit_date_from']) && isset($filters['deposit_date_to'])) {
+            $query->depositDate([
+                'deposit_date_from' => $filters['deposit_date_from'],
+                'deposit_date_to' => $filters['deposit_date_to'],
+            ]);
         }
 
-        if (isset($filters['date_cleared'])) {
-            $query->whereDate('date_cleared', $filters['date_cleared']);
-        }
-
-        return $query->with(['bank'])->dynamicPaginate();
+        return $query->useFilters()->dynamicPaginate();
     }
 
     public function action($request) {
         
-        $transactionId = $request->input('transaction_id');
+        $transactionIds = $request->input('transaction_id'); // Now accepts array
         $dateCleared = $request->input('date_cleared');
         $status = $request->input('status');
         $reason = $request->input('reason');
-        $transaction = $this->transaction->findOrFail($transactionId);
 
-        switch($status) {
+        // Ensure it's always an array
+        $transactionIds = is_array($transactionIds) ? $transactionIds : [$transactionIds];
 
-            case 'receive':
-                $transaction->status = $status;
-                break;
+        $transactions = [];
 
-            case 'clear':
-                $transaction->is_cleared = true;
-                $transaction->status = $status;
-                $transaction->date_cleared = $dateCleared;
-                break;
+        foreach ($transactionIds as $transactionId) {
+            $transaction = $this->transaction->find($transactionId);
 
-            case 'return':
-                $transaction->status = $status;
-                $transaction->reason = $reason;
-                break;
+            if (!$transaction) {
+                continue; // Skip if transaction not found
+            }
 
-            case 'void':
-                $transaction->status = $status;
-                $transaction->reason = $reason;
-                break;
+            switch($status) {
+                case 'receive':
+                    $transaction->status = $status;
+                    break;
+
+                case 'clear':
+                    $transaction->is_cleared = true;
+                    $transaction->status = $status;
+                    $transaction->date_cleared = $dateCleared;
+                    break;
+
+                case 'return':
+                    $transaction->status = $status;
+                    $transaction->reason = $reason;
+                    break;
+
+                case 'void':
+                    $transaction->status = $status;
+                    $transaction->reason = $reason;
+                    break;
+            }
+            $transaction->save();
+
+            $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
+                'status' => $status,
+                'date_cleared' => $transaction->date_cleared,
+                'reason' => $reason,
+            ], $status);
+
+            $transactions[] = $transaction;
         }
-        $transaction->save();
 
-        $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
-            'status' => $status,
-            'date_cleared' => $transaction->date_cleared,
-            'reason' => $reason,
-        ], $status);
-
-        return $transaction;
+        return $transactions;
     }
 }
