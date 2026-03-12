@@ -15,19 +15,31 @@ class TransactionService
         $this->transaction = $transaction;
     }
 
-    public function getAllTransactions($filters = [])
+    public function getAllTransactions($request)
     {
-        $query = $this->transaction->with(['bank'])->where('user_id', auth()->id());
+        $query = $this->transaction->query()->with(['bank'])->where('user_id', auth()->id());
+        $status = $request->input('status');
 
         // Apply status filter if provided
-        if (isset($filters['status'])) {
-            $query->status($filters['status']); // This calls your scope
+        if ($status) {
+
+            switch($status) {
+                case 'return-request':
+                    $query->where('status', 'return')
+                        ->where('is_tagged', false)
+                        ->whereNotNull('reason');
+                    break;
+
+                default:
+                    $query->status($status); // This calls your scope
+                    break;
+            }
         } else {
             // Only exclude void and return statuses when no status filter is provided
             $query->whereNotIn('status', ['return', 'void']);
         }
 
-        return $query->dynamicPaginate();
+        return $query->useFilters()->dynamicPaginate();
     }
 
     public function createTransaction($data)
@@ -102,6 +114,7 @@ class TransactionService
             'charge_id' => $data['charge']['id'],
             'charge_name' => $data['charge']['name'],
             'remarks' => $data['remarks'] ?? null,
+            'status' => 'pending', // Reset status to pending on update
         ];
 
         $transaction->update($transactionData);
