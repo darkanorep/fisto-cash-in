@@ -26,7 +26,7 @@ class TransactionService
             switch($status) {
                 case 'return-request':
                     $query->where('status', 'return')
-                        ->where('is_tagged', false)
+                        ->whereIn('is_tagged', [true, false])
                         ->whereNotNull('reason');
                     break;
 

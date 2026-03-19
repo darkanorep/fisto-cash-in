@@ -31,7 +31,7 @@ class TagController extends Controller
     }
 
     public function action(Request $request) {
-        $this->authorize('tag-transaction');
+        // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
