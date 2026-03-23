@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->timestamp('payment_date')->change()->nullable();
+            $table->timestamp('check_date')->change()->nullable();
+            $table->timestamp('deposit_date')->change()->nullable();
+            $table->timestamp('date_cleared')->change()->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->date('payment_date')->change()->nullable();
+            $table->date('check_date')->change()->nullable();
+            $table->date('deposit_date')->change()->nullable();
+            $table->date('date_cleared')->change()->nullable();
+        });
+    }
+};
