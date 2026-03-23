@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\RequestDocumentEvent;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Support\Facades\DB;

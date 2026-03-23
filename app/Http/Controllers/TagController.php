@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\RequestDocumentEvent;
 use App\Http\Resources\TransactionResource;
 use App\Services\TagService;
 use Essa\APIToolKit\Api\ApiResponse;
