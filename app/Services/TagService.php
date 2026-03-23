@@ -17,33 +17,40 @@ class TagService
     public function getTransactions($filters = []) {
         $query = $this->transaction->query();
 
-        // Apply status scope first (this handles the basic status filtering)
-        if (isset($filters['status'])) {
-            $query->status($filters['status']); // This calls your scope
-        }
-
         // Then apply additional conditions based on specific status values
         if (isset($filters['status'])) {
             switch ($filters['status']) {
                 case 'pending':
                 case 'receive':
-                    $query->where([
-                        'is_tagged' => false,
-                        'is_cleared' => false,
-                    ]);
+                    $query->status($filters['status'])
+                        ->where([
+                            'is_tagged' => false,
+                            'is_cleared' => false,
+                        ]);
                     break;
                 case 'tag':
-                    $query->where('is_tagged', true);
+                    $query->status($filters['status'])
+                        ->where('is_tagged', true);
                     break;
                 case 'clear':
-                    $query->where('is_cleared', true);
+                    $query->status($filters['status'])
+                        ->where('is_cleared', true);
                     break;
-                // Add more status-specific filters as needed
+                
+                case 'return-tag':
+                    // Don't call scope here - 'return-tag' is not a real status
+                    $query->where([
+                        'is_tagged' => true,
+                        'status' => 'return',
+                    ])
+                    ->whereNotNull('reason')
+                    ->whereNull('date_cleared');
+                    break;
+                    
+                default:
+                    $query->status($filters['status']);
+                    break;
             }
-        }
-
-        if (isset($filters['mode_of_payment'])) {
-            $query->where('mode_of_payment', $filters['mode_of_payment']);
         }
 
         return $query->with(['bank'])->useFilters()->dynamicPaginate();
@@ -67,6 +74,7 @@ class TagService
                 $transaction->deposit_date = null;
                 $transaction->bank_deposit = null;
                 $transaction->deposit_remarks = null;
+                $transaction->is_tagged = false;
                 break;
 
             case 'tag':

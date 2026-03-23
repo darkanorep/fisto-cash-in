@@ -27,6 +27,7 @@ class User extends Authenticatable
         'password',
         'charge_id',
         'charge_name',
+        'type'
     ];
 
     protected $hidden = [
@@ -36,6 +37,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
+        'type' => 'array'
     ];
 
     protected string $default_filters = UserFilter::class;

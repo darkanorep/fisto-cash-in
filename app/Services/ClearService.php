@@ -92,6 +92,8 @@ class ClearService
                 case 'return':
                     $transaction->status = $status;
                     $transaction->reason = $reason;
+                    $transaction->date_cleared = null;
+                    $transaction->is_cleared = false;
                     break;
 
                 case 'void':

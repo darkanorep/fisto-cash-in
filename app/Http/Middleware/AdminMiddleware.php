@@ -17,7 +17,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // if (auth()->check() && auth()->user()->roles->contains('name', Role::ADMIN)) {
+        // if (auth()->check() && auth()->user()->roles->contains('name', Role::ADMIN))
         //         return $next($request);
         //     }
         //     return response()->json(['message' => 'Forbidden'], 403);

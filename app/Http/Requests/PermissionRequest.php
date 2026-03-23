@@ -30,7 +30,7 @@ class PermissionRequest extends FormRequest
                 Rule::unique('permissions', 'name')->ignore($this->route('permission'))
             ],
             'role_id' => [
-                'required',
+                'nullable',
                 'exists:roles,id'
             ]
         ];
