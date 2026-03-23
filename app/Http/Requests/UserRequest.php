@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Role;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -44,6 +45,16 @@ class UserRequest extends FormRequest
             'role_id' => ['required', Rule::exists('roles', 'id')],
             'charge_id' => ['required', Rule::exists('charges', 'id')],
             'charge_name' => ['required', 'string', 'max:255'],
+            'type' => [
+                Rule::requiredIf(function () {
+                    $requestorRoleId = Role::query()
+                        ->where('name', Role::REQUESTOR)
+                        ->value('id');
+
+                    return $this->integer('role_id') === (int) $requestorRoleId;
+                }),
+                'array',
+            ],
         ];
     }
 
@@ -54,6 +65,14 @@ class UserRequest extends FormRequest
             'role_id' => 'role',
             'charge_id' => 'one charging',
             'charge_name' => 'one charging name',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'type.required' => 'The type field is required when the selected role is Requestor.',
+            'type.array' => 'The type field must be an array.',
         ];
     }
 }
