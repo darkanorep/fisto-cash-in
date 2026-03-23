@@ -25,7 +25,7 @@ class TransactionRequest extends FormRequest
             'type' => 'string|required',
             'category' => 'string|nullable',
             'reference_no' => 'string|nullable',
-            'transaction_date' => 'date|date_format:Y-m-d|nullable',
+            'transaction_date' => 'nullable|date_format:Y-m-d H:i:s',
             'payment_date' => 'date|nullable',
             'customer.id' => 'integer|required|exists:customers,id',
             'customer.name' => 'string|required',
