@@ -45,7 +45,7 @@ class UserRequest extends FormRequest
             'role_id' => ['required', Rule::exists('roles', 'id')],
             'charge_id' => ['required', Rule::exists('charges', 'id')],
             'charge_name' => ['required', 'string', 'max:255'],
-            'type' => [
+            'transaction_type' => [
                 Rule::requiredIf(function () {
                     $requestorRoleId = Role::query()
                         ->where('name', Role::REQUESTOR)
@@ -71,8 +71,8 @@ class UserRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.required' => 'The type field is required when the selected role is Requestor.',
-            'type.array' => 'The type field must be an array.',
+            'transaction_type.required' => 'The type field is required when the selected role is Requestor.',
+            'transaction_type.array' => 'The type field must be an array.',
         ];
     }
 }

@@ -12,7 +12,7 @@ class TagController extends Controller
 {
     use ApiResponse;
     protected $tagService;
-    
+
     public function __construct(TagService $tagService)
     {
         $this->tagService = $tagService;
@@ -21,9 +21,9 @@ class TagController extends Controller
     public function index(Request $request) {
 
         // $this->authorize('transaction');
-        
+
         $transactions = $this->tagService->getTransactions($request);
-        
+
         $transactions->getCollection()->transform(function ($transaction) {
             return new TransactionResource($transaction);
         });
@@ -35,5 +35,9 @@ class TagController extends Controller
         // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
         return $this->responseSuccess('Transaction updated successfully', $transaction);
+    }
+
+    public function export(Request $request) {
+        return $this->tagService->export($request);
     }
 }

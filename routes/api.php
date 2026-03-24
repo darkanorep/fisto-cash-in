@@ -42,7 +42,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::patch('reset-password/{id}', [AuthController::class, 'resetPassword']);
 
         Route::group(['prefix' => 'admin'], function() {
-            
+
             //TRUNCATE
             Route::delete('transactions/truncate', [TransactionController::class, 'truncate']);
             Route::delete('users/truncate', [UserController::class, 'truncate']);
@@ -75,6 +75,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::group(['prefix' => 'dropdown'], function () {
         Route::get('banks', [BankController::class, 'index']);
         Route::get('customers', [CustomerController::class, 'index']);
+        Route::get('charges', [ChargesController::class, 'index']);
     });
 
 
@@ -90,6 +91,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Tagging
     Route::get('tag-transactions', [TagController::class, 'index']);
     Route::post('tag-transaction', [TagController::class, 'action']);
+    Route::get('tag-transactions/export', [TagController::class, 'export']);
+//    Route::get('tag-transactions/history', [TagController::class, 'getActivityLog']);
 
     //Clearing
     Route::get('clear-transactions', [ClearController::class, 'index']);

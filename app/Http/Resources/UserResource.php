@@ -54,7 +54,7 @@ class UserResource extends JsonResource
             'role_id' => $this->roles->first() ? $this->roles->first()->id : null,
             'charge_id' => $this->charge_id,
             'charge_name' => $this->charge_name,
-            'type' => $this->type,
+            'transaction_type' => $this->transaction_type,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
