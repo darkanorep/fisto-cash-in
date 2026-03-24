@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->timestamp('payment_date')->change()->nullable();
-            $table->timestamp('check_date')->change()->nullable();
-            $table->timestamp('deposit_date')->change()->nullable();
-            $table->timestamp('date_cleared')->change()->nullable();
+            $table->timestamp('payment_date')->nullable()->change();
+            $table->timestamp('check_date')->nullable()->change();
+            $table->timestamp('deposit_date')->nullable()->change();
+            $table->timestamp('date_cleared')->nullable()->change();
         });
     }
 
@@ -25,10 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->date('payment_date')->change()->nullable();
-            $table->date('check_date')->change()->nullable();
-            $table->date('deposit_date')->change()->nullable();
-            $table->date('date_cleared')->change()->nullable();
+            $table->date('payment_date')->nullable()->change();
+            $table->date('check_date')->nullable()->change();
+            $table->date('deposit_date')->nullable()->change();
+            $table->date('date_cleared')->nullable()->change();
         });
     }
 };
