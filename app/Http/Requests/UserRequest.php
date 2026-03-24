@@ -45,7 +45,7 @@ class UserRequest extends FormRequest
             'role_id' => ['required', Rule::exists('roles', 'id')],
             'charge_id' => ['required', Rule::exists('charges', 'id')],
             'charge_name' => ['required', 'string', 'max:255'],
-            'type' => [
+            'transaction_type' => [
                 Rule::requiredIf(function () {
                     $requestorRoleId = Role::query()
                         ->where('name', Role::REQUESTOR)
