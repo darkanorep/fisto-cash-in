@@ -21,10 +21,10 @@ class TransactionResource extends JsonResource
             'category' => $this->category,
             'reference_no' => $this->reference_no,
             'transaction_date' => $this->transaction_date
-                ? \Carbon\Carbon::parse($this->transaction_date)->format('Y-m-d h:i A')
+                ? \Carbon\Carbon::parse($this->transaction_date)->format('Y-m-d H:i:s')
                 : null,
             'payment_date' => $this->payment_date
-                ? \Carbon\Carbon::parse($this->payment_date)->format('Y-m-d h:i A')
+                ? \Carbon\Carbon::parse($this->payment_date)->format('Y-m-d H:i:s')
                 : null,
             'customer' => [
                 'id' => $this->customer->id,
@@ -40,7 +40,7 @@ class TransactionResource extends JsonResource
             'cheque' => [
                 'no' => $this->check_no,
                 'date' => $this->check_date
-                    ? \Carbon\Carbon::parse($this->check_date)->format('Y-m-d h:i A')
+                    ? \Carbon\Carbon::parse($this->check_date)->format('Y-m-d H:i:s')
                     : null
             ],
             'amount' => $this->amount,
@@ -82,11 +82,11 @@ class TransactionResource extends JsonResource
             'slips' => SlipResource::collection($this->whenLoaded('slips')),
             'tag_number' => $this->tag_number,
             'date_cleared' => $this->date_cleared
-                ? \Carbon\Carbon::parse($this->date_cleared)->format('Y-m-d h:i A')
+                ? \Carbon\Carbon::parse($this->date_cleared)->format('Y-m-d H:i:s')
                 : null,
             'bank_deposit' => $this->bank_deposit,
             'deposit_date' => $this->deposit_date
-                ? \Carbon\Carbon::parse($this->deposit_date)->format('Y-m-d h:i A')
+                ? \Carbon\Carbon::parse($this->deposit_date)->format('Y-m-d H:i:s')
                 : null,
             'reason' => $this->reason,
         ];
