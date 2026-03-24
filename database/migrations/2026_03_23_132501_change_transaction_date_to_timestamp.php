@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->timestamp('transaction_date')->change();
+            $table->timestamp('transaction_date')->nullable()->change();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->date('transaction_date')->change();
+            $table->date('transaction_date')->nullable()->change();
         });
     }
 };
