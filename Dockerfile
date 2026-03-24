@@ -1,5 +1,5 @@
 # Use a suitable PHP-FPM image
-FROM php:8.1.33-fpm
+FROM php:8.3-fpm
 
 # Set working directory
 WORKDIR /var/www/html
@@ -37,7 +37,7 @@ RUN { \
     echo '[www]'; \
     echo 'user = www-data'; \
     echo 'group = www-data'; \
-    echo 'listen = 127.0.0.1:9000'; \
+    echo 'listen = 9000'; \
     echo 'pm = dynamic'; \
     echo 'pm.max_children = 50'; \
     echo 'pm.start_servers = 5'; \
