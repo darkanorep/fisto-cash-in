@@ -89,6 +89,13 @@ class TransactionResource extends JsonResource
                 ? \Carbon\Carbon::parse($this->deposit_date)->format('Y-m-d H:i:s')
                 : null,
             'reason' => $this->reason,
+            'logs' => $this->logs->map(function ($log) {
+                return [
+                    'description' => $log->description,
+                    'causer' => $log->causer?->getFullNameAttribute(),
+                    'logged_at' => \Carbon\Carbon::parse($log->created_at)->format('l, d M Y h:i:s A'),
+                ];
+            })
         ];
     }
 }

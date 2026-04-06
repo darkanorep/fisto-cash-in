@@ -7,6 +7,7 @@ use Essa\APIToolKit\Filters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Activity;
 
 class Transaction extends Model
 {
@@ -15,6 +16,9 @@ class Transaction extends Model
     protected $guarded = [];
     protected string $default_filters = TransactionFilter::class;
 
+    public function logs() {
+        return $this->morphMany(Activity::class, 'subject')->orderBy('id', 'desc');
+    }
 
     public function customer() {
         return $this->belongsTo(Customer::class, 'customer_id');
@@ -50,5 +54,5 @@ class Transaction extends Model
         return $query->when($depositDateFrom && $depositDateTo, function ($q) use ($depositDateFrom, $depositDateTo) {
             $q->whereBetween('deposit_date', [$depositDateFrom, $depositDateTo]);
         });
-    }    
+    }
 }

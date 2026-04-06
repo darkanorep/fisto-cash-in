@@ -6,9 +6,7 @@ use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat\DateFormatter;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Spatie\Activitylog\Models\Activity;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -110,7 +108,7 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
                 'transactions.tag_number',
             )
             ->whereBetween('activity_log.created_at', [$this->fromDate, $this->toDate])
-            ->where('transactions.mode_of_payment', $this->mode_of_payment)
+//            ->where('transactions.mode_of_payment', $this->mode_of_payment)
             ->where('activity_log.event', 'tag:'.$this->status)
             ->get();
 
