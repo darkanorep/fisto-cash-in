@@ -14,19 +14,24 @@ class ClearController extends Controller
 
     public function __construct(ClearService $clearService)
     {
-        $this->clearService = $clearService;  
+        $this->clearService = $clearService;
     }
 
     public function index(Request $request) {
-
         $transactions = $this->clearService->getTransactions($request);
 
-        $transactions->getCollection()->transform(function ($transaction) {
+        // Handle both Paginator and Collection
+        $collection = $transactions instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $transactions->getCollection()
+            : $transactions;
+
+        $collection->transform(function ($transaction) {
             return new TransactionResource($transaction);
         });
 
         return $this->responseSuccess('Transactions fetched successfully', $transactions);
     }
+
 
     public function action(Request $request) {
         // $this->authorize('clear-transaction');

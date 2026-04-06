@@ -60,7 +60,7 @@ class ClearService
     }
 
     public function action($request) {
-        
+
         $transactionIds = $request->input('transaction_id'); // Now accepts array
         $dateCleared = $request->input('date_cleared');
         $status = $request->input('status');
@@ -107,7 +107,7 @@ class ClearService
                 'status' => $status,
                 'date_cleared' => $transaction->date_cleared,
                 'reason' => $reason,
-            ], $status);
+            ], 'clear:'.$status);
 
             $transactions[] = $transaction;
         }

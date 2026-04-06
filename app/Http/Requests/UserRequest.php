@@ -71,8 +71,8 @@ class UserRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.required' => 'The type field is required when the selected role is Requestor.',
-            'type.array' => 'The type field must be an array.',
+            'transaction_type.required' => 'The type field is required when the selected role is Requestor.',
+            'transaction_type.array' => 'The type field must be an array.',
         ];
     }
 }

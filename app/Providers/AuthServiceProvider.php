@@ -32,22 +32,24 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('transaction', function (User $user, $transaction = null) {
-            // Handle case where $transaction is a string/ID instead of model instance
-            if (is_string($transaction) || is_numeric($transaction)) {
-                $transaction = \App\Models\Transaction::find($transaction);
+            if (!$transaction) {
+                return false;
             }
 
-            // TAGGER role can access all transactions
+            if (is_numeric($transaction) || is_string($transaction)) {
+                $transaction = \App\Models\Transaction::find($transaction);
+                if (!$transaction) {
+                    return false;
+                }
+            }
+
+            // Allow TAGGER to view all transactions
             if ($user->roles->contains('name', Role::TAGGER)) {
                 return true;
             }
-            
-            // Check if transaction exists and belongs to user
-            if ($transaction && $transaction->user_id === $user->id) {
-                return true;
-            }
-            
-            return false;
+
+            // Regular users can only view their own transactions
+            return $transaction->user_id === $user->id;
         });
 
         Gate::define('tag-transaction', function (User $user) {

@@ -6,6 +6,7 @@ use App\Events\RequestDocumentEvent;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
 
 class TransactionService
 {
@@ -94,7 +95,7 @@ class TransactionService
             ])->find($id);
     }
 
-    public function updateTransaction($transaction, $data) 
+    public function updateTransaction($transaction, $data)
     {
         $transactionData = [
             'user_id' => auth()->id(),

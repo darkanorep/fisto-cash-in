@@ -12,28 +12,37 @@ class TagController extends Controller
 {
     use ApiResponse;
     protected $tagService;
-    
+
     public function __construct(TagService $tagService)
     {
         $this->tagService = $tagService;
     }
 
     public function index(Request $request) {
-
         // $this->authorize('transaction');
-        
+
         $transactions = $this->tagService->getTransactions($request);
-        
-        $transactions->getCollection()->transform(function ($transaction) {
+
+        // Handle both Paginator and Collection
+        $collection = $transactions instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $transactions->getCollection()
+            : $transactions;
+
+        $collection->transform(function ($transaction) {
             return new TransactionResource($transaction);
         });
 
         return $this->responseSuccess('Transactions fetched successfully', $transactions);
     }
 
+
     public function action(Request $request) {
         // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
         return $this->responseSuccess('Transaction updated successfully', $transaction);
+    }
+
+    public function export(Request $request) {
+        return $this->tagService->export($request);
     }
 }

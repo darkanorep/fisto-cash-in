@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
+use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Activitylog\Models\Activity;
 
 class TagService
 {
@@ -36,7 +39,7 @@ class TagService
                     $query->status($filters['status'])
                         ->where('is_cleared', true);
                     break;
-                
+
                 case 'return-tag':
                     // Don't call scope here - 'return-tag' is not a real status
                     $query->where([
@@ -46,7 +49,7 @@ class TagService
                     ->whereNotNull('reason')
                     ->whereNull('date_cleared');
                     break;
-                    
+
                 default:
                     $query->status($filters['status']);
                     break;
@@ -57,7 +60,7 @@ class TagService
     }
 
     public function action($request) {
-        
+
         $transactionId = $request->input('transaction_id');
         $status = $request->input('status');
         $depositDate = $request->input('deposit_date');
@@ -116,7 +119,7 @@ class TagService
             'deposit_remarks' => $depositRemarks,
             'tag_number' => $transaction->tag_number,
             'reason' => $reason,
-        ], $status);
+        ], 'tag:'.$status);
 
         return $transaction;
 
@@ -136,5 +139,16 @@ class TagService
         $nextTagNumber = $maxTag ? $maxTag + 1 : 1;
 
         return $series . str_pad($nextTagNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function export($request) {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status  = $request->input('status');
+        $mode_of_payment = $request->input('mode_of_payment');
+
+        $statusLabel = $status ? strtoupper(str_replace('tag:', '', $status)): 'All';
+        $filename = "TAG:{$statusLabel}_{$fromDate}_to_{$toDate}.xlsx";
+        return Excel::download(new ActivityExport($fromDate, $toDate, $status, $mode_of_payment), $filename);
     }
 }

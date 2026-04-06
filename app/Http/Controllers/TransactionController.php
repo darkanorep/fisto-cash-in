@@ -19,20 +19,26 @@ class TransactionController extends Controller
     }
 
     public function index(Request $request) {
-
         $transactions = $this->transactionService->getAllTransactions($request);
-        $transactions->getCollection()->transform(function ($transaction) {
+
+        // Handle both Paginator and Collection
+        $collection = $transactions instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $transactions->getCollection()
+            : $transactions;
+
+        $collection->transform(function ($transaction) {
             return new TransactionResource($transaction);
         });
 
         return $this->responseSuccess('Transactions fetched successfully', $transactions);
     }
 
+
     public function store(TransactionRequest $request)
     {
         //Gate authorization
         // $this->authorize('create-transaction');
-        
+
         $data = $request->validated();
         $transaction = $this->transactionService->createTransaction($data);
 
@@ -41,9 +47,9 @@ class TransactionController extends Controller
 
     public function show($id)
     {
-        //Gate authorization
-        $this->authorize('transaction'); 
         $transaction = $this->transactionService->getTransactionById($id);
+        //Gate authorization
+        $this->authorize('transaction', $transaction);
 
         if (!$transaction) {
             return $this->responseError('Transaction not found', 404);
