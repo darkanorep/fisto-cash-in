@@ -11,7 +11,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class Transaction extends Model
 {
-    use HasFactory, SoftDeletes, Filterable;
+    use SoftDeletes, Filterable;
 
     protected $guarded = [];
     protected string $default_filters = TransactionFilter::class;
@@ -44,6 +44,15 @@ class Transaction extends Model
     {
         return $query->when($status, function ($q) use ($status) {
             $q->where('status', $status);
+        });
+    }
+
+    public function scopeDate($query, array $dateRange) {
+        $dateFrom = $dateRange['date_from'] ?? null;
+        $dateTo = $dateRange['date_to'] ?? null;
+
+        return $query->when($dateFrom && $dateTo, function ($q) use ($dateFrom, $dateTo) {
+            $q->whereBetween('transaction_date', [$dateFrom, $dateTo]);
         });
     }
 
