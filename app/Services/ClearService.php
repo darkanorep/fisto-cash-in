@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
+use Illuminate\Http\Request;
 
 class ClearService
 {
@@ -14,8 +15,10 @@ class ClearService
         $this->transaction = $transaction;
     }
 
-    public function getTransactions($filters = []) {
+    public function getTransactions($request) {
         $query = $this->transaction->with(['bank']);
+
+        $filters = $request instanceof Request ? $request->all() : $request;
 
         // Then apply additional conditions based on specific status values
         if (isset($filters['status'])) {

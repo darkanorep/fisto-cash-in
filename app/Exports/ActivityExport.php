@@ -16,11 +16,11 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
     /**
      * @var mixed|null
      */
-    private mixed $fromDate;
+    private mixed $dateFrom;
     /**
      * @var mixed|null
      */
-    private mixed $toDate;
+    private mixed $dateTo;
     /**
      * @var mixed|null
      */
@@ -34,10 +34,10 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
     * @return array[]
      */
 
-    public function __construct($fromDate = null, $toDate = null, $status = null, $mode_of_payment = null)
+    public function __construct($dateFrom = null, $dateTo = null, $status = null, $mode_of_payment = null)
     {
-        $this->fromDate = $fromDate ? Carbon::createFromFormat('Y-m-d', $fromDate)->startOfDay() : null;
-        $this->toDate = $toDate ? Carbon::createFromFormat('Y-m-d', $toDate)->endOfDay() : null;
+        $this->dateFrom = $dateFrom ? Carbon::createFromFormat('Y-m-d', $dateFrom)->startOfDay() : null;
+        $this->dateTo = $dateTo ? Carbon::createFromFormat('Y-m-d', $dateTo)->endOfDay() : null;
         $this->status = $status ?? null;
         $this->mode_of_payment = $mode_of_payment ?? null;
     }
@@ -107,8 +107,11 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
                 'transactions.deposit_remarks',
                 'transactions.tag_number',
             )
-            ->whereBetween('activity_log.created_at', [$this->fromDate, $this->toDate])
+            ->whereBetween('activity_log.created_at', [$this->dateFrom, $this->dateTo])
 //            ->where('transactions.mode_of_payment', $this->mode_of_payment)
+            ->when(isset($this->mode_of_payment), function ($query) {
+                $query->where('transactions.mode_of_payment', $this->mode_of_payment);
+            })
             ->where('activity_log.event', 'tag:'.$this->status)
             ->get();
 

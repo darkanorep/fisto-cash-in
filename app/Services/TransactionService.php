@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Events\RequestDocumentEvent;
+
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +24,6 @@ class TransactionService
 
         // Apply status filter if provided
         if ($status) {
-
             switch($status) {
                 case 'return-request':
                     $query->where('status', 'return')

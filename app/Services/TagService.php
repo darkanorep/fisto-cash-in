@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Http\Request;
 
 class TagService
 {
@@ -17,8 +18,10 @@ class TagService
         $this->transaction = $transaction;
     }
 
-    public function getTransactions($filters = []) {
+    public function getTransactions($request) {
         $query = $this->transaction->query();
+
+        $filters = $request instanceof Request ? $request->all() : $request;
 
         // Then apply additional conditions based on specific status values
         if (isset($filters['status'])) {
@@ -54,6 +57,13 @@ class TagService
                     $query->status($filters['status']);
                     break;
             }
+        }
+
+        if (isset($filters['date_from']) && isset($filters['date_to'])) {
+            $query->date([
+                'date_from' => $filters['date_from'],
+                'date_to' => $filters['date_to'],
+            ]);
         }
 
         return $query->with(['bank'])->useFilters()->dynamicPaginate();
@@ -142,13 +152,13 @@ class TagService
     }
 
     public function export($request) {
-        $fromDate = $request->input('from_date');
-        $toDate = $request->input('to_date');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
         $status  = $request->input('status');
         $mode_of_payment = $request->input('mode_of_payment');
 
         $statusLabel = $status ? strtoupper(str_replace('tag:', '', $status)): 'All';
-        $filename = "TAG:{$statusLabel}_{$fromDate}_to_{$toDate}.xlsx";
-        return Excel::download(new ActivityExport($fromDate, $toDate, $status, $mode_of_payment), $filename);
+        $filename = "TAG-{$statusLabel}_{$dateFrom}_to_{$dateTo}.xlsx";
+        return Excel::download(new ActivityExport($dateFrom, $dateTo, $status, $mode_of_payment), $filename);
     }
 }
