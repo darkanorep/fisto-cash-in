@@ -92,11 +92,12 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('tag-transactions', [TagController::class, 'index']);
     Route::post('tag-transaction', [TagController::class, 'action']);
     Route::get('tag-transactions/export', [TagController::class, 'export']);
-//    Route::get('tag-transactions/history', [TagController::class, 'getActivityLog']);
+    Route::get('tag-status-count', [TagController::class, 'pendingCount']);
 
     //Clearing
     Route::get('clear-transactions', [ClearController::class, 'index']);
     Route::post('clear-transaction', [ClearController::class, 'action']);
+    Route::get('clear-status-count', [ClearController::class, 'pendingCount']);
 
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);
