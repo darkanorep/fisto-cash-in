@@ -23,10 +23,10 @@ class PermissionController extends Controller
     public function index(Request $request) {
         $permissions = $this->permissionService->getPermissions($request);
 
-        return $permissions instanceof LengthAwarePaginator
+        $permissions instanceof LengthAwarePaginator
             ? $permissions->setCollection($permissions->getCollection()->transform(function ($item) {
                     return new PermissionResource($item);
-                })) 
+                }))
             : $permissions = PermissionResource::collection($permissions);
 
         return $permissions->isEmpty()

@@ -25,11 +25,11 @@ class ChargesController extends Controller
         $charges = $this->chargeService->getAllCharges($request);
 
         // Transform charges - assign, don't return
-        $charges = $charges instanceof LengthAwarePaginator
+         $charges instanceof LengthAwarePaginator
             ? $charges->setCollection($charges->getCollection()->transform(function ($item) {
                 return new ChargeResource($item);
             }))
-            : ChargeResource::collection($charges);
+            : $charges = ChargeResource::collection($charges);
 
         // Now check if empty and return response
         return $charges->isEmpty()

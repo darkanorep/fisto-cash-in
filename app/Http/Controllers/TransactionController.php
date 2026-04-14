@@ -30,7 +30,9 @@ class TransactionController extends Controller
             return new TransactionResource($transaction);
         });
 
-        return $this->responseSuccess('Transactions fetched successfully', $transactions);
+        return $transactions->isNotEmpty() && $collection->isNotEmpty()
+            ? $this->responseSuccess('Transactions fetched successfully', $transactions)
+            : $this->responseNotFound('No transactions found.');
     }
 
     public function store(TransactionRequest $request)
