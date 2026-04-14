@@ -161,7 +161,7 @@ class TransactionService
         DB::table('slips')->truncate();
     }
 
-    public function statusCount() {
+    public function statusCount() : array {
         return [
             'return' => $this->transaction->where('status', 'return')
                 ->whereNotNull('reason')
