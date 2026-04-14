@@ -165,7 +165,7 @@ class TransactionService
         return [
             'return' => $this->transaction->where('status', 'return')
                 ->whereNotNull('reason')
-                ->whereIn('is_tagged', [true, false])->count()
+                ->count()
         ];
     }
 
