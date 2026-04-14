@@ -162,7 +162,7 @@ class TagService
         return Excel::download(new ActivityExport($dateFrom, $dateTo, $status, $mode_of_payment), $filename);
     }
 
-    public function statusCount() {
+    public function statusCount() : array {
         $baseQuery = $this->transaction->newQuery()
             ->where('status', 'pending');
 
