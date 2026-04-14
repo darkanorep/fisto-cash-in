@@ -118,7 +118,7 @@ class ClearService
         return $transactions;
     }
 
-    public function pendingCount(): array {
+    public function statusCount(): array {
         return [
             'pending' => $this->transaction->where('status', 'deposit')->count(),
         ];

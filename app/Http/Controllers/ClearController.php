@@ -38,9 +38,9 @@ class ClearController extends Controller
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
 
-    public function pendingCount() {
+    public function statusCount() {
         return response()->json([
-            $this->clearService->pendingCount()
+            $this->clearService->statusCount()
         ]);
     }
 }

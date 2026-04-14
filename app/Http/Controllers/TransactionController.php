@@ -33,7 +33,6 @@ class TransactionController extends Controller
         return $this->responseSuccess('Transactions fetched successfully', $transactions);
     }
 
-
     public function store(TransactionRequest $request)
     {
         //Gate authorization
@@ -88,6 +87,12 @@ class TransactionController extends Controller
         $this->transactionService->voidTransaction($transaction, $request);
 
         return $this->responseSuccess('Transaction voided successfully');
+    }
+
+    public function statusCount() {
+        return response()->json([
+            $this->transactionService->statusCount()
+        ]);
     }
 
     public function truncate()

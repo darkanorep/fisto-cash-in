@@ -46,10 +46,9 @@ class TagController extends Controller
         return $this->tagService->export($request);
     }
 
-    public function pendingCount() {
-//        return $this->responseSuccess('Pending transactions count fetched successfully', $this->tagService->pendingCount());
+    public function statusCount() {
         return response()->json([
-            $this->tagService->pendingCount()
+            $this->tagService->statusCount()
         ]);
     }
 }

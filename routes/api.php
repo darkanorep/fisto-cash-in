@@ -82,6 +82,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Transactions
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);
+    Route::get('transactions-status-count', [TransactionController::class, 'statusCount']);
 
     // Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
     // Route::get('transactions', [TransactionController::class, 'index'])->middleware('can:my-transaction');
@@ -92,12 +93,12 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('tag-transactions', [TagController::class, 'index']);
     Route::post('tag-transaction', [TagController::class, 'action']);
     Route::get('tag-transactions/export', [TagController::class, 'export']);
-    Route::get('tag-status-count', [TagController::class, 'pendingCount']);
+    Route::get('tag-status-count', [TagController::class, 'statusCount']);
 
     //Clearing
     Route::get('clear-transactions', [ClearController::class, 'index']);
     Route::post('clear-transaction', [ClearController::class, 'action']);
-    Route::get('clear-status-count', [ClearController::class, 'pendingCount']);
+    Route::get('clear-status-count', [ClearController::class, 'statusCount']);
 
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);

@@ -160,4 +160,13 @@ class TransactionService
         DB::table('activity_log')->truncate();
         DB::table('slips')->truncate();
     }
+
+    public function statusCount() {
+        return [
+            'return' => $this->transaction->where('status', 'return')
+                ->whereNotNull('reason')
+                ->whereIn('is_tagged', [true, false])->count()
+        ];
+    }
+
 }
