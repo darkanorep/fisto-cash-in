@@ -45,4 +45,11 @@ class TagController extends Controller
     public function export(Request $request) {
         return $this->tagService->export($request);
     }
+
+    public function pendingCount() {
+//        return $this->responseSuccess('Pending transactions count fetched successfully', $this->tagService->pendingCount());
+        return response()->json([
+            $this->tagService->pendingCount()
+        ]);
+    }
 }
