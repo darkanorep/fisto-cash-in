@@ -162,8 +162,7 @@ class TagService
         return Excel::download(new ActivityExport($dateFrom, $dateTo, $status, $mode_of_payment), $filename);
     }
 
-    public function pendingCount(): array {
-        // Base pending query (adjust conditions if needed)
+    public function statusCount() {
         $baseQuery = $this->transaction->newQuery()
             ->where('status', 'pending');
 
@@ -172,6 +171,11 @@ class TagService
             ->groupByRaw('LOWER(mode_of_payment)')
             ->pluck('total', 'mode_of_payment');
 
+        $returnQuery = $this->transaction->newQuery()
+            ->where('status', 'return')
+            ->whereNotNull('reason')
+            ->where('is_cleared', false);
+
         return [
             'pending' => [
                 'cash' => (int) ($grouped['cash'] ?? 0),
@@ -179,6 +183,7 @@ class TagService
                 'cheque' => (int) ($grouped['cheque'] ?? 0),
                 'total' => (int) $grouped->sum(),
             ],
+            'return' => $returnQuery->count(),
         ];
     }
 }
