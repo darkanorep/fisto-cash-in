@@ -29,7 +29,9 @@ class ClearController extends Controller
             return new TransactionResource($transaction);
         });
 
-        return $this->responseSuccess('Transactions fetched successfully', $transactions);
+        return $transactions->isNotEmpty() && $collection->isNotEmpty()
+            ? $this->responseSuccess('Transactions fetched successfully', $collection)
+            : $this->responseNotFound('No transactions found.');
     }
 
     public function action(Request $request) {

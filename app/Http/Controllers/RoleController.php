@@ -22,10 +22,10 @@ class RoleController extends Controller
     public function index(Request $request) {
         $roles = $this->roleService->getRoles($request);
 
-        return $roles instanceof \Illuminate\Pagination\LengthAwarePaginator
+         $roles instanceof \Illuminate\Pagination\LengthAwarePaginator
             ? $roles->setCollection($roles->getCollection()->transform(function ($item) {
                     return new RoleResource($item);
-                })) 
+                }))
             : $roles = RoleResource::collection($roles);
 
         return $roles->isEmpty()

@@ -24,10 +24,10 @@ class BankController extends Controller
     public function index(Request $request) {
         $banks = $this->bankService->getBanks($request);
 
-        return $banks instanceof LengthAwarePaginator
+        $banks instanceof LengthAwarePaginator
             ? $banks->setCollection($banks->getCollection()->transform(function ($item) {
                     return new BankResource($item);
-                })) 
+                }))
             : $banks = BankResource::collection($banks);
 
         return $banks->isEmpty()
