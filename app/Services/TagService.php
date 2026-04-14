@@ -161,4 +161,24 @@ class TagService
         $filename = "TAG-{$statusLabel}_{$dateFrom}_to_{$dateTo}.xlsx";
         return Excel::download(new ActivityExport($dateFrom, $dateTo, $status, $mode_of_payment), $filename);
     }
+
+    public function pendingCount(): array {
+        // Base pending query (adjust conditions if needed)
+        $baseQuery = $this->transaction->newQuery()
+            ->where('status', 'pending');
+
+        $grouped = (clone $baseQuery)
+            ->selectRaw('LOWER(mode_of_payment) as mode_of_payment, COUNT(*) as total')
+            ->groupByRaw('LOWER(mode_of_payment)')
+            ->pluck('total', 'mode_of_payment');
+
+        return [
+            'pending' => [
+                'cash' => (int) ($grouped['cash'] ?? 0),
+                'online' => (int) ($grouped['online'] ?? 0),
+                'cheque' => (int) ($grouped['cheque'] ?? 0),
+                'total' => (int) $grouped->sum(),
+            ],
+        ];
+    }
 }

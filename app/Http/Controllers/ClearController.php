@@ -32,10 +32,15 @@ class ClearController extends Controller
         return $this->responseSuccess('Transactions fetched successfully', $transactions);
     }
 
-
     public function action(Request $request) {
         // $this->authorize('clear-transaction');
         $transaction = $this->clearService->action($request);
         return $this->responseSuccess('Transaction updated successfully', $transaction);
+    }
+
+    public function pendingCount() {
+        return response()->json([
+            $this->clearService->pendingCount()
+        ]);
     }
 }
