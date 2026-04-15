@@ -14,7 +14,6 @@ class Permission extends Model
 
     protected $fillable = ["name", "role_id"];
     protected $hidden = ["role_id"];
-
     protected string $default_filters = PermissionFilter::class;
 
     public function role() {

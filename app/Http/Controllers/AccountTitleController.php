@@ -23,15 +23,13 @@ class AccountTitleController extends Controller
     public function index(Request $request) {
         $accountTitles = $this->accountTitleService->getAccountTitles($request);
 
-        $accountTitles instanceof LengthAwarePaginator
-            ? $accountTitles->setCollection($accountTitles->getCollection()->transform(function ($item) {
-                    return new AccountTitleResource($item);
-                })) 
-            : $accountTitles = AccountTitleResource::collection($accountTitles);
+        if ($accountTitles->isEmpty()) {
+            return $this->responseNotFound('No Account Titles found.');
+        }
 
-        return $accountTitles->isEmpty()
-            ? $this->responseNotFound('No Account Titles found.')
-            : $this->responseSuccess('Account Titles fetched successfully', $accountTitles);
+        return $accountTitles instanceof LengthAwarePaginator
+            ? $accountTitles->through(fn($item) => new AccountTitleResource($item))
+            : $this->responseSuccess('Account Titles fetched successfully', AccountTitleResource::collection($accountTitles));
     }
 
     // Create a new Account Title

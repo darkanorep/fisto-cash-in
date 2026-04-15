@@ -24,17 +24,14 @@ class ChargesController extends Controller
     public function index(Request $request) {
         $charges = $this->chargeService->getAllCharges($request);
 
-        // Transform charges - assign, don't return
-         $charges instanceof LengthAwarePaginator
-            ? $charges->setCollection($charges->getCollection()->transform(function ($item) {
-                return new ChargeResource($item);
-            }))
-            : $charges = ChargeResource::collection($charges);
+        if ($charges->isEmpty()) {
+            return $this->responseNotFound('No Charges found.');
+        }
 
-        // Now check if empty and return response
-        return $charges->isEmpty()
-            ? $this->responseNotFound('No Charges found.')
-            : $this->responseSuccess('Charges fetched successfully', $charges);
+        return $charges instanceof LengthAwarePaginator
+            ? $charges->through(fn($item) => new ChargeResource($item))
+            : $this->responseSuccess('Charges fetched successfully', ChargeResource::collection($charges));
+
     }
 
 

@@ -19,19 +19,16 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    // List Users with Pagination and Filtering
     public function index(Request $request) {
         $users = $this->userService->getUsers($request);
 
-        $users instanceof LengthAwarePaginator
-            ? $users->setCollection($users->getCollection()->transform(function ($item) {
-                    return new UserResource($item);
-                })) 
-            : $users = UserResource::collection($users);
+        if ($users->isEmpty()) {
+            return $this->responseNotFound('No Users found.');
+        }
 
-        return $users->isEmpty()
-            ? $this->responseNotFound('No users found.')
-            : $this->responseSuccess('Users fetched successfully', $users);
+        return $users instanceof LengthAwarePaginator
+            ? $users->through(fn($item) => new UserResource($item))
+            : $this->responseSuccess('Users fetched successfully', UserResource::collection($users));
     }
 
     // Create a new User

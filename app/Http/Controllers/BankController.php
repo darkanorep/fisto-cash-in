@@ -24,15 +24,13 @@ class BankController extends Controller
     public function index(Request $request) {
         $banks = $this->bankService->getBanks($request);
 
-        $banks instanceof LengthAwarePaginator
-            ? $banks->setCollection($banks->getCollection()->transform(function ($item) {
-                    return new BankResource($item);
-                }))
-            : $banks = BankResource::collection($banks);
+        if ($banks->isEmpty()) {
+            return $this->responseNotFound('No Banks found.');
+        }
 
-        return $banks->isEmpty()
-            ? $this->responseNotFound('No Banks found.')
-            : $this->responseSuccess('Banks fetched successfully', $banks);
+        return $banks instanceof LengthAwarePaginator
+            ? $banks->through(fn($item) => new BankResource($item))
+            : $this->responseSuccess('Banks fetched successfully', BankResource::collection($banks));
     }
 
     // Create a new Bank
