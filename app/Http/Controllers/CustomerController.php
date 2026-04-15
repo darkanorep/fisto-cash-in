@@ -24,16 +24,15 @@ class CustomerController extends Controller
     public function index(Request $request) {
         $customers = $this->customerService->getAllCustomers($request);
 
-        $customers instanceof LengthAwarePaginator
-            ? $customers->setCollection($customers->getCollection()->transform(function ($item) {
-                    return new CustomerResource($item);
-                })) 
-            : $customers = CustomerResource::collection($customers);
+        if ($customers->isEmpty()) {
+            return $this->responseNotFound('No Customers found.');
+        }
 
-        return $customers->isEmpty()
-            ? $this->responseNotFound('No Customers found.')
-            : $this->responseSuccess('Customers fetched successfully', $customers);
+        return $customers instanceof LengthAwarePaginator
+            ? $customers->through(fn($item) => new CustomerResource($item))
+            : $this->responseSuccess('Customers fetched successfully', CustomerResource::collection($customers));
     }
+
 
     // Create a new Customer
     public function store(CustomerRequest $request) {
@@ -72,5 +71,5 @@ class CustomerController extends Controller
 
         return $this->responseSuccess('Customer status changed successfully', $customer);
     }
-    
+
 }

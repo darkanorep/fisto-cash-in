@@ -24,10 +24,15 @@ class PermissionRequest extends FormRequest
     {
         return [
             'name' => [
-            'required',
+                'required',
+                'array',
+                'min:1'
+            ],
+            'name.*' => [
                 'string',
                 'max:255',
-                Rule::unique('permissions', 'name')->ignore($this->route('permission'))
+//                'distinct',
+//                'unique:permissions,name'
             ],
             'role_id' => [
                 'nullable',
