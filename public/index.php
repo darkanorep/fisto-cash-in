@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+if (!isset($_SERVER['HTTP_AUTHORIZATION']) && isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+    $_SERVER['HTTP_AUTHORIZATION'] = $_SERVER['HTTP_X_AUTH_TOKEN'];
+}
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
