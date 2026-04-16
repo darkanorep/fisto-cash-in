@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserLoggedIn;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -20,17 +21,11 @@ class AuthController extends Controller
             ]);
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // $permissions = $user->roles
-            //     ->flatMap->permissions  
-            //     ->pluck('name')         
-            //     ->unique()              
-            //     ->values(); 
-            
             $permissions = $user->roles
-                ->select('permissions')         
+                ->select('permissions')
                 ->flatten()
-                ->unique()              
-                ->values();             
+                ->unique()
+                ->values();
 
             $userData = $user->toArray();
 
@@ -41,6 +36,8 @@ class AuthController extends Controller
 
             $cookie = cookie('sanctum', $token);
 
+            event(new UserLoggedIn($user));
+
             return response()->json([
                 'message' => 'Login successful',
                 'access_token' => $token,
@@ -49,7 +46,7 @@ class AuthController extends Controller
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
-    }                                                                                                                                                                                                                                                                                                                                                                          
+    }
 
     public function logout()
     {

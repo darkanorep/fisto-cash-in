@@ -1,34 +1,51 @@
-# version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: rdf-fisto-cash-in:optimized
-    container_name: laravel_app
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - .:/var/www/html
-    networks:
-      - laravel_network
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: rdf-fisto-cash-in:optimized
+        container_name: laravel_app
+        restart: unless-stopped
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        volumes:
+            - .:/var/www/html
+        networks:
+            - laravel_network
 
-  nginx:
-    image: nginx:alpine
-    container_name: laravel_nginx
-    restart: unless-stopped
-    ports:
-      - "0.0.0.0:8080:80"  # Bind to all interfaces on port 8080
-    volumes:
-      - .:/var/www/html
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d
-    depends_on:
-      - app
-    networks:
-      - laravel_network
+    reverb:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: rdf-fisto-cash-in:optimized
+        container_name: laravel_reverb
+        restart: unless-stopped
+        command: php artisan reverb:start --host=0.0.0.0 --port=8000
+        ports:
+            - "0.0.0.0:8000:8000"  # Direct port mapping
+        volumes:
+            - .:/var/www/html
+        networks:
+            - laravel_network
+        environment:
+            - REVERB_HOST=0.0.0.0
+            - REVERB_PORT=8000
+
+    nginx:
+        image: nginx:alpine
+        container_name: laravel_nginx
+        restart: unless-stopped
+        ports:
+            - "0.0.0.0:8080:80"
+        volumes:
+            - .:/var/www/html
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - app
+            - reverb
+        networks:
+            - laravel_network
 
 networks:
-  laravel_network:
-    driver: bridge
+    laravel_network:
+        driver: bridge

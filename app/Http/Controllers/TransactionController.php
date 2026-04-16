@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TagNotificationCount;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Services\TransactionService;
@@ -42,6 +43,8 @@ class TransactionController extends Controller
 
         $data = $request->validated();
         $transaction = $this->transactionService->createTransaction($data);
+
+        event(new TagNotificationCount());
 
         return $this->responseCreated('Transaction created successfully', new TransactionResource($transaction));
     }
