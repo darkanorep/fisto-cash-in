@@ -3,21 +3,23 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        image: rdf-fisto-cash-in:optimized
+        image: rdf-fisto-cash-in:v2.0  # Use latest
         container_name: laravel_app
         restart: unless-stopped
+        user: "0:0"  # Run as root to fix permissions
         extra_hosts:
             - "host.docker.internal:host-gateway"
         volumes:
             - .:/var/www/html
         networks:
             - laravel_network
+        command: sh -c "chmod -R 777 storage bootstrap/cache && php-fpm"
 
     reverb:
         build:
             context: .
             dockerfile: Dockerfile
-        image: rdf-fisto-cash-in:optimized
+        image: rdf-fisto-cash-in:v2.0  # Use latest
         container_name: laravel_reverb
         restart: unless-stopped
         command: php artisan reverb:start --host=0.0.0.0 --port=8000

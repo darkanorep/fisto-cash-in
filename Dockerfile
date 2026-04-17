@@ -1,25 +1,52 @@
-# Use a suitable PHP-FPM image
-FROM php:8.3-fpm
+# Stage 1: Builder - Install dependencies and build application
+FROM php:8.3-fpm-alpine AS builder
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies with security updates
+RUN apk update && apk upgrade && apk add --no-cache \
     git \
     curl \
     libpng-dev \
-    libjpeg62-turbo-dev \
+    libjpeg-turbo-dev \
     libzip-dev \
-    libpq-dev \
-    libonig-dev \
+    postgresql-dev \
+    oniguruma-dev \
     autoconf \
     g++ \
-    make \
-    && rm -rf /var/lib/apt/lists/*
+    make
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache
+
+# Copy Composer from official image
+COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
+
+# Copy application code
+COPY . .
+
+# Install Composer dependencies (production only)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Stage 2: Runtime - Clean production image with only runtime dependencies
+FROM php:8.3-fpm-alpine
+
+WORKDIR /var/www/html
+
+# Copy PHP extensions from builder
+COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
+COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
+
+# Install only runtime dependencies (no build tools) with security updates
+RUN apk update && apk upgrade && apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    libzip \
+    postgresql-libs \
+    oniguruma \
+    curl \
+    && rm -rf /var/cache/apk/*
+
 
 # Configure OPcache for better performance
 RUN { \
@@ -47,24 +74,23 @@ RUN { \
     echo 'pm.max_requests = 500'; \
     } > /usr/local/etc/php-fpm.d/www.conf
 
-# Install Composer with specific version for better caching
-COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
+# Copy application from builder (only production files, no build tools)
+COPY --from=builder /var/www/html /var/www/html
 
-# Copy your Laravel application code
-COPY . .
+# Set appropriate permissions for storage and cache directories
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html
 
-# Install Composer dependencies (without dev dependencies for production)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-
-# Set appropriate permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
-
-# Create OPcache directory
-RUN mkdir -p /tmp && chown www-data:www-data /tmp
+# Create and set tmp directory permissions
+RUN mkdir -p /tmp && chown www-data:www-data /tmp && chmod 1777 /tmp
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
+
+# Run as non-root user for better security
+USER www-data
 
 # Start PHP-FPM
 CMD ["php-fpm"]
