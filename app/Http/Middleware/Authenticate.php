@@ -19,7 +19,7 @@ class Authenticate extends Middleware
     public function handle($request, \Closure $next, ...$guards)
     {
         $authorizationHeader = $request->header('Authorization');
-        $tokenHeader = $request->header('Token') ?? $request->header('token');
+        $tokenHeader = $request->header('Token');
         $cookieToken = $request->cookie('sanctum');
 
         if (empty($authorizationHeader)) {
