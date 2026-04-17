@@ -51,8 +51,9 @@ class Transaction extends Model
         $dateFrom = $dateRange['date_from'] ?? null;
         $dateTo = $dateRange['date_to'] ?? null;
 
-        return $query->when($dateFrom && $dateTo, function ($q) use ($dateFrom, $dateTo) {
-            $q->whereBetween('transaction_date', [$dateFrom, $dateTo]);
+        return $query->when($dateFrom, function ($q) use ($dateFrom, $dateTo) {
+            $q->whereDate('transaction_date', '>=', $dateFrom)
+                ->whereDate('transaction_date', '<=', $dateTo);
         });
     }
 
@@ -61,7 +62,8 @@ class Transaction extends Model
         $depositDateTo = $dateRange['deposit_date_to'] ?? null;
 
         return $query->when($depositDateFrom && $depositDateTo, function ($q) use ($depositDateFrom, $depositDateTo) {
-            $q->whereBetween('deposit_date', [$depositDateFrom, $depositDateTo]);
+            $q->whereDate('deposit_date', '>=', $depositDateFrom)
+                ->whereDate('deposit_date', '<=', $depositDateTo);
         });
     }
 }
