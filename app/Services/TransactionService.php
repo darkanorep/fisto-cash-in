@@ -27,7 +27,7 @@ class TransactionService
             switch($status) {
                 case 'return-request':
                     $query->where('status', 'return')
-                        ->whereIn('is_tagged', [true, false])
+                        ->where('is_tagged', false)
                         ->whereNotNull('reason');
                     break;
 
@@ -164,6 +164,7 @@ class TransactionService
     public function statusCount() : array {
         return [
             'return' => $this->transaction->where('status', 'return')
+                ->where('is_tagged', false)
                 ->whereNotNull('reason')
                 ->count()
         ];

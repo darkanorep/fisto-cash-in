@@ -5,6 +5,15 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+if (!isset($_SERVER['HTTP_AUTHORIZATION']) && isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+    $xAuthToken = trim($_SERVER['HTTP_X_AUTH_TOKEN']);
+
+    if ($xAuthToken !== '') {
+        $_SERVER['HTTP_AUTHORIZATION'] = stripos($xAuthToken, 'Bearer ') === 0
+            ? $xAuthToken
+            : 'Bearer '.$xAuthToken;
+    }
+}
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance

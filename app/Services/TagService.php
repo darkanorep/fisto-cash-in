@@ -95,7 +95,7 @@ class TagService
                 $transaction->deposit_date = $depositDate ?? null;
                 $transaction->bank_deposit = $bankDeposit ?? null;
                 $transaction->deposit_remarks = $depositRemarks ?? null;
-                if (!$transaction->tag_number) {
+                if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
                     $transaction->tag_number = $this->generateTagNumber($series);
                 }
                 break;
@@ -136,17 +136,20 @@ class TagService
     }
 
     public function generateTagNumber($series) {
-
-        $lastTag = Transaction::whereNotNull('tag_number')
+        // Get all tags with the CHOSEN series
+        $tagsWithSeries = Transaction::whereNotNull('tag_number')
             ->where('tag_number', 'like', $series . '%')
-            ->select('tag_number')
-            ->get();
+            ->get()
+            ->map(function ($item) use ($series) {
+                // Extract only the numeric portion
+                return (int) str_replace($series, '', $item->tag_number);
+            });
 
-        $maxTag = $lastTag->map(function ($item) use ($series) {
-            return (int) str_replace($series, '', $item->tag_number);
-        })->max();
+        // Find max number of that series, default to 0 if none exist
+        $maxNumber = $tagsWithSeries->max() ?? 0;
 
-        $nextTagNumber = $maxTag ? $maxTag + 1 : 1;
+        // Increment to get next number
+        $nextTagNumber = $maxNumber + 1;
 
         return $series . str_pad($nextTagNumber, 4, '0', STR_PAD_LEFT);
     }
