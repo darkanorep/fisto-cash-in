@@ -43,7 +43,7 @@ class Authenticate extends Middleware
                 $request->headers->set('Authorization', $token);
 
                 Log::info('Auth remapped from X-Auth-Token', [
-                    'token_preview' => substr($token, 0, 20) . '...'
+                    'authorization_header_set' => true,
                 ]);
             }
         }
