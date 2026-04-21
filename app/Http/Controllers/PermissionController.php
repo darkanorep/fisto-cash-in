@@ -33,20 +33,20 @@ class PermissionController extends Controller
     }
 
     // Create a new Permission
-//    public function store(PermissionRequest $request) {
-//        $data = $request->validated();
-//        return $this->responseCreated('Permission created successfully', new PermissionResource($this->permissionService->createPermission($data)));
-//    }
-
     public function store(PermissionRequest $request) {
         $data = $request->validated();
-        $permissions = $this->permissionService->createPermission($data);
-
-        return $this->responseCreated(
-            'Permissions created successfully',
-            PermissionResource::collection($permissions)
-        );
+        return $this->responseCreated('Permission created successfully', new PermissionResource($this->permissionService->createPermission($data)));
     }
+
+//    public function store(PermissionRequest $request) {
+//        $data = $request->validated();
+//        $permissions = $this->permissionService->createPermission($data);
+//
+//        return $this->responseCreated(
+//            'Permissions created successfully',
+//            PermissionResource::collection($permissions)
+//        );
+//    }
 
     // Get a specific Permission by ID
     public function show($id) {
@@ -59,34 +59,34 @@ class PermissionController extends Controller
     }
 
     // Update an existing Permission
-//    public function update(PermissionRequest $request, $id) {
-//
-//        $data = $request->validated();
-//        $permission = $this->permissionService->getPermissionById($id);
-//        if (!$permission) {
-//            return $this->responseNotFound('Permission not found');
-//        }
-//
-//        return $this->responseSuccess('Permission updated successfully', $this->permissionService->updatePermission($permission, $data));
-//    }
-
     public function update(PermissionRequest $request, $id) {
+
         $data = $request->validated();
         $permission = $this->permissionService->getPermissionById($id);
-
         if (!$permission) {
             return $this->responseNotFound('Permission not found');
         }
 
-        $updatedPermissions = $this->permissionService->updatePermission($permission, $data);
-
-        // Handle both single permission and collection
-        $resource = is_array($updatedPermissions)
-            ? PermissionResource::collection($updatedPermissions)
-            : new PermissionResource($updatedPermissions);
-
-        return $this->responseSuccess('Permission updated successfully', $resource);
+        return $this->responseSuccess('Permission updated successfully', $this->permissionService->updatePermission($permission, $data));
     }
+
+//    public function update(PermissionRequest $request, $id) {
+//        $data = $request->validated();
+//        $permission = $this->permissionService->getPermissionById($id);
+//
+//        if (!$permission) {
+//            return $this->responseNotFound('Permission not found');
+//        }
+//
+//        $updatedPermissions = $this->permissionService->updatePermission($permission, $data);
+//
+//        // Handle both single permission and collection
+//        $resource = is_array($updatedPermissions)
+//            ? PermissionResource::collection($updatedPermissions)
+//            : new PermissionResource($updatedPermissions);
+//
+//        return $this->responseSuccess('Permission updated successfully', $resource);
+//    }
 
 
     // Soft Delete (Change Status) of a Permission

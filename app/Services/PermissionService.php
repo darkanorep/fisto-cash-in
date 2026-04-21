@@ -18,59 +18,59 @@ class PermissionService
         return $this->permission->with('role')->useFilters()->dynamicPaginate();
     }
 
-//    public function createPermission($data) {
-//        return $this->permission->create($data);
-//    }
-
     public function createPermission($data) {
-        $names = $data['name'];
-        $roleId = $data['role_id'] ?? null;
-
-        $permissions = [];
-        foreach ($names as $name) {
-            $permissions[] = $this->permission->create([
-                'name' => $name,
-                'role_id' => $roleId
-            ]);
-        }
-
-        return $permissions;
+        return $this->permission->create($data);
     }
+
+//    public function createPermission($data) {
+//        $names = $data['name'];
+//        $roleId = $data['role_id'] ?? null;
+//
+//        $permissions = [];
+//        foreach ($names as $name) {
+//            $permissions[] = $this->permission->create([
+//                'name' => $name,
+//                'role_id' => $roleId
+//            ]);
+//        }
+//
+//        return $permissions;
+//    }
 
 
     public function getPermissionById($id) {
         return $this->permission->with('role')->find($id);
     }
 
-//    public function updatePermission($Permission, $data) {
-//        $Permission->update($data);
-//
-//        return $Permission;
-//    }
+    public function updatePermission($Permission, $data) {
+        $Permission->update($data);
 
-    public function updatePermission($permission, $data) {
-        // If name is an array, we need to handle multiple names
-        if (is_array($data['name'])) {
-            // Delete the old permission and create new ones
-            $permission->delete();
-
-            $permissions = [];
-            $roleId = $data['role_id'] ?? null;
-
-            foreach ($data['name'] as $name) {
-                $permissions[] = $this->permission->create([
-                    'name' => $name,
-                    'role_id' => $roleId
-                ]);
-            }
-
-            return $permissions;
-        }
-
-        // Single name update
-        $permission->update($data);
-        return $permission;
+        return $Permission;
     }
+
+//    public function updatePermission($permission, $data) {
+//        // If name is an array, we need to handle multiple names
+//        if (is_array($data['name'])) {
+//            // Delete the old permission and create new ones
+//            $permission->delete();
+//
+//            $permissions = [];
+//            $roleId = $data['role_id'] ?? null;
+//
+//            foreach ($data['name'] as $name) {
+//                $permissions[] = $this->permission->create([
+//                    'name' => $name,
+//                    'role_id' => $roleId
+//                ]);
+//            }
+//
+//            return $permissions;
+//        }
+//
+//        // Single name update
+//        $permission->update($data);
+//        return $permission;
+//    }
 
 
     public function changeStatus($id) {

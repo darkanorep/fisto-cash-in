@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TagNotificationCount;
+use App\Events\RequestDocumentEvent;
 use App\Http\Resources\TransactionResource;
 use App\Services\TagService;
 use Essa\APIToolKit\Api\ApiResponse;
@@ -41,10 +41,6 @@ class TagController extends Controller
     public function action(Request $request) {
         // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
-
-        dispatch(function () {
-            event(new TagNotificationCount());
-        })->afterResponse();
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
 

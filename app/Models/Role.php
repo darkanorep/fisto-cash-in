@@ -30,6 +30,7 @@ class Role extends Model
     }
 
     const ADMIN = 'Admin';
+    const ADMINISTRATOR = 'Administrator';
     const REQUESTOR = 'Requestor';
     const TAGGER = 'Tagger';
     const CLEARER = 'Clearer';

@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\User;
+use App\Services\ClearService;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,31 +11,32 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserLoggedIn implements ShouldBroadcast
+class ClearNotificationCount implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public $user;
-    public function __construct(User $user)
+    public $clearService;
+    public function __construct(ClearService $clearService = null)
     {
-        $this->user = $user;
+        $this->clearService = $clearService ?? app(ClearService::class);
     }
 
-    public function broadcastOn()
+    public function broadcastOn(): Channel
     {
-        return new Channel('users');
+        return new Channel('clear-notifications');
     }
 
-    public function broadcastAs() {
-        return 'user-logged-in';
+    public function broadcastAs(): string
+    {
+        return 'clear-notifications-count';
     }
 
     public function broadcastWith() {
         return [
-            'user' => $this->user,
+            'status_count' => $this->clearService->statusCount()
         ];
     }
 }
