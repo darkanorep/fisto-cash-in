@@ -25,14 +25,7 @@ class PermissionRequest extends FormRequest
         return [
             'name' => [
                 'required',
-                'array',
-                'min:1'
-            ],
-            'name.*' => [
-                'string',
-                'max:255',
-//                'distinct',
-//                'unique:permissions,name'
+                'unique:permissions,name'
             ],
             'role_id' => [
                 'nullable',
