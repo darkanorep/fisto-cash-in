@@ -29,7 +29,7 @@ class ClearNotificationCount implements ShouldBroadcast
         return new Channel('clear-notifications');
     }
 
-    public function broadCastAs(): string
+    public function broadcastAs(): string
     {
         return 'clear-notifications-count';
     }
