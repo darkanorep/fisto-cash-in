@@ -41,7 +41,10 @@ class TagController extends Controller
     public function action(Request $request) {
         // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
-        event(new TagNotificationCount());
+
+        dispatch(function () {
+            event(new TagNotificationCount());
+        })->afterResponse();
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
 
