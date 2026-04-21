@@ -164,9 +164,10 @@ class TransactionService
     public function statusCount() : array {
         return [
             'return' => $this->transaction->where('status', 'return')
+                ->where('user_id', auth()->id())
                 ->where('is_tagged', false)
                 ->whereNotNull('reason')
-                ->count()
+                ->count(),
         ];
     }
 

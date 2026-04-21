@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TagNotificationCount;
 use App\Http\Resources\TransactionResource;
 use App\Services\ClearService;
 use Essa\APIToolKit\Api\ApiResponse;
@@ -37,6 +38,7 @@ class ClearController extends Controller
     public function action(Request $request) {
         // $this->authorize('clear-transaction');
         $transaction = $this->clearService->action($request);
+        event( new TagNotificationCount() );
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
 
