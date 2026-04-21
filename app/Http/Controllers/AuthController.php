@@ -29,9 +29,11 @@ class AuthController extends Controller
 
             $userData = $user->toArray();
 
-            unset($userData['roles']);
+            // Get first role name as string
+            $userData['role'] = $user->roles->first()?->name ?? null;
             $userData['permissions'] = $permissions;
             $userData['charge'] = $user->charge;
+            unset($userData['roles']);
 
 
             $cookie = cookie('sanctum', $token);
