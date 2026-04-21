@@ -42,7 +42,15 @@ class TagController extends Controller
     public function action(Request $request) {
         // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
-        event(new RequestNotificationCount(auth()->user()));
+        $notificationUser = data_get($transaction, 'user');
+
+        if (! $notificationUser && data_get($transaction, 'user_id') === auth()->id()) {
+            $notificationUser = auth()->user();
+        }
+
+        if ($notificationUser) {
+            event(new RequestNotificationCount($notificationUser));
+        }
         event(new ClearNotificationCount());
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
