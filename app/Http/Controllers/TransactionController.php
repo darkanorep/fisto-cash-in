@@ -78,7 +78,10 @@ class TransactionController extends Controller
 
         event(new TagNotificationCount());
 
-        return $this->responseSuccess('Transaction updated successfully', $updatedTransaction);
+        return $this->responseSuccess(
+            'Transaction updated successfully',
+            new TransactionResource($updatedTransaction->fresh())
+        );
     }
 
     public function void(Request $request, $id)
