@@ -76,7 +76,12 @@ class TransactionController extends Controller
         $data = $request->validated();
         $updatedTransaction = $this->transactionService->updateTransaction($transaction, $data);
 
-        return $this->responseSuccess('Transaction updated successfully', $updatedTransaction);
+        event(new TagNotificationCount());
+
+        return $this->responseSuccess(
+            'Transaction updated successfully',
+            new TransactionResource($updatedTransaction->fresh())
+        );
     }
 
     public function void(Request $request, $id)
