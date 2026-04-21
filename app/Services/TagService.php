@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Events\ClearNotificationCount;
+use App\Events\RequestNotificationCount;
 use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
@@ -103,6 +105,7 @@ class TagService
                 $transaction->deposit_date = $depositDate ?? null;
                 $transaction->bank_deposit = $bankDeposit ?? null;
                 $transaction->deposit_remarks = $depositRemarks ?? null;
+                event(new ClearNotificationCount());
                 break;
 
             case 'return':
@@ -112,6 +115,7 @@ class TagService
                 $transaction->bank_deposit = $transaction->bank_deposit ?? null;
                 $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
                 $transaction->tag_number = $transaction->tag_number ?? null;
+                event(new RequestNotificationCount($transaction->user));
                 break;
 
             case 'void':
