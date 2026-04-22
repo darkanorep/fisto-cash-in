@@ -37,7 +37,7 @@ class TransactionService
             }
         } else {
             // Only exclude void and return statuses when no status filter is provided
-            $query->whereNotIn('status', ['return', 'void']);
+            $query->get();
         }
 
         return $query->useFilters()->dynamicPaginate();
