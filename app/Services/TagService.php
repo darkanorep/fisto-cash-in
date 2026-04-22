@@ -7,6 +7,7 @@ use App\Events\RequestNotificationCount;
 use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
@@ -46,7 +47,8 @@ class TagService
 
                 case 'return-tag':
                     // Don't call scope here - 'return-tag' is not a real status
-                    $query->where([
+                    $query
+                        ->where([
                         'is_tagged' => true,
                         'status' => 'return',
                     ])
@@ -180,7 +182,8 @@ class TagService
         $returnQuery = $this->transaction->newQuery()
             ->where('status', 'return')
             ->whereNotNull('reason')
-            ->where('is_cleared', false);
+            ->where('is_tagged', true)
+            ->where('user_id', !auth()->id());
 
         return [
             'pending' => [

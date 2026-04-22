@@ -18,16 +18,17 @@ class SlipService
     public function remainingSlipAmount($type, $slipNumber)
     {
         $transactionIDs = $this->slip->where('type', $type)->where('number', $slipNumber)->pluck('transaction_id');
-        $transactionsQuery = $this->transaction->whereIn('id', $transactionIDs)->where('status', '!=', 'void')->select('id', 'amount');
+        $transactionsQuery = $this->transaction->whereIn('id', $transactionIDs)->where('status', '!=', 'void')->select('id', 'amount')->get();
         $transactionSlips = $this->slip->with(['transactions'])->
         whereIn('transaction_id', $transactionsQuery->pluck('id'))->get()
         ->unique('number')->values();
-        
+
         $totalSlipAmount = $transactionSlips->sum('amount');
         $totalTransactionAmount =  $transactionsQuery->sum('amount');
         $remainingAmount = $totalSlipAmount - $totalTransactionAmount;
 
         return [
+            'total_slip_amount' => $totalSlipAmount,
             'total_amount_paid' => $totalTransactionAmount,
             'remaining_amount' => $remainingAmount,
             'slips' => SlipResource::collection($transactionSlips),
