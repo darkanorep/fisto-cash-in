@@ -161,18 +161,10 @@ class TransactionService
         DB::table('slips')->truncate();
     }
 
-    public function statusCount(?int $userId = null) : array {
-        $userId = $userId ?? auth()->id();
-
-        if ($userId === null) {
-            return [
-                'return' => 0,
-            ];
-        }
-
+    public function statusCount() {
         return [
             'return' => $this->transaction->where('status', 'return')
-                ->where('user_id', $userId)
+                ->where('user_id', auth()->id())
                 ->where('is_tagged', false)
                 ->whereNotNull('reason')
                 ->count(),
