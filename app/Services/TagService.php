@@ -159,17 +159,6 @@ class TagService
         return $series . str_pad($nextTagNumber, 4, '0', STR_PAD_LEFT);
     }
 
-    public function export($request) {
-        $dateFrom = $request->input('date_from');
-        $dateTo = $request->input('date_to');
-        $status  = $request->input('status');
-        $mode_of_payment = $request->input('mode_of_payment');
-
-        $statusLabel = $status ? strtoupper(str_replace('tag:', '', $status)): 'All';
-        $filename = "TAG-{$statusLabel}_{$dateFrom}_to_{$dateTo}.xlsx";
-        return Excel::download(new ActivityExport($dateFrom, $dateTo, $status, $mode_of_payment), $filename);
-    }
-
     public function statusCount() : array {
         $baseQuery = $this->transaction->newQuery()
             ->where('status', 'pending');

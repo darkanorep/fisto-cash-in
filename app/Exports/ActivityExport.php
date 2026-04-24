@@ -24,21 +24,25 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
     /**
      * @var mixed|null
      */
+    private mixed $state;
     private mixed $status;
     /**
      * @var mixed|null
      */
     private mixed $mode_of_payment;
+    private mixed $user_id;
 
     /**
     * @return array[]
      */
 
-    public function __construct($dateFrom = null, $dateTo = null, $status = null, $mode_of_payment = null)
+    public function __construct($dateFrom = null, $dateTo = null, $state = null, $status = null, $user_id = null, $mode_of_payment = null)
     {
         $this->dateFrom = $dateFrom ? Carbon::createFromFormat('Y-m-d', $dateFrom)->startOfDay() : null;
         $this->dateTo = $dateTo ? Carbon::createFromFormat('Y-m-d', $dateTo)->endOfDay() : null;
+        $this->state = $state ?? null;
         $this->status = $status ?? null;
+        $this->user_id = $user_id ?? null;
         $this->mode_of_payment = $mode_of_payment ?? null;
     }
 
@@ -107,12 +111,23 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
                 'transactions.deposit_remarks',
                 'transactions.tag_number',
             )
-            ->whereBetween('activity_log.created_at', [$this->dateFrom, $this->dateTo])
+            ->when(isset($this->dateFrom), function ($query) {
+                $query->whereDate('activity_log.created_at', '>=', $this->dateFrom);
+            })
+            ->when(isset($this->dateTo), function ($query) {
+                $query->whereDate('activity_log.created_at', '<=', $this->dateTo);
+            })
 //            ->where('transactions.mode_of_payment', $this->mode_of_payment)
             ->when(isset($this->mode_of_payment), function ($query) {
                 $query->where('transactions.mode_of_payment', $this->mode_of_payment);
             })
-            ->where('activity_log.event', 'tag:'.$this->status)
+            ->when($this->state && $this->status !== null, function ($query) {
+                $query->where('activity_log.event', $this->state . ':' . $this->status);
+            })
+            ->when(isset($this->user_id), function ($query) {
+                $query->where('activity_log.causer_id', $this->user_id)
+                    ->where('activity_log.event', 'created');
+            })
             ->get();
 
         return $query->map(function ($item) {

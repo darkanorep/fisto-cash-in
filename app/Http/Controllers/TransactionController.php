@@ -105,6 +105,10 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function export(Request $request) {
+        return $this->transactionService->export($request);
+    }
+
     public function truncate()
     {
         $this->transactionService->truncateTransactions();

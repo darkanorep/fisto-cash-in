@@ -3,9 +3,11 @@
 namespace App\Services;
 
 
+use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
 
 class TransactionService
@@ -19,7 +21,10 @@ class TransactionService
 
     public function getAllTransactions($request)
     {
-        $query = $this->transaction->query()->with(['bank'])->where('user_id', auth()->id());
+        $query = $this->transaction->query()->with([
+            'bank',
+            'slips'
+        ])->where('user_id', auth()->id());
         $status = $request->input('status');
 
         // Apply status filter if provided
@@ -152,6 +157,20 @@ class TransactionService
         $this->logActivityOn($transaction, 'Transaction Voided', $transactionData, 'voided');
 
         return $transaction;
+    }
+
+    public function export($request) {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $state  = $request->input('state');
+        $status  = $request->input('status');
+        $mode_of_payment = $request->input('mode_of_payment');
+        $userId = $request->input('user_id');
+
+        $stateLabel = $state ? strtoupper($state) : null;
+        $statusLabel = $status ? strtoupper($status): null;
+        $filename = "T{$stateLabel}-{$statusLabel}_{$dateFrom}_to_{$dateTo}.xlsx";
+        return Excel::download(new ActivityExport($dateFrom, $dateTo, $state, $status, $userId, $mode_of_payment), $filename);
     }
 
     public function truncateTransactions(): void

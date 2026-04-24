@@ -45,6 +45,7 @@ class TransactionResource extends JsonResource
             ],
             'amount' => $this->amount,
             'remaining_balance' => $this->remaining_balance,
+            'total_amount' => $this->slips()->sum('amount'),
             'remarks' => $this->remarks,
             'charge' => [
                 'id' => $this->charge->id,

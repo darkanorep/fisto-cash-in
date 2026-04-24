@@ -83,6 +83,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);
     Route::get('transactions-status-count', [TransactionController::class, 'statusCount']);
+    Route::get('transactions/export', [TransactionController::class, 'export']);
 
     // Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
     // Route::get('transactions', [TransactionController::class, 'index'])->middleware('can:my-transaction');
@@ -92,7 +93,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Tagging
     Route::get('tag-transactions', [TagController::class, 'index']);
     Route::post('tag-transaction', [TagController::class, 'action']);
-    Route::get('tag-transactions/export', [TagController::class, 'export']);
     Route::get('tag-status-count', [TagController::class, 'statusCount']);
 
     //Clearing

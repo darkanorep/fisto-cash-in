@@ -44,10 +44,6 @@ class TagController extends Controller
         return $this->responseSuccess('Transaction updated successfully', $transaction);
     }
 
-    public function export(Request $request) {
-        return $this->tagService->export($request);
-    }
-
     public function statusCount() {
         return response()->json([
             $this->tagService->statusCount()
