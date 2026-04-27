@@ -126,7 +126,7 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
             })
             ->when(isset($this->user_id), function ($query) {
                 $query->where('activity_log.causer_id', $this->user_id)
-                    ->where('activity_log.event', 'created');
+                    ->where('activity_log.description', 'Transaction Created');
             })
             ->get();
 

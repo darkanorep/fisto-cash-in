@@ -175,10 +175,30 @@ class TransactionService
 
     public function truncateTransactions(): void
     {
-        $this->transaction->truncate();
-        DB::table('activity_log')->truncate();
-        DB::table('slips')->truncate();
+        try {
+            $driver = DB::connection()->getDriverName();
+
+            if ($driver === 'pgsql') {
+                // PostgreSQL: Use CASCADE to truncate dependent tables
+                DB::statement('TRUNCATE TABLE slips CASCADE');
+                DB::statement('TRUNCATE TABLE activity_log CASCADE');
+                DB::statement('TRUNCATE TABLE transactions CASCADE');
+            } else {
+                // MySQL: Disable foreign key checks
+                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                DB::table('slips')->truncate();
+                DB::table('activity_log')->truncate();
+                $this->transaction->truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Ensure foreign key checks are re-enabled on error (MySQL only)
+            if (DB::connection()->getDriverName() === 'mysql') {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+        }
     }
+
 
     public function statusCount() {
         return [

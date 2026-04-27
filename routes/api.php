@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             Route::resource('users', UserController::class);
 
             //Account Titles
+            Route::post('account-titles/sync', [AccountTitleController::class, 'sync']);
             Route::resource('account-titles', AccountTitleController::class);
 
             //One Charging
