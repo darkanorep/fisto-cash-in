@@ -80,10 +80,10 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
 
     //Transactions
+    Route::get('transactions/export', [TransactionController::class, 'export']);
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);
     Route::get('transactions-status-count', [TransactionController::class, 'statusCount']);
-    Route::get('transactions/export', [TransactionController::class, 'export']);
 
     // Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
     // Route::get('transactions', [TransactionController::class, 'index'])->middleware('can:my-transaction');
