@@ -167,9 +167,12 @@ class TransactionService
         $mode_of_payment = $request->input('mode_of_payment');
         $userId = $request->input('user_id');
 
-        $stateLabel = $state ? strtoupper($state) : null;
-        $statusLabel = $status ? strtoupper($status): null;
-        $filename = "T{$stateLabel}-{$statusLabel}_{$dateFrom}_to_{$dateTo}.xlsx";
+        $stateLabel = filled($state) ? strtoupper($state) : 'ALL';
+        $statusLabel = filled($status) ? strtoupper($status) : 'ALL';
+        $dateFromLabel = filled($dateFrom) ? $dateFrom : 'START';
+        $dateToLabel = filled($dateTo) ? $dateTo : 'END';
+
+        $filename = "T{$stateLabel}-{$statusLabel}_{$dateFromLabel}_to_{$dateToLabel}.xlsx";
         return Excel::download(new ActivityExport($dateFrom, $dateTo, $state, $status, $userId, $mode_of_payment), $filename);
     }
 
