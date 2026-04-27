@@ -28,7 +28,7 @@ class ChargeService
 
     public function updateCharge($charge, $data) {
         $charge->update($data);
-        
+
         return $charge;
     }
 
@@ -65,7 +65,7 @@ class ChargeService
                     'sub_unit_code' => data_get($item, 'sub_unit_code'),
                     'sub_unit_name' => data_get($item, 'sub_unit_name'),
                     'location_code' => data_get($item, 'location_code'),
-                    'location_name' => data_get($item, 'location_name'),
+                    'location_name' => data_get($item, 'location_name')
                 ];
 
                 // Use updateOrCreate instead of upsert

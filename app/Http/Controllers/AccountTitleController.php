@@ -68,4 +68,9 @@ class AccountTitleController extends Controller
 
         return $this->responseSuccess('Account Title status changed successfully', $accountTitle);
     }
+
+    public function sync()
+    {
+        return $this->responseSuccess('Account Title synced successfully', $this->accountTitleService->sync());
+    }
 }

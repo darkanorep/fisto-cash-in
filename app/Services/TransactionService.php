@@ -3,9 +3,11 @@
 namespace App\Services;
 
 
+use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
 
 class TransactionService
@@ -19,7 +21,10 @@ class TransactionService
 
     public function getAllTransactions($request)
     {
-        $query = $this->transaction->query()->with(['bank'])->where('user_id', auth()->id());
+        $query = $this->transaction->query()->with([
+            'bank',
+            'slips'
+        ])->where('user_id', auth()->id());
         $status = $request->input('status');
 
         // Apply status filter if provided
@@ -154,12 +159,49 @@ class TransactionService
         return $transaction;
     }
 
+    public function export($request) {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $state  = $request->input('state');
+        $status  = $request->input('status');
+        $mode_of_payment = $request->input('mode_of_payment');
+        $userId = $request->input('user_id');
+
+        $stateLabel = filled($state) ? strtoupper($state) : 'ALL';
+        $statusLabel = filled($status) ? strtoupper($status) : 'ALL';
+        $dateFromLabel = filled($dateFrom) ? $dateFrom : 'START';
+        $dateToLabel = filled($dateTo) ? $dateTo : 'END';
+
+        $filename = "T{$stateLabel}-{$statusLabel}_{$dateFromLabel}_to_{$dateToLabel}.xlsx";
+        return Excel::download(new ActivityExport($dateFrom, $dateTo, $state, $status, $userId, $mode_of_payment), $filename);
+    }
+
     public function truncateTransactions(): void
     {
-        $this->transaction->truncate();
-        DB::table('activity_log')->truncate();
-        DB::table('slips')->truncate();
+        try {
+            $driver = DB::connection()->getDriverName();
+
+            if ($driver === 'pgsql') {
+                // PostgreSQL: Use CASCADE to truncate dependent tables
+                DB::statement('TRUNCATE TABLE slips CASCADE');
+                DB::statement('TRUNCATE TABLE activity_log CASCADE');
+                DB::statement('TRUNCATE TABLE transactions CASCADE');
+            } else {
+                // MySQL: Disable foreign key checks
+                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                DB::table('slips')->truncate();
+                DB::table('activity_log')->truncate();
+                $this->transaction->truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Ensure foreign key checks are re-enabled on error (MySQL only)
+            if (DB::connection()->getDriverName() === 'mysql') {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+        }
     }
+
 
     public function statusCount() {
         return [

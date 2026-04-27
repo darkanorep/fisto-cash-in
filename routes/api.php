@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             Route::resource('users', UserController::class);
 
             //Account Titles
+            Route::post('account-titles/sync', [AccountTitleController::class, 'sync']);
             Route::resource('account-titles', AccountTitleController::class);
 
             //One Charging
@@ -80,6 +81,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
 
     //Transactions
+    Route::get('transactions/export', [TransactionController::class, 'export']);
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);
     Route::get('transactions-status-count', [TransactionController::class, 'statusCount']);
@@ -92,7 +94,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     //Tagging
     Route::get('tag-transactions', [TagController::class, 'index']);
     Route::post('tag-transaction', [TagController::class, 'action']);
-    Route::get('tag-transactions/export', [TagController::class, 'export']);
     Route::get('tag-status-count', [TagController::class, 'statusCount']);
 
     //Clearing

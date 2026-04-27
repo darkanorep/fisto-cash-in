@@ -14,14 +14,5 @@ class AccountTitle extends Model
 
     protected string $default_filters = AccountTitleFilter::class;
 
-    protected $fillable = [
-        'code',
-        'name',
-        'account_type',
-        'account_group',
-        'sub_group',
-        'financial_statement',
-        'normal_balance',
-        'unit',
-    ];
+    protected $guarded = [];
 }
