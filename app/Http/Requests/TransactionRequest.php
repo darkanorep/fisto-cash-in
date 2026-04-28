@@ -21,22 +21,31 @@ class TransactionRequest extends FormRequest
      */
     public function rules(): array
     {
+        $transactionId = $this->route('transaction');
+        $transaction = $transactionId ? \App\Models\Transaction::find($transactionId) : null;
+
+        $isPending = $this->input('status') === 'pending' || $transaction?->status === 'pending';
+        $isReturnUntagged = ($this->input('status') === 'return' || $transaction?->status === 'return')
+            && (!$this->input('is_tagged') && !$transaction?->is_tagged);
+
+        $allowEdit = $isPending || $isReturnUntagged;
+
         return [
-            'type' => 'string|required',
-            'category' => 'string|nullable',
-            'reference_no' => 'string|nullable',
-            'transaction_date' => 'nullable|date_format:Y-m-d H:i:s',
-            'payment_date' => 'nullable|date_format:Y-m-d H:i:s',
-            'customer.id' => 'integer|required|exists:customers,id',
-            'customer.name' => 'string|required',
-            'mode_of_payment' => 'string|required',
+            'type' => $allowEdit ? 'string|required' : 'string|nullable',
+            'category' => $allowEdit ? 'string|required' : 'string|nullable',
+            'reference_no' => $allowEdit ? 'string|required' : 'string|nullable',
+            'transaction_date' => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
+            'payment_date' => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
+            'customer.id' => $allowEdit ? 'integer|required|exists:customers,id' : 'integer|nullable|exists:customers,id',
+            'customer.name' => $allowEdit ? 'string|required' : 'string|nullable',
+            'mode_of_payment' => $allowEdit ? 'string|required' : 'string|nullable',
             'bank.id' => 'integer|nullable|exists:banks,id|required_if:mode_of_payment,check',
             'bank.name' => 'string|nullable|required_if:mode_of_payment,check',
             'check.no' => 'string|nullable|required_if:mode_of_payment,check',
             'check.date' => 'nullable|date_format:Y-m-d H:i:s',
             'cheque.no' => 'string|nullable|required_if:mode_of_payment,cheque',
             'cheque.date' => 'nullable|date_format:Y-m-d H:i:s',
-            'amount' => 'numeric|required',
+            'amount' => $allowEdit ? 'numeric|required' : 'numeric|nullable',
             'remaining_balance' => 'numeric|nullable',
             'charge.id' => 'integer|nullable',
             'charge.name' => 'string|nullable',

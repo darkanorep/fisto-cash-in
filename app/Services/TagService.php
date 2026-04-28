@@ -7,6 +7,7 @@ use App\Events\RequestNotificationCount;
 use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -141,22 +142,28 @@ class TagService
     }
 
     public function generateTagNumber($series) {
-        // Get all tags with the CHOSEN series
+        // Get current month and year
+        $monthYear = Carbon::now()->format('Y-m');
+
+        // Create the prefix with series, year, and month
+        $prefix = $series . '-' . $monthYear . '-';
+
+        // Get all tags with the CHOSEN series and current month/year
         $tagsWithSeries = Transaction::whereNotNull('tag_number')
-            ->where('tag_number', 'like', $series . '%')
+            ->where('tag_number', 'like', $prefix . '%')
             ->get()
-            ->map(function ($item) use ($series) {
-                // Extract only the numeric portion
-                return (int) str_replace($series, '', $item->tag_number);
+            ->map(function ($item) use ($prefix) {
+                // Extract only the numeric portion after the prefix
+                return (int) str_replace($prefix, '', $item->tag_number);
             });
 
-        // Find max number of that series, default to 0 if none exist
+        // Find max number of that series and month/year, default to 0 if none exist
         $maxNumber = $tagsWithSeries->max() ?? 0;
 
         // Increment to get next number
         $nextTagNumber = $maxNumber + 1;
 
-        return $series . str_pad($nextTagNumber, 4, '0', STR_PAD_LEFT);
+        return $prefix . str_pad($nextTagNumber, 4, '0', STR_PAD_LEFT);
     }
 
     public function statusCount() : array {
