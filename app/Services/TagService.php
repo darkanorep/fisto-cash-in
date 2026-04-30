@@ -178,8 +178,8 @@ class TagService
         $returnQuery = $this->transaction->newQuery()
             ->where('status', 'return')
             ->whereNotNull('reason')
-            ->where('is_tagged', true)
-            ->where('user_id', !auth()->id());
+            ->where('is_tagged', true);
+//            ->where('user_id', !auth()->id());
 
         return [
             'pending' => [
