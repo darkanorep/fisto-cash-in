@@ -46,15 +46,13 @@ class UserRequest extends FormRequest
             'charge_id' => ['required', Rule::exists('charges', 'id')],
             'charge_name' => ['required', 'string', 'max:255'],
             'transaction_type' => [
-                Rule::requiredIf(function () {
-                    $requestorRoleId = Role::query()
-                        ->where('name', Role::REQUESTOR)
-                        ->value('id');
-
-                    return $this->integer('role_id') === (int) $requestorRoleId;
-                }),
+                $this->isRequestorRole(),
                 'array',
             ],
+            'category' => [
+                $this->isRequestorRole(),
+                'array',
+            ]
         ];
     }
 
@@ -73,6 +71,19 @@ class UserRequest extends FormRequest
         return [
             'transaction_type.required' => 'The type field is required when the selected role is Requestor.',
             'transaction_type.array' => 'The type field must be an array.',
+            'category.required' => 'The category field is required when the selected role is Requestor.',
+            'category.array' => 'The category field must be an array.',
         ];
+    }
+
+    private function isRequestorRole()
+    {
+        return Rule::requiredIf(function () {
+            $requestorRoleId = Role::query()
+                ->where('name', Role::REQUESTOR)
+                ->value('id');
+
+            return $this->integer('role_id') === (int) $requestorRoleId;
+        });
     }
 }

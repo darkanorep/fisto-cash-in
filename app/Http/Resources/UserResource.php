@@ -54,6 +54,7 @@ class UserResource extends JsonResource
             'charge_id' => $this->charge_id,
             'charge_name' => $this->charge_name,
             'transaction_type' => $this->transaction_type,
+            'category' => $this->category,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
