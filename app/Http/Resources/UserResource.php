@@ -33,7 +33,6 @@ class UserResource extends JsonResource
                     'code' => $this->charge->code,
                     'name' => $this->charge->name,
                     'company_code' => $this->charge->company_code,
-                    'company_name' => $this->charge->company_name,
                     'business_unit_code' => $this->charge->business_unit_code,
                     'business_unit_name' => $this->charge->business_unit_name,
                     'department_code' => $this->charge->department_code,

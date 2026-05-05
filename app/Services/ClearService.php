@@ -59,6 +59,8 @@ class ClearService
             ]);
         }
 
+        $query->orderBy('updated_at', 'desc');
+
         return $query->useFilters()->dynamicPaginate();
     }
 

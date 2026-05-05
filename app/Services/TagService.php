@@ -70,6 +70,8 @@ class TagService
             ]);
         }
 
+        $query->orderBy('updated_at', 'desc');
+
         return $query->with(['bank'])->useFilters()->dynamicPaginate();
     }
 
