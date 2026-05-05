@@ -16,9 +16,9 @@ class RoleService {
 
     public function getRoles(Request $request) {
 
-        return $this->role->useFilters()->dynamicPaginate();
+        return $this->role->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();
     }
-    
+
     public function createRole($data) {
         return $this->role->create($data);
     }
@@ -29,7 +29,7 @@ class RoleService {
 
     public function updateRole($role, $data) {
         $role->update($data);
-        
+
         return $role;
     }
 
@@ -44,5 +44,5 @@ class RoleService {
 
         return $role;
     }
-    
+
 }

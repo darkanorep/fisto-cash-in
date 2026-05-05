@@ -16,7 +16,7 @@ class BankService
 
     public function getBanks(Request $request)
     {
-        $query = $this->bank->useFilters();
+        $query = $this->bank->orderBy('updated_at', 'desc')->useFilters();
 
         if ($request->pagination === 'none') {
             return $query->get();

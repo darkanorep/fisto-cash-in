@@ -15,7 +15,7 @@ class ChargeService
     }
 
     public function getAllCharges(Request $request) {
-        return $this->charge->useFilters()->dynamicPaginate();
+        return $this->charge->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();
     }
 
     public function createCharge($data) {

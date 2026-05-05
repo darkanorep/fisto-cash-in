@@ -15,7 +15,7 @@ class PermissionService
     }
 
     public function getPermissions(Request $request) {
-        return $this->permission->with('role')->useFilters()->dynamicPaginate();
+        return $this->permission->with('role')->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();
     }
 
     public function createPermission($data) {
