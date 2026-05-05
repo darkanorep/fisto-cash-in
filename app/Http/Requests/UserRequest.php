@@ -49,10 +49,7 @@ class UserRequest extends FormRequest
                 $this->isRequestorRole(),
                 'array',
             ],
-            'category' => [
-                $this->isRequestorRole(),
-                'array',
-            ]
+            'category' => ['nullable', 'array',]
         ];
     }
 
