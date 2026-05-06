@@ -13,7 +13,7 @@ class CustomerService
     }
 
     public function getAllCustomers() {
-        return $this->customer->useFilters()->dynamicPaginate();
+        return $this->customer->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();
     }
 
     public function createCustomer($data) {
@@ -26,7 +26,7 @@ class CustomerService
 
     public function updateCustomer($customer, $data) {
         $customer->update($data);
-        
+
         return $customer;
     }
 

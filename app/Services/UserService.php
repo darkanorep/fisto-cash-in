@@ -17,7 +17,11 @@ class UserService
 
     public function getUsers()
     {
-        return $this->user->with(['roles',  'charge'])->useFilters()->dynamicPaginate();
+        return $this->user
+            ->with(['roles', 'charge'])
+            ->orderBy('updated_at', 'desc')
+            ->useFilters()
+            ->dynamicPaginate();
     }
 
     public function createUser($data)
@@ -32,7 +36,7 @@ class UserService
         return $user;
     }
 
-    public function getUserById($id) 
+    public function getUserById($id)
     {
         return $this->user->with(['roles', 'charge'])->find($id);
     }
@@ -41,18 +45,18 @@ class UserService
     {
         $roleIds = $data['role_id'] ?? [];
         unset($data['role_id']);
-        
+
         if (array_key_exists('password', $data) && (is_null($data['password']) || $data['password'] === '')) {
             unset($data['password']);
         }
-        
+
         $user->update($data);
-        
+
         if (!empty($roleIds)) {
             $roleIds = is_array($roleIds) ? $roleIds : explode(',', $roleIds);
             $user->roles()->sync($roleIds);
         }
-        
+
         return $user;
     }
 

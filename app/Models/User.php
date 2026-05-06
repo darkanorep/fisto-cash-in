@@ -16,19 +16,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, Filterable;
 
-    protected $fillable = [
-        'employee_id',
-        'first_name',
-        'last_name',
-        'middle_name',
-        'suffix',
-        'position',
-        'username',
-        'password',
-        'charge_id',
-        'charge_name',
-        'transaction_type'
-    ];
+    protected $guarded = [];
 
     protected $hidden = [
         'password',
@@ -37,7 +25,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
-        'transaction_type' => 'array'
+        'transaction_type' => 'array',
+        'category' => 'array',
     ];
 
     protected string $default_filters = UserFilter::class;

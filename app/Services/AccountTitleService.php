@@ -16,7 +16,7 @@ class AccountTitleService
     }
 
     public function getAccountTitles(Request $request) {
-        return $this->accountTitle->useFilters()->dynamicPaginate();
+        return $this->accountTitle->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();
     }
 
     public function createAccountTitle($data) {

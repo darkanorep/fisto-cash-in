@@ -28,22 +28,25 @@ class TransactionService
         $status = $request->input('status');
 
         // Apply status filter if provided
-        if ($status) {
-            switch($status) {
-                case 'return-request':
-                    $query->where('status', 'return')
-                        ->where('is_tagged', false)
-                        ->whereNotNull('reason');
-                    break;
+            if ($status) {
+                switch($status) {
+                    case 'return-request':
+                        $query->where('status', 'return')
+                            ->where('is_tagged', false)
+                            ->whereNotNull('reason');
+                        break;
 
-                default:
-                    $query->status($status); // This calls your scope
-                    break;
+                    default:
+                        $query->status($status); // This calls your scope
+                        break;
+                }
+            } else {
+                // Only exclude void and return statuses when no status filter is provided
+                $query->get();
             }
-        } else {
-            // Only exclude void and return statuses when no status filter is provided
-            $query->get();
-        }
+
+        // Sort by updated_at in descending order (newest first)
+        $query->orderBy('updated_at', 'desc');
 
         return $query->useFilters()->dynamicPaginate();
     }
