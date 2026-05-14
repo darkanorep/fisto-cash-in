@@ -23,6 +23,7 @@ class TransactionService
     {
         $query = $this->transaction->query()->with([
             'bank',
+            'customer',
             'slips'
         ])->where('user_id', auth()->id());
         $status = $request->input('status');
@@ -50,10 +51,9 @@ class TransactionService
 
         return $query->useFilters()->dynamicPaginate();
     }
-
-    public function createTransaction($data)
+    private function buildTransactionData($data, $additionalFields = [])
     {
-        $transactionData = [
+        $baseData = [
             'user_id' => auth()->id(),
             'type' => $data['type'],
             'category' => $data['category'] ?? null,
@@ -62,9 +62,11 @@ class TransactionService
             'transaction_date' => $data['transaction_date'] ?? null,
             'payment_date' => $data['payment_date'] ?? null,
             'customer_id' => $data['customer']['id'],
+            'customer_code' => $data['customer']['code'] ?? null,
             'customer_name' => $data['customer']['name'],
             'mode_of_payment' => $data['mode_of_payment'],
             'bank_id' => $data['bank']['id'] ?? null,
+            'bank_code' => $data['bank']['code'] ?? null,
             'bank_name' => $data['bank']['name'] ?? null,
             'check_no' => $data['cheque']['no'] ?? $data['check']['no'] ?? null,
             'check_date' => $data['cheque']['date'] ?? $data['check']['date'] ?? null,
@@ -75,6 +77,11 @@ class TransactionService
             'remarks' => $data['remarks'] ?? null,
         ];
 
+        return array_merge($baseData, $additionalFields);
+    }
+    public function createTransaction($data)
+    {
+        $transactionData = $this->buildTransactionData($data);
         $transaction = $this->transaction->create($transactionData);
 
         if (!empty($data['slip'])) {
@@ -94,40 +101,17 @@ class TransactionService
 
         return $transaction;
     }
-
     public function getTransactionById($id)
     {
         return $this->transaction->with([
             'slips',
             'bank',
+            'customer'
             ])->find($id);
     }
-
     public function updateTransaction($transaction, $data)
     {
-        $transactionData = [
-            'user_id' => auth()->id(),
-            'type' => $data['type'],
-            'category' => $data['category'] ?? null,
-            'sync_id' => $data['sync_id'] ?? null,
-            'reference_no' => $data['reference_no'] ?? null,
-            'transaction_date' => $data['transaction_date'] ?? null,
-            'payment_date' => $data['payment_date'] ?? null,
-            'customer_id' => $data['customer']['id'],
-            'customer_name' => $data['customer']['name'],
-            'mode_of_payment' => $data['mode_of_payment'],
-            'bank_id' => $data['bank']['id'] ?? null,
-            'bank_name' => $data['bank']['name'] ?? null,
-            'check_no' => $data['cheque']['no'] ?? null,
-            'check_date' => $data['cheque']['date'] ?? null,
-            'amount' => $data['amount'],
-            'remaining_balance' => $data['remaining_balance'] ?? 0,
-            'charge_id' => $data['charge']['id'],
-            'charge_name' => $data['charge']['name'],
-            'remarks' => $data['remarks'] ?? null,
-            'status' => 'pending', // Reset status to pending on update
-        ];
-
+        $transactionData = $this->buildTransactionData($data, ['status' => 'pending']);
         $transaction->update($transactionData);
 
         if (!empty($data['slip'])) {
@@ -149,7 +133,6 @@ class TransactionService
 
         return $transaction;
     }
-
     public function voidTransaction($transaction, $data)
     {
         $transactionData = [
@@ -163,7 +146,6 @@ class TransactionService
 
         return $transaction;
     }
-
     public function export($request) {
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
@@ -180,7 +162,6 @@ class TransactionService
         $filename = "T{$stateLabel}-{$statusLabel}_{$dateFromLabel}_to_{$dateToLabel}.xlsx";
         return Excel::download(new ActivityExport($dateFrom, $dateTo, $state, $status, $userId, $mode_of_payment), $filename);
     }
-
     public function truncateTransactions(): void
     {
         try {
@@ -206,8 +187,6 @@ class TransactionService
             }
         }
     }
-
-
     public function statusCount() {
         return [
             'return' => $this->transaction->where('status', 'return')
