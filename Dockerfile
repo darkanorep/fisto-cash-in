@@ -37,6 +37,9 @@ WORKDIR /var/www/html
 COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 
+# Copy Composer from builder
+COPY --from=builder /usr/bin/composer /usr/bin/composer
+
 # Install only runtime dependencies (no build tools) with security updates
 RUN apk update && apk upgrade && apk add --no-cache \
     libpng \
@@ -45,6 +48,7 @@ RUN apk update && apk upgrade && apk add --no-cache \
     postgresql-libs \
     oniguruma \
     curl \
+    git \
     && rm -rf /var/cache/apk/*
 
 

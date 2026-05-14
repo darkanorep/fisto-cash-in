@@ -10,11 +10,9 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SlipController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
-use App\Models\Role;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,6 +98,11 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('clear-transactions', [ClearController::class, 'index']);
     Route::post('clear-transaction', [ClearController::class, 'action']);
     Route::get('clear-status-count', [ClearController::class, 'statusCount']);
+
+    //Filing
+    Route::get('file-transactions', [FileController::class, 'index']);
+    Route::post('file-transaction', [FileController::class, 'action']);
+    Route::get('file-status-count', [FileController::class, 'statusCount']);
 
     //Slip
     Route::get('remaining-slip-amount', [SlipController::class, 'getRemainingSlipAmount']);

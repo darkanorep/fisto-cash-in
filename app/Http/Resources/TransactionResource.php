@@ -28,16 +28,16 @@ class TransactionResource extends JsonResource
                 ? \Carbon\Carbon::parse($this->payment_date)->format('Y-m-d H:i:s')
                 : null,
             'customer' => [
-                'id' => $this->customer->id,
-                'name' => $this->customer->name,
+                'id' => $this->customer_id ?? null,
+                'code' => $this->customer_code ?? null,
+                'name' => $this->customer_name ?? null,
             ],
-            'mode_of_payment' => $this->mode_of_payment,
-            'bank' => $this->whenLoaded('bank', function () {
-                return $this->bank ? [
-                    'id' => $this->bank->id,
-                    'name' => $this->bank->name,
-                ] : null;
-            }),
+            'mode_of_payment' => $this->mode_of_payment ?? null,
+            'bank' => [
+                'id' => $this->bank_id ?? null,
+                'code' => $this->bank_code ?? null,
+                'name' => $this->bank_name ?? null,
+            ],
             'cheque' => [
                 'no' => $this->check_no,
                 'date' => $this->check_date
@@ -92,6 +92,7 @@ class TransactionResource extends JsonResource
                 ? \Carbon\Carbon::parse($this->date_cleared)->format('Y-m-d H:i:s')
                 : null,
             'bank_deposit' => $this->bank_deposit,
+            'bank_code_deposit' => $this->bank_code_deposit,
             'deposit_date' => $this->deposit_date
                 ? \Carbon\Carbon::parse($this->deposit_date)->format('Y-m-d H:i:s')
                 : null,

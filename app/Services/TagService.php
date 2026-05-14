@@ -77,70 +77,86 @@ class TagService
 
     public function action($request) {
 
-        $transactionId = $request->input('transaction_id');
+        $transactionIds = $request->input('transaction_id');
         $status = $request->input('status');
         $depositDate = $request->input('deposit_date');
         $bankDeposit = $request->input('bank_deposit');
+        $bankCodeDeposit = $request->input('bank_code_deposit');
         $depositRemarks = $request->input('deposit_remarks');
         $series = $request->input('series');
         $reason = $request->input('reason');
-        $transaction = $this->transaction->findOrFail($transactionId);
 
-        switch($status) {
+        $tagNumber = null;
 
-            case 'receive':
-                $transaction->reason = null;
-                $transaction->deposit_date = null;
-                $transaction->bank_deposit = null;
-                $transaction->deposit_remarks = null;
-                $transaction->is_tagged = false;
-                break;
+        foreach ($transactionIds as $transactionId) {
+            $transaction = $this->transaction->findOrFail($transactionId);
 
-            case 'tag':
-                $transaction->is_tagged = true;
-                $transaction->deposit_date = $depositDate ?? null;
-                $transaction->bank_deposit = $bankDeposit ?? null;
-                $transaction->deposit_remarks = $depositRemarks ?? null;
-                if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
-                    $transaction->tag_number = $this->generateTagNumber($series);
-                }
-                break;
+            switch($status) {
 
-            case 'deposit':
-                $transaction->deposit_date = $depositDate ?? null;
-                $transaction->bank_deposit = $bankDeposit ?? null;
-                $transaction->deposit_remarks = $depositRemarks ?? null;
-                event(new ClearNotificationCount());
-                break;
+                case 'receive':
+                    $transaction->reason = null;
+                    $transaction->deposit_date = null;
+                    $transaction->bank_deposit = null;
+                    $transaction->deposit_remarks = null;
+                    $transaction->is_tagged = false;
+                    break;
 
-            case 'return':
-                $transaction->is_tagged = false;
-                $transaction->reason = $reason;
-                $transaction->deposit_date = $transaction->deposit_date ?? null;
-                $transaction->bank_deposit = $transaction->bank_deposit ?? null;
-                $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
-                $transaction->tag_number = $transaction->tag_number ?? null;
-                event(new RequestNotificationCount($transaction->user));
-                break;
+                case 'tag':
+                    $transaction->is_tagged = true;
+                    $transaction->deposit_date = $depositDate ?? null;
+                    $transaction->bank_deposit = $bankDeposit ?? null;
+                    $transaction->deposit_remarks = $depositRemarks ?? null;
+                    $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+                    if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
+                        // If transaction has sync_id, use shared tag number
+                        if ($transaction->sync_id) {
+                            if ($tagNumber === null || !str_starts_with($tagNumber, $series)) {
+                                $tagNumber = $this->generateTagNumber($series);
+                            }
+                            $transaction->tag_number = $tagNumber;
+                        } else {
+                            // No sync_id, generate individual tag number
+                            $transaction->tag_number = $this->generateTagNumber($series);
+                        }
+                    }
+                    break;
 
-            case 'void':
-                $transaction->reason = $reason;
-                break;
+                case 'deposit':
+                    $transaction->deposit_date = $depositDate ?? null;
+                    $transaction->bank_deposit = $bankDeposit ?? null;
+                    $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+                    $transaction->deposit_remarks = $depositRemarks ?? null;
+                    event(new ClearNotificationCount());
+                    break;
+
+                case 'return':
+                    $transaction->is_tagged = false;
+                    $transaction->reason = $reason;
+                    $transaction->deposit_date = $transaction->deposit_date ?? null;
+                    $transaction->bank_deposit = $transaction->bank_deposit ?? null;
+                    $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+                    $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
+                    $transaction->tag_number = $transaction->tag_number ?? null;
+                    event(new RequestNotificationCount($transaction->user));
+                    break;
+
+                case 'void':
+                    $transaction->reason = $reason;
+                    break;
+            }
+
+            $transaction->status = $status;
+            $transaction->save();
+            $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
+                'status' => $status,
+                'deposit_date' => $depositDate,
+                'bank_deposit' => $bankDeposit,
+                'bank_code_deposit' => $bankCodeDeposit,
+                'deposit_remarks' => $depositRemarks,
+                'tag_number' => $transaction->tag_number,
+                'reason' => $reason,
+            ], 'tag:'.$status);
         }
-
-        $transaction->status = $status;
-        $transaction->save();
-        $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
-            'status' => $status,
-            'deposit_date' => $depositDate,
-            'bank_deposit' => $bankDeposit,
-            'deposit_remarks' => $depositRemarks,
-            'tag_number' => $transaction->tag_number,
-            'reason' => $reason,
-        ], 'tag:'.$status);
-
-        return $transaction;
-
     }
 
     public function generateTagNumber($series) {
