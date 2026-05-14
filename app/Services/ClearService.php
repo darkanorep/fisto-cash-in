@@ -85,27 +85,24 @@ class ClearService
 
             switch($status) {
                 case 'receive':
-                    $transaction->status = $status;
                     break;
 
                 case 'clear':
                     $transaction->is_cleared = true;
-                    $transaction->status = $status;
                     $transaction->date_cleared = $dateCleared;
                     break;
 
                 case 'return':
-                    $transaction->status = $status;
                     $transaction->reason = $reason;
                     $transaction->date_cleared = null;
                     $transaction->is_cleared = false;
                     break;
 
                 case 'void':
-                    $transaction->status = $status;
                     $transaction->reason = $reason;
                     break;
             }
+            $transaction->status = $status;
             $transaction->save();
 
             $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [

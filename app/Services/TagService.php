@@ -157,7 +157,6 @@ class TagService
                 'reason' => $reason,
             ], 'tag:'.$status);
         }
-//        return $transaction;
     }
 
     public function generateTagNumber($series) {
