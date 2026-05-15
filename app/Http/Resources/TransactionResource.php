@@ -20,6 +20,8 @@ class TransactionResource extends JsonResource
             'type' => $this->type,
             'category' => $this->category,
             'sync_id' => $this->sync_id,
+            'sync_payment_record_id' => $this->sync_payment_record_id,
+            'distribution_type' => $this->distribution_type,
             'reference_no' => $this->reference_no,
             'transaction_date' => $this->transaction_date
                 ? \Carbon\Carbon::parse($this->transaction_date)->format('Y-m-d H:i:s')

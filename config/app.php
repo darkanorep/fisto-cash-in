@@ -188,4 +188,7 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ])->toArray(),
 
+    'arcana_url' => env('ARCANA_URL'),
+    'arcana_api_key' => env('ARCANA_API_KEY')
+
 ];

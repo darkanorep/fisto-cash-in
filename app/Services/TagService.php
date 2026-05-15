@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
@@ -16,9 +17,14 @@ class TagService
 {
     use ActivityLogTrait;
     protected $transaction;
+    private mixed $arcanaApiKey;
+    private mixed $arcanaUrl;
+
     public function __construct(Transaction $transaction)
     {
         $this->transaction = $transaction;
+        $this->arcanaApiKey = config('app.arcana_api_key');
+        $this->arcanaUrl = config('app.arcana_url');
     }
 
     public function getTransactions($request) {
@@ -118,6 +124,16 @@ class TagService
                             // No sync_id, generate individual tag number
                             $transaction->tag_number = $this->generateTagNumber($series);
                         }
+                    }
+
+                    if ($transaction->sync_payment_record_id) {
+                        Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
+                            $this->arcanaUrl . 'tag', [
+                            'paymentRecordId' => $transaction->sync_payment_record_id,
+                            'paymentMethod' => $transaction->mode_of_payment,
+                            'paymentAmount' => $transaction->amount,
+                            'aTag' => $transaction->tag_number,
+                        ]);
                     }
                     break;
 

@@ -22,12 +22,28 @@ class FileService
         // Then apply additional conditions based on specific status values
         if (isset($filters['status'])) {
             switch ($filters['status']) {
+                case 'pending':
+                    $query->where(function ($query) {
+                        $query->where('status', 'clear')
+                            ->orWhere(function ($query) {
+                                $query->where('status', 'pending')
+                                    ->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque']);
+                            });
+                    });
+                    break;
                 case 'receive':
-                    $query->status($filters['status'])
-                        ->where([
-                            'is_tagged' => false,
-                            'is_cleared' => false,
-                        ])->whereNull('tag_number');
+                    $query->where(function ($query) {
+                        $query->where([
+                            'is_cleared' => true,
+                            'status' => 'receive'
+                        ])->orWhere(function ($query) {
+                            $query->where([
+                                'status' => 'receive',
+                                'is_tagged' => false,
+                                'is_cleared' => false,
+                            ])->whereNull('tag_number')->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque']);
+                        });
+                    });
                     break;
                 default:
                     $query->status($filters['status']);;
@@ -44,9 +60,7 @@ class FileService
 
         $query->orderBy('updated_at', 'desc');
 
-        return $query->with(['bank'])
-            ->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque'])
-            ->useFilters()->dynamicPaginate();
+        return $query->with(['bank'])->useFilters()->dynamicPaginate();
     }
 
     public function action($request) {
