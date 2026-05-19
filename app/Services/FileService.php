@@ -5,13 +5,20 @@ namespace App\Services;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class FileService
 {
     use ActivityLogTrait;
     protected $transaction;
+
+    private mixed $arcanaApiKey;
+    private mixed $arcanaUrl;
+
     public function __construct(Transaction $transaction) {
         $this->transaction = $transaction;
+        $this->arcanaApiKey = config('app.arcana_api_key');
+        $this->arcanaUrl = config('app.arcana_url');
     }
 
     public function getTransactions($request) {
@@ -71,6 +78,16 @@ class FileService
             $transaction = $this->transaction->findOrFail($transactionId);
             $transaction->status = $status;
             $transaction->save();
+
+            if ($transaction->sync_payment_record_id) {
+                Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
+                    $this->arcanaUrl . 'file', [
+                    'paymentRecordId' => $transaction->sync_payment_record_id,
+                    'paymentMethod' => $transaction->mode_of_payment,
+                    'paymentAmount' => $transaction->amount,
+//                    'aTag' => $transaction->tag_number,
+                ]);
+            }
 
             $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
                 'status' => $status,
