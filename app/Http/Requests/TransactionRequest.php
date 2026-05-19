@@ -34,6 +34,8 @@ class TransactionRequest extends FormRequest
             'type' => $allowEdit ? 'string|required' : 'string|nullable',
             'category' => $allowEdit ? 'string|required' : 'string|nullable',
             'sync_id' => 'nullable',
+            'sync_payment_record_id' => 'integer|nullable',
+            'distribution_type' => 'string|nullable|max:255',
             'reference_no' => $allowEdit ? 'string|required' : 'string|nullable',
             'transaction_date' => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
             'payment_date' => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',

@@ -58,6 +58,8 @@ class TransactionService
             'type' => $data['type'],
             'category' => $data['category'] ?? null,
             'sync_id' => $data['sync_id'] ?? null,
+            'sync_payment_record_id' => $data['sync_payment_record_id'] ?? null,
+            'distribution_type' => $data['distribution_type'] ?? null,
             'reference_no' => $data['reference_no'] ?? null,
             'transaction_date' => $data['transaction_date'] ?? null,
             'payment_date' => $data['payment_date'] ?? null,
