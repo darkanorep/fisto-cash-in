@@ -133,7 +133,7 @@ class TagService
                             'paymentMethod' => $transaction->mode_of_payment,
                             'paymentAmount' => $transaction->amount,
                             'aTag' => $transaction->tag_number,
-                        ]);
+                        ])->throw();
                     }
                     break;
 
