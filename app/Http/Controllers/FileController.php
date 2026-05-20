@@ -41,6 +41,8 @@ class FileController extends Controller
     }
 
     public function statusCount() {
-        return $this->fileService->statusCount();
+        return response()->json([
+            $this->fileService->statusCount()
+        ]);
     }
 }

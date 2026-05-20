@@ -97,10 +97,17 @@ class FileService
     }
 
     public function statusCount() : array {
-        $query = $this->transaction->newQuery();
-
         return [
-            'pending' => $query->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque'])->where('status', 'pending')->count()
+            'pending' => $this->transaction->newQuery()
+                ->where(function ($query) {
+                    $query->whereIn('mode_of_payment', ['online', 'cash', 'cheque'])
+                        ->where('status', 'clear');
+                })
+                ->orWhere(function ($query) {
+                    $query->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque'])
+                        ->where('status', 'pending');
+                })
+                ->count(),
         ];
     }
 }
