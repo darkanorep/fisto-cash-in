@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::table('permissions', function (Blueprint $table) {
             $table->dropForeign(['role_id']);
-            $table->bigInteger('role_id')->nullable()->change();
+            $table->unsignedBigInteger('role_id')->nullable()->change();
+            $table->foreign('role_id')->references('id')->on('roles');
         });
     }
 
@@ -23,8 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('permissions', function (Blueprint $table) {
-            $table->bigInteger('role_id')->nullable(false)->change();
-            $table->foreignId('role_id')->references('id')->on('roles')->change();
+            $table->dropForeign(['permissions_role_id_foreign']);
+            $table->unsignedBigInteger('role_id')->nullable(false)->change();
+            $table->foreign('role_id')->references('id')->on('roles');
         });
     }
 };
