@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -58,10 +59,10 @@ class FileService
             }
         }
 
-        if (isset($filters['date_from']) && isset($filters['date_to'])) {
-            $query->date([
-                'date_from' => $filters['date_from'],
-                'date_to' => $filters['date_to'],
+        if (isset($filters['clear_date_from']) && isset($filters['clear_date_to'])) {
+            $query->clearDate([
+                'clear_date_from' => $filters['clear_date_from'],
+                'clear_date_to' => $filters['clear_date_to'],
             ]);
         }
 
@@ -73,10 +74,12 @@ class FileService
     public function action($request) {
         $transactionIds = $request->input('transaction_id');
         $status = $request->input('status');
+        $dateFiled = Carbon::now();
 
         foreach ($transactionIds as $transactionId) {
             $transaction = $this->transaction->findOrFail($transactionId);
             $transaction->status = $status;
+            $transaction->date_filed = $dateFiled;
             $transaction->save();
 
             if ($transaction->sync_payment_record_id) {
@@ -84,15 +87,14 @@ class FileService
                     $this->arcanaUrl . 'file', [
                     'paymentRecordId' => $transaction->sync_payment_record_id,
                     'paymentMethod' => $transaction->mode_of_payment,
-                    'paymentAmount' => $transaction->amount,
-//                    'aTag' => $transaction->tag_number,
+                    'paymentAmount' => $transaction->amount
                 ]);
             }
 
             $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
                 'status' => $status,
+                'date_filed' => $dateFiled,
             ], 'file:'.$status);
-
         }
     }
 
