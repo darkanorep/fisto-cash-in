@@ -93,6 +93,9 @@ class TransactionResource extends JsonResource
             'date_cleared' => $this->date_cleared
                 ? \Carbon\Carbon::parse($this->date_cleared)->format('Y-m-d H:i:s')
                 : null,
+            'date_filed' => $this->date_filed
+                ? \Carbon\Carbon::parse($this->date_filed)->format('Y-m-d H:i:s')
+                : null,
             'bank_deposit' => $this->bank_deposit,
             'bank_code_deposit' => $this->bank_code_deposit,
             'deposit_date' => $this->deposit_date

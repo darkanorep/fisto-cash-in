@@ -66,4 +66,19 @@ class Transaction extends Model
                 ->whereDate('deposit_date', '<=', $depositDateTo);
         });
     }
+
+    public function scopeClearDate($query, array $dateRange) {
+        $clearDateFrom = $dateRange['clear_date_from'] ?? null;
+        $clearDateTo = $dateRange['clear_date_to'] ?? null;
+
+        return $query->when($clearDateFrom && $clearDateTo, function ($q) use ($clearDateFrom, $clearDateTo) {
+            $q->where(function ($q) use ($clearDateFrom, $clearDateTo) {
+                $q->whereDate('date_cleared', '>=', $clearDateFrom)
+                    ->whereDate('date_cleared', '<=', $clearDateTo);
+            })->orWhere(function ($q) use ($clearDateFrom, $clearDateTo) {
+                $q->whereDate('transaction_date', '>=', $clearDateFrom)
+                    ->whereDate('transaction_date', '<=', $clearDateTo);
+            });
+        });
+    }
 }

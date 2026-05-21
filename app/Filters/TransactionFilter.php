@@ -18,7 +18,8 @@ class TransactionFilter extends QueryFilters
         'amount',
         'bank_deposit',
         'customer_name',
-        'check_no'
+        'check_no',
+        'reference_no',
     ];
 
     protected array $columnSearch = [
@@ -34,6 +35,7 @@ class TransactionFilter extends QueryFilters
         'bank_deposit',
         'customer_name',
         'check_no',
+        'reference_no',
     ];
 
     protected array $relations = ['customer', 'bank', 'user', 'charge', 'slips'];
