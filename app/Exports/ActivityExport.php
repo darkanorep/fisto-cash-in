@@ -85,7 +85,9 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
             'Deposit Date',
             'Bank Deposit',
             'Deposit Remarks',
-            'Tag No'
+            'Tag No',
+            'Date Cleared',
+            'Date Filed'
         ];
     }
 
@@ -110,6 +112,8 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
                 'transactions.bank_deposit',
                 'transactions.deposit_remarks',
                 'transactions.tag_number',
+                'transactions.date_cleared',
+                'transactions.date_filed'
             )
             ->when(isset($this->dateFrom), function ($query) {
                 $query->whereDate('activity_log.created_at', '>=', $this->dateFrom);
@@ -131,9 +135,11 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
             ->get();
 
         return $query->map(function ($item) {
-            if ($item->transaction_date || $item->payment_date ) {
+            if ($item->transaction_date || $item->payment_date || $item->date_cleared || $item->date_filed) {
                 $item->transaction_date = Carbon::parse($item->transaction_date)->format('Y-m-d h:i A');
                 $item->payment_date = Carbon::parse($item->payment_date)->format('Y-m-d h:i A');
+                $item->date_cleared = Carbon::parse($item->date_cleared)->format('Y-m-d h:i A');
+                $item->date_filed = Carbon::parse($item->date_filed)->format('Y-m-d h:i A');
             }
             return $item;
         });
