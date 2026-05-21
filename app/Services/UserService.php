@@ -26,8 +26,10 @@ class UserService
 
     public function createUser($data)
     {
-        $user = $this->user->create($data);
         $roleIds = $data['role_id'];
+        unset($data['role_id']);
+        $user = $this->user->create($data);
+
         if (!empty($roleIds)) {
             $roleIds = is_array($roleIds) ? $roleIds : [$roleIds];
             $user->roles()->sync($roleIds);
