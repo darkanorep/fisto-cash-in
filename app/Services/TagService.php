@@ -92,7 +92,7 @@ class TagService
         $series = $request->input('series');
         $reason = $request->input('reason');
 
-        $tagNumber = null;
+        $tagNumber = [];
 
         foreach ($transactionIds as $transactionId) {
             $transaction = $this->transaction->findOrFail($transactionId);
@@ -114,14 +114,18 @@ class TagService
                     $transaction->deposit_remarks = $depositRemarks ?? null;
                     $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
                     if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
-                        // If transaction has sync_id, use shared tag number
-                        if ($transaction->sync_id) {
-                            if ($tagNumber === null || !str_starts_with($tagNumber, $series)) {
-                                $tagNumber = $this->generateTagNumber($series);
+                        // If payment method is cheque, group by reference_no
+                        if ($transaction->mode_of_payment === 'cheque') {
+                            // Create a key for reference_no to track tag numbers
+                            $refKey = 'cheque_' . ($transaction->reference_no ?? 'null');
+
+                            // Generate or reuse tag number for this reference_no
+                            if (!isset($tagNumber[$refKey]) || !str_starts_with($tagNumber[$refKey], $series)) {
+                                $tagNumber[$refKey] = $this->generateTagNumber($series);
                             }
-                            $transaction->tag_number = $tagNumber;
+                            $transaction->tag_number = $tagNumber[$refKey];
                         } else {
-                            // No sync_id, generate individual tag number
+                            // Not cheque, generate individual tag number
                             $transaction->tag_number = $this->generateTagNumber($series);
                         }
                     }
