@@ -37,9 +37,9 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           port: ${{ secrets.CPANEL_PORT }}
           script: |
-            cd ${{ secrets.CPANEL_PATH }}
+            cd /home/fistoweb/public_html
             git pull origin main
-            composer install --optimize-autoloader --no-dev
+            /usr/local/bin/composer install --optimize-autoloader --no-dev
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
