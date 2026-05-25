@@ -26,20 +26,3 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             sudo systemctl restart php8.3-fpm
-  deploy-cpanel:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to cPanel
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          password: ${{ secrets.CPANEL_PASSWORD }}
-          port: ${{ secrets.CPANEL_PORT }}
-          script: |
-            cd /home/fistoweb/public_html/pretest-fisto-cash-in/fisto-cash-in
-            git pull origin main
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
