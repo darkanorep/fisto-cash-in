@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy-digitalocean:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,3 +26,21 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             sudo systemctl restart php8.3-fpm
+  deploy-cpanel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to cPanel
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          port: ${{ secrets.CPANEL_PORT }}
+          script: |
+            cd ${{ secrets.CPANEL_PATH }}
+            git pull origin main
+            composer install --optimize-autoloader --no-dev
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
