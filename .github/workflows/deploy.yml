@@ -18,7 +18,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /var/www/fisto-cash-in
+            cd /home/fistoweb/public_html/pretest-fisto-cash-in/fisto-cash-in
             git pull origin main
             composer install --optimize-autoloader --no-dev
             php artisan migrate --force
