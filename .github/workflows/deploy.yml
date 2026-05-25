@@ -37,9 +37,8 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           port: ${{ secrets.CPANEL_PORT }}
           script: |
-            cd /home/fistoweb/public_html
+            cd /home/fistoweb/public_html/pretest-fisto-cash-in/fisto-cash-in
             git pull origin main
-            /usr/local/bin/composer install --optimize-autoloader --no-dev
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
