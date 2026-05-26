@@ -115,19 +115,15 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
                 'transactions.date_cleared',
                 'transactions.date_filed'
             )
-            ->when(isset($this->dateFrom), function ($query) {
-                $query->whereDate('activity_log.created_at', '>=', $this->dateFrom);
+            ->when($this->shouldFilterByDate(), function ($query) {
+                $this->applyDateFilter($query);
             })
-            ->when(isset($this->dateTo), function ($query) {
-                $query->whereDate('activity_log.created_at', '<=', $this->dateTo);
-            })
-//            ->where('transactions.mode_of_payment', $this->mode_of_payment)
             ->when(isset($this->mode_of_payment), function ($query) {
                 $query->where('transactions.mode_of_payment', $this->mode_of_payment);
             })
-            ->when($this->state && $this->status !== null, function ($query) {
-                $query->where('activity_log.event', $this->state . ':' . $this->status);
-            })
+//            ->when($this->state && $this->status !== null, function ($query) {
+//                $query->where('activity_log.event', $this->state . ':' . $this->status);
+//            })
             ->when(isset($this->user_id), function ($query) {
                 $query->where('activity_log.causer_id', $this->user_id)
                     ->where('activity_log.description', 'Transaction Created');
@@ -143,6 +139,31 @@ class ActivityExport implements FromCollection, WithHeadings, WithStyles, WithCo
             }
             return $item;
         });
+    }
+
+    private function shouldFilterByDate(): bool
+    {
+        return ($this->state === 'tag' && $this->status === 'tag') ||
+            ($this->state === 'clear' && $this->status === 'clear') ||
+            ($this->state === 'file' && $this->mode_of_payment === 'file');
+    }
+
+    private function applyDateFilter($query): void
+    {
+        $dateColumn = match(true) {
+            $this->state === 'tag' && $this->status === 'tag' => 'transactions.transaction_date',
+            $this->state === 'clear' && $this->status === 'clear' => 'transactions.date_cleared',
+            $this->state === 'file' && $this->mode_of_payment === 'file' => 'transactions.deposit_date',
+            default => null,
+        };
+
+        if ($dateColumn && isset($this->dateFrom)) {
+            $query->whereDate($dateColumn, '>=', $this->dateFrom);
+        }
+
+        if ($dateColumn && isset($this->dateTo)) {
+            $query->whereDate($dateColumn, '<=', $this->dateTo);
+        }
     }
 
 }
