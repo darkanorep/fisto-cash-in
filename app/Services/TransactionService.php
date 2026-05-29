@@ -46,6 +46,13 @@ class TransactionService
                 $query->get();
             }
 
+        if (isset($request['date_from']) && isset($request['date_to'])) {
+            $query->date([
+                'date_from' => $request['date_from'],
+                'date_to' => $request['date_to'],
+            ]);
+        }
+
         // Sort by updated_at in descending order (newest first)
         $query->orderBy('updated_at', 'desc');
 
