@@ -42,12 +42,6 @@ class TransactionRequest extends FormRequest
 
         $allowEdit = $isPending || $isReturnUntagged;
 
-//        dd([
-//            'transactionId'  => $transactionId,
-//            'customer_name'  => $this->input('customer.name'),
-//            'reference_no'   => $this->input('reference_no'),
-//        ]);
-
         return [
             'type'                       => $allowEdit ? 'string|required' : 'string|nullable',
             'category'                   => $allowEdit ? 'string|required' : 'string|nullable',
