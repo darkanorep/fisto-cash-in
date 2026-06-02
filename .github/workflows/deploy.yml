@@ -18,21 +18,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-<<<<<<< HEAD
             cd /var/www/fisto-cash-in
-            git pull origin main
-=======
-            cd /home/fistoweb/public_html/pretest-fisto-cash-in/fisto-cash-in
-
-            # Set git to use SSH
-            git config --global core.sshCommand "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
 
             # Pull latest code
-            git fetch origin main
-            git reset --hard origin/main
+            git pull origin main
 
             # Install dependencies
->>>>>>> origin/main
             composer install --optimize-autoloader --no-dev
 
             # Clear and cache
