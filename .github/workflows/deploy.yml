@@ -18,11 +18,32 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+<<<<<<< HEAD
             cd /var/www/fisto-cash-in
             git pull origin main
+=======
+            cd /home/fistoweb/public_html/pretest-fisto-cash-in/fisto-cash-in
+
+            # Set git to use SSH
+            git config --global core.sshCommand "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
+
+            # Pull latest code
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Install dependencies
+>>>>>>> origin/main
             composer install --optimize-autoloader --no-dev
-            php artisan migrate --force
+
+            # Clear and cache
+            php artisan config:clear
+            php artisan cache:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+
+            # Run migrations
+            php artisan migrate --force
+
+            # Restart PHP-FPM
             sudo systemctl restart php8.3-fpm
