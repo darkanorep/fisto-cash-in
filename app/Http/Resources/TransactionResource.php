@@ -35,6 +35,7 @@ class TransactionResource extends JsonResource
                 'name' => $this->customer_name ?? null,
             ],
             'mode_of_payment' => $this->mode_of_payment ?? null,
+            'payment_type' => $this->payment_type,
             'bank' => [
                 'id' => $this->bank_id ?? null,
                 'code' => $this->bank_code ?? null,

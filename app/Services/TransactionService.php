@@ -26,25 +26,27 @@ class TransactionService
             'customer',
             'slips'
         ])->where('user_id', auth()->id());
+
         $status = $request->input('status');
+        $paymentType = $request->input('payment_type'); // Get payment_type from request
 
         // Apply status filter if provided
-            if ($status) {
-                switch($status) {
-                    case 'return-request':
-                        $query->where('status', 'return')
-                            ->where('is_tagged', false)
-                            ->whereNotNull('reason');
-                        break;
+        if ($status) {
+            switch($status) {
+                case 'return-request':
+                    $query->where('status', 'return')
+                        ->where('is_tagged', false)
+                        ->whereNotNull('reason');
+                    break;
 
-                    default:
-                        $query->status($status); // This calls your scope
-                        break;
-                }
-            } else {
-                // Only exclude void and return statuses when no status filter is provided
-                $query->get();
+                default:
+                    $query->status($status);
+                    break;
             }
+        }
+
+        // Apply payment type filter
+        $query->paymentType($paymentType);
 
         if (isset($request['date_from']) && isset($request['date_to'])) {
             $query->date([
@@ -74,6 +76,7 @@ class TransactionService
             'customer_code' => $data['customer']['code'] ?? null,
             'customer_name' => $data['customer']['name'],
             'mode_of_payment' => $data['mode_of_payment'],
+            'payment_type' => $data['payment_type'],
             'bank_id' => $data['bank']['id'] ?? null,
             'bank_code' => $data['bank']['code'] ?? null,
             'bank_name' => $data['bank']['name'] ?? null,
