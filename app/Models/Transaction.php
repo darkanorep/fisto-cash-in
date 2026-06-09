@@ -81,4 +81,10 @@ class Transaction extends Model
             });
         });
     }
+
+    public function scopePaymentType($query, $paymentType) {
+        return $query->when($paymentType, function ($q) use ($paymentType) {
+            $q->where('payment_type', $paymentType);
+        });
+    }
 }
