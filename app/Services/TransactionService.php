@@ -201,7 +201,7 @@ class TransactionService
     }
     public function statusCount() {
         return [
-            'return' => $this->transaction->where('status', 'return')
+            'return' => $this->transaction->newQuery()->where('status', 'return')
                 ->where('user_id', auth()->id())
                 ->where('is_tagged', false)
                 ->whereNotNull('reason')

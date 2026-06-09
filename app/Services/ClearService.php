@@ -50,6 +50,13 @@ class ClearService
                         'status' => 'return',
                     ]);
                     break;
+
+                case 'return-clear':
+                    $query->where([
+                        'is_cleared' => true,
+                        'status' => 'return',
+                    ]);
+                    break;
             }
         }
 
@@ -120,7 +127,9 @@ class ClearService
 
     public function statusCount(): array {
         return [
-            'pending' => $this->transaction->where('status', 'deposit')->count(),
+            'pending' => $this->transaction->newQuery()->where('status', 'deposit')->count(),
+            'return' => $this->transaction->newQuery()->where('status', 'return')
+                ->where('is_cleared', true)->count(),
         ];
     }
 }

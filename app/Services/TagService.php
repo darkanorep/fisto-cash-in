@@ -216,7 +216,8 @@ class TagService
         $returnQuery = $this->transaction->newQuery()
             ->where('status', 'return')
             ->whereNotNull('reason')
-            ->where('is_tagged', true);
+            ->where('is_tagged', true)
+            ->where('is_cleared', false);
 //            ->where('user_id', !auth()->id());
 
         return [

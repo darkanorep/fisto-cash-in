@@ -74,28 +74,53 @@ class FileService
     public function action($request) {
         $transactionIds = $request->input('transaction_id');
         $status = $request->input('status');
+        $reason = $request->input('reason');
         $dateFiled = Carbon::now();
+
+        // Ensure it's always an array
+        $transactionIds = is_array($transactionIds) ? $transactionIds : [$transactionIds];
+
+        $transactions = [];
 
         foreach ($transactionIds as $transactionId) {
             $transaction = $this->transaction->findOrFail($transactionId);
-            $transaction->status = $status;
-            $transaction->date_filed = $dateFiled;
-            $transaction->save();
 
-            if ($transaction->sync_payment_record_id) {
-                Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
-                    $this->arcanaUrl . 'file', [
-                    'paymentRecordId' => $transaction->sync_payment_record_id,
-                    'paymentMethod' => $transaction->mode_of_payment,
-                    'paymentAmount' => $transaction->amount
-                ]);
+            if (!$transaction) {
+                continue; // Skip if transaction not found
             }
+
+            switch ($status) {
+                case 'file':
+                    $transaction->date_filed = $dateFiled;
+
+                    if ($transaction->sync_payment_record_id) {
+                        Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
+                            $this->arcanaUrl . 'file', [
+                            'paymentRecordId' => $transaction->sync_payment_record_id,
+                            'paymentMethod' => $transaction->mode_of_payment,
+                            'paymentAmount' => $transaction->amount
+                        ]);
+                    }
+                    break;
+
+                case 'return':
+                    $transaction->reason = $reason;
+                    $transaction->date_filed = null;
+                    break;
+            }
+
+            $transaction->status = $status;
+            $transaction->save();
 
             $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
                 'status' => $status,
                 'date_filed' => $dateFiled,
             ], 'file:'.$status);
+
+            $transactions[] = $transaction;
         }
+
+        return $transactions;
     }
 
     public function statusCount() : array {
