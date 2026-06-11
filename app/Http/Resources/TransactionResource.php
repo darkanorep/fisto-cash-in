@@ -56,6 +56,7 @@ class TransactionResource extends JsonResource
                 ? $this->slips->sum('amount')
                 : $this->slips()->sum('amount'),
             'remarks' => $this->remarks,
+            'deposit_remarks' => $this->deposit_remarks,
             'charge' => [
                 'id' => $this->charge->id,
                 'name' => $this->charge->name,
