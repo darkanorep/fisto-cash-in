@@ -19,6 +19,48 @@ class TransactionService
         $this->transaction = $transaction;
     }
 
+//    public function getAllTransactions($request)
+//    {
+//        $query = $this->transaction->query()->with([
+//            'bank',
+//            'customer',
+//            'slips'
+//        ])->where('user_id', auth()->id());
+//
+//        $status = $request->input('status');
+//        $paymentType = $request->input('payment_type'); // Get payment_type from request
+//
+//        // Apply status filter if provided
+//        if ($status) {
+//            switch($status) {
+//                case 'return-request':
+//                    $query->where('status', 'return')
+//                        ->where('is_tagged', false)
+//                        ->whereNotNull('reason');
+//                    break;
+//
+//                default:
+//                    $query->status($status);
+//                    break;
+//            }
+//        }
+//
+//        // Apply payment type filter
+//        $query->paymentType($paymentType);
+//
+//        if (isset($request['date_from']) && isset($request['date_to'])) {
+//            $query->date([
+//                'date_from' => $request['date_from'],
+//                'date_to' => $request['date_to'],
+//            ]);
+//        }
+//
+//        // Sort by updated_at in descending order (newest first)
+//        $query->orderBy('updated_at', 'desc');
+//
+//        return $query->useFilters()->dynamicPaginate();
+//    }
+
     public function getAllTransactions($request)
     {
         $query = $this->transaction->query()->with([
@@ -27,10 +69,9 @@ class TransactionService
             'slips'
         ])->where('user_id', auth()->id());
 
-        $status = $request->input('status');
-        $paymentType = $request->input('payment_type'); // Get payment_type from request
+        $status      = $request->input('status');
+        $paymentType = $request->input('payment_type');
 
-        // Apply status filter if provided
         if ($status) {
             switch($status) {
                 case 'return-request':
@@ -45,7 +86,6 @@ class TransactionService
             }
         }
 
-        // Apply payment type filter
         $query->paymentType($paymentType);
 
         if (isset($request['date_from']) && isset($request['date_to'])) {
@@ -55,10 +95,30 @@ class TransactionService
             ]);
         }
 
-        // Sort by updated_at in descending order (newest first)
         $query->orderBy('updated_at', 'desc');
 
-        return $query->useFilters()->dynamicPaginate();
+        $transactions = $query->get();
+
+        // Distribute payment per transaction's slips
+        $transactions->each(function ($transaction) {
+            $remainingPayment = $transaction->amount;
+
+            $slips = $transaction->slips
+                ->unique('number')
+                ->sortBy('number')
+                ->values();
+
+            $slips->each(function ($slip) use (&$remainingPayment) {
+                $actualPaid               = min($slip->amount, max(0, $remainingPayment));
+                $slip->actual_amount_paid = $actualPaid;
+                $slip->remaining_amount   = $slip->amount - $actualPaid;
+                $remainingPayment        -= $actualPaid;
+            });
+
+            $transaction->setRelation('slips', $slips);
+        });
+
+        return $transactions;
     }
     private function buildTransactionData($data, $additionalFields = [])
     {
@@ -106,10 +166,10 @@ class TransactionService
                 ]);
             }
 
-            $this->logActivityOn($transaction, 'Slips Added for Transaction', ['slips' => $data['slip']], 'created');
+            $this->logActivityOn($transaction, 'Slips Added for Transaction', ['slips' => $data['slip']]);
         }
 
-        $this->logActivityOn($transaction, 'Transaction Created', $transactionData, 'created');
+        $this->logActivityOn($transaction, 'Transaction Created', $transactionData);
 
         return $transaction;
     }
@@ -201,7 +261,7 @@ class TransactionService
     }
     public function statusCount() {
         return [
-            'return' => $this->transaction->where('status', 'return')
+            'return' => $this->transaction->newQuery()->where('status', 'return')
                 ->where('user_id', auth()->id())
                 ->where('is_tagged', false)
                 ->whereNotNull('reason')
