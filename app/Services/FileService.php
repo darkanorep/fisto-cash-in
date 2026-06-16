@@ -127,11 +127,11 @@ class FileService
         return [
             'pending' => $this->transaction->newQuery()
                 ->where(function ($query) {
-                    $query->whereIn('mode_of_payment', ['online', 'cash', 'cheque'])
+                    $query->whereIn('mode_of_payment', Transaction::modeOfPaymentOptions)
                         ->where('status', 'clear');
                 })
                 ->orWhere(function ($query) {
-                    $query->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque'])
+                    $query->whereNotIn('mode_of_payment', Transaction::modeOfPaymentOptions)
                         ->where('status', 'pending');
                 })
                 ->count(),
