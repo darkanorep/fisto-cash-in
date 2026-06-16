@@ -16,6 +16,8 @@ class Transaction extends Model
     protected $guarded = [];
     protected string $default_filters = TransactionFilter::class;
 
+    const modeOfPaymentOptions = ['online', 'cash', 'cheque', 'advance payment'];
+
     public function logs() {
         return $this->morphMany(Activity::class, 'subject')->orderBy('id', 'desc');
     }
