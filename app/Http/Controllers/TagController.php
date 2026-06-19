@@ -39,9 +39,12 @@ class TagController extends Controller
 
 
     public function action(Request $request) {
-        // $this->authorize('tag-transaction');
         $transaction = $this->tagService->action($request);
-        return $this->responseSuccess('Transaction updated successfully', $transaction);
+        $status = $request->input('status');
+
+        $pastStatus = str_ends_with($status, 'ed') ? $status : $status . 'ed';
+
+        return $this->responseSuccess("Transaction {$pastStatus} successfully", $transaction);
     }
 
     public function statusCount() {

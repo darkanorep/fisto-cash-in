@@ -38,8 +38,12 @@ class ClearController extends Controller
     public function action(Request $request) {
         // $this->authorize('clear-transaction');
         $transaction = $this->clearService->action($request);
+        $status = $request->input('status');
         event( new TagNotificationCount() );
-        return $this->responseSuccess('Transaction updated successfully', $transaction);
+
+        $pastStatus = str_ends_with($status, 'ed') ? $status : $status . 'ed';
+
+        return $this->responseSuccess("Transaction {$pastStatus} successfully", $transaction);
     }
 
     public function statusCount() {
