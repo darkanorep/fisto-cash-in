@@ -10,6 +10,7 @@ use App\Traits\ActivityLogTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
@@ -113,31 +114,54 @@ class TagService
                     $transaction->bank_deposit = $bankDeposit ?? null;
                     $transaction->deposit_remarks = $depositRemarks ?? null;
                     $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+
                     if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
-                        // If payment method is cheque, group by reference_no
                         if ($transaction->mode_of_payment === 'cheque') {
-                            // Create a key for reference_no to track tag numbers
                             $refKey = 'cheque_' . ($transaction->reference_no ?? 'null');
 
-                            // Generate or reuse tag number for this reference_no
                             if (!isset($tagNumber[$refKey]) || !str_starts_with($tagNumber[$refKey], $series)) {
                                 $tagNumber[$refKey] = $this->generateTagNumber($series);
                             }
                             $transaction->tag_number = $tagNumber[$refKey];
                         } else {
-                            // Not cheque, generate individual tag number
                             $transaction->tag_number = $this->generateTagNumber($series);
                         }
+                    } elseif ($transaction->mode_of_payment === 'cheque') {
+                        // keep the cheque group cache in sync even when this transaction
+                        // already had a valid tag_number, so later transactions in the
+                        // same reference_no group reuse it instead of generating a new one
+                        $refKey = 'cheque_' . ($transaction->reference_no ?? 'null');
+                        $tagNumber[$refKey] = $transaction->tag_number;
                     }
 
                     if ($transaction->sync_payment_record_id) {
-                        Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
-                            $this->arcanaUrl . 'tag', [
+                        $payload = [
                             'paymentRecordId' => $transaction->sync_payment_record_id,
                             'paymentMethod' => $transaction->mode_of_payment,
                             'paymentAmount' => $transaction->amount,
                             'aTag' => $transaction->tag_number,
-                        ])->throw();
+                        ];
+
+                        Log::info('Arcana tag payload for transaction ' . $transaction->id, $payload);
+
+                        try {
+                            $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
+                                $this->arcanaUrl . 'tag', $payload
+                            );
+
+                            Log::info('Arcana tag response for transaction ' . $transaction->id, [
+                                'status' => $response->status(),
+                                'body' => $response->body(),
+                            ]);
+
+                            $response->throw();
+
+
+                        } catch (\Throwable $e) {
+                            Log::error('Arcana tag sync failed for transaction ' . $transaction->id, [
+                                'message' => $e->getMessage(),
+                            ]);
+                        }
                     }
                     break;
 

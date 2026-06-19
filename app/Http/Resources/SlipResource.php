@@ -14,8 +14,7 @@ class SlipResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
-    {
+    public function toArray(Request $request): array {
         if (!isset($this->actual_amount_paid, $this->remaining_amount)) {
             // Get all slips with the same number group, ordered
             $relatedSlips = Slip::join('transactions', 'transactions.id', '=', 'slips.transaction_id')

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Slip;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,6 +16,44 @@ class TransactionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $amountPaid = $this->relationLoaded('slips')
+            ? $this->slips->sum('actual_amount_paid')
+            : $this->slips()->sum('actual_amount_paid');
+
+        $totalAmount = $this->relationLoaded('slips')
+            ? $this->slips->sum('amount')
+            : $this->slips()->sum('amount');
+
+        // Mirrors SlipController::remainingSlipAmount, scoped to this
+        // transaction's own slip numbers and customer.
+        $slipNumbers = $this->relationLoaded('slips')
+            ? $this->slips->pluck('number')->unique()
+            : Slip::query()->where('transaction_id', $this->id)->pluck('number');
+
+        $transactionIDs = Slip::query()
+            ->whereHas('transactions', fn ($q) => $q->where('customer_name', $this->customer_name))
+            ->whereIn('number', $slipNumbers)
+            ->pluck('transaction_id')
+            ->unique();
+
+        $groupTransactions = Transaction::query()
+            ->whereIn('id', $transactionIDs)
+            ->where('status', '!=', 'void')
+            ->select('id', 'amount')
+            ->get();
+
+        $validTransactionIDs = $groupTransactions->pluck('id');
+
+        $totalSlipAmount = Slip::query()
+            ->whereIn('transaction_id', $validTransactionIDs)
+            ->get()
+            ->unique('number')
+            ->sum('amount');
+
+        $totalAmountPaidGroup = $groupTransactions->sum('amount');
+
+        $isFullyPaid = (int) (max(0, $totalSlipAmount - $totalAmountPaidGroup) <= 0);
+
         return [
             'id' => $this->id,
             'status' => $this->status,
@@ -49,12 +89,9 @@ class TransactionResource extends JsonResource
             ],
             'amount' => $this->amount,
             'remaining_balance' => $this->remaining_balance,
-            'amount_paid' => $this->relationLoaded('slips')
-                ? $this->slips->sum('actual_amount_paid')
-                : $this->slips()->sum('actual_amount_paid'),
-            'total_amount' => $this->relationLoaded('slips')
-                ? $this->slips->sum('amount')
-                : $this->slips()->sum('amount'),
+            'amount_paid' => $amountPaid,
+            'total_amount' => $totalAmount,
+            'is_fully_paid' => $isFullyPaid,
             'remarks' => $this->remarks,
             'deposit_remarks' => $this->deposit_remarks,
             'charge' => [

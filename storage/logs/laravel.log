@@ -1,0 +1,16 @@
+[2026-06-17 16:55:34] local.INFO: Arcana tag payload for transaction 125 {"paymentRecordId":30,"paymentMethod":"advance payment","paymentAmount":"213.75","aTag":"A-2026-06-0001"} 
+[2026-06-17 16:55:40] local.INFO: Arcana tag response for transaction 125 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-17 16:55:41] local.INFO: Arcana tag payload for transaction 122 {"paymentRecordId":31,"paymentMethod":"advance payment","paymentAmount":"712.50","aTag":"A-2026-06-0002"} 
+[2026-06-17 16:55:43] local.INFO: Arcana tag response for transaction 122 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-17 16:58:55] local.INFO: Arcana tag payload for transaction 122 {"paymentRecordId":31,"paymentMethod":"advance payment","paymentAmount":"712.50","aTag":"A-2026-06-0001"} 
+[2026-06-17 16:58:56] local.INFO: Arcana tag response for transaction 122 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-17 17:01:07] local.INFO: Arcana tag payload for transaction 125 {"paymentRecordId":30,"paymentMethod":"advance payment","paymentAmount":"213.75","aTag":"A-2026-06-0002"} 
+[2026-06-17 17:01:08] local.INFO: Arcana tag response for transaction 125 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-18 08:25:37] local.INFO: Arcana tag payload for transaction 124 {"paymentRecordId":29,"paymentMethod":"cheque","paymentAmount":"3705.00","aTag":"S-2026-06-0001"} 
+[2026-06-18 08:25:40] local.INFO: Arcana tag response for transaction 124 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-18 08:27:30] local.INFO: Arcana tag payload for transaction 123 {"paymentRecordId":27,"paymentMethod":"cash","paymentAmount":"465.00","aTag":"S-2026-06-0002"} 
+[2026-06-18 08:27:32] local.INFO: Arcana tag response for transaction 123 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-19 11:33:47] local.INFO: Arcana tag payload for transaction 133 {"paymentRecordId":31,"paymentMethod":"advance payment","paymentAmount":"81.25","aTag":"S-2026-06-0001"} 
+[2026-06-19 11:33:49] local.INFO: Arcana tag response for transaction 133 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
+[2026-06-19 11:33:49] local.INFO: Arcana tag payload for transaction 137 {"paymentRecordId":30,"paymentMethod":"advance payment","paymentAmount":"213.75","aTag":"S-2026-06-0002"} 
+[2026-06-19 11:33:50] local.INFO: Arcana tag response for transaction 137 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
