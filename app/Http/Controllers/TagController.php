@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Events\RequestDocumentEvent;
 use App\Http\Resources\TransactionResource;
 use App\Services\TagService;
+use App\Traits\PastTenseConverterTrait;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, PastTenseConverterTrait;
     protected $tagService;
 
     public function __construct(TagService $tagService)
@@ -42,7 +43,7 @@ class TagController extends Controller
         $transaction = $this->tagService->action($request);
         $status = $request->input('status');
 
-        $pastStatus = str_ends_with($status, 'ed') ? $status : $status . 'ed';
+        $pastStatus = $this->convertToPastTense($status);
 
         return $this->responseSuccess("Transaction {$pastStatus} successfully", $transaction);
     }

@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Events\TagNotificationCount;
 use App\Http\Resources\TransactionResource;
 use App\Services\ClearService;
+use App\Traits\PastTenseConverterTrait;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
 
 class ClearController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, PastTenseConverterTrait;
     protected $clearService;
 
     public function __construct(ClearService $clearService)
@@ -41,7 +42,7 @@ class ClearController extends Controller
         $status = $request->input('status');
         event( new TagNotificationCount() );
 
-        $pastStatus = str_ends_with($status, 'ed') ? $status : $status . 'ed';
+        $pastStatus = $this->convertToPastTense($status);
 
         return $this->responseSuccess("Transaction {$pastStatus} successfully", $transaction);
     }

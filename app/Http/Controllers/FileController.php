@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\TransactionResource;
 use App\Services\FileService;
+use App\Traits\PastTenseConverterTrait;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
 
 class FileController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, PastTenseConverterTrait;
     protected $fileService;
     public function __construct(FileService $fileService) {
         $this->fileService = $fileService;
@@ -39,7 +40,7 @@ class FileController extends Controller
         $transaction = $this->fileService->action($request);
         $status = $request->input('status');
 
-        $pastStatus = str_ends_with($status, 'ed') ? $status : $status . 'ed';
+        $pastStatus = $this->convertToPastTense($status);
 
         return $this->responseSuccess("Transaction {$pastStatus} successfully", $transaction);
     }
