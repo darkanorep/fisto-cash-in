@@ -62,7 +62,7 @@ class TransactionRequest extends FormRequest
             'customer.name'              => $allowEdit ? 'string|required' : 'string|nullable',
             'mode_of_payment'            => $allowEdit ? 'string|required' : 'string|nullable',
             'payment_type'               => 'string|required|in:full,partial',
-            'bank.id'                    => 'integer|nullable|exists:banks,id|required_if:mode_of_payment,cheque',
+            'bank.id'                    => 'integer|nullable|exists:banks,id',
             'bank.code'                  => 'nullable',
             'bank.name'                  => 'string|nullable|required_if:mode_of_payment,cheque',
             'cheque.no'                  => [

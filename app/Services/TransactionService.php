@@ -19,48 +19,6 @@ class TransactionService
         $this->transaction = $transaction;
     }
 
-//    public function getAllTransactions($request)
-//    {
-//        $query = $this->transaction->query()->with([
-//            'bank',
-//            'customer',
-//            'slips'
-//        ])->where('user_id', auth()->id());
-//
-//        $status = $request->input('status');
-//        $paymentType = $request->input('payment_type'); // Get payment_type from request
-//
-//        // Apply status filter if provided
-//        if ($status) {
-//            switch($status) {
-//                case 'return-request':
-//                    $query->where('status', 'return')
-//                        ->where('is_tagged', false)
-//                        ->whereNotNull('reason');
-//                    break;
-//
-//                default:
-//                    $query->status($status);
-//                    break;
-//            }
-//        }
-//
-//        // Apply payment type filter
-//        $query->paymentType($paymentType);
-//
-//        if (isset($request['date_from']) && isset($request['date_to'])) {
-//            $query->date([
-//                'date_from' => $request['date_from'],
-//                'date_to' => $request['date_to'],
-//            ]);
-//        }
-//
-//        // Sort by updated_at in descending order (newest first)
-//        $query->orderBy('updated_at', 'desc');
-//
-//        return $query->useFilters()->dynamicPaginate();
-//    }
-
     public function getAllTransactions($request)
     {
         $query = $this->transaction->query()->with([
@@ -73,7 +31,7 @@ class TransactionService
         $paymentType = $request->input('payment_type');
 
         if ($status) {
-            switch($status) {
+            switch ($status) {
                 case 'return-request':
                     $query->where('status', 'return')
                         ->where('is_tagged', false)
@@ -84,6 +42,9 @@ class TransactionService
                     $query->status($status);
                     break;
             }
+        } else {
+            // No status filter requested -> hide voided transactions by default
+            $query->whereNotIn('status', ['void']);
         }
 
         $query->paymentType($paymentType);
@@ -116,6 +77,9 @@ class TransactionService
             });
 
             $transaction->setRelation('slips', $slips);
+
+            // Full paid = every slip's remaining_amount is fully covered
+            $transaction->is_fully_paid = (int) ($slips->sum('remaining_amount') <= 0);
         });
 
         return $transactions;

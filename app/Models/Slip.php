@@ -20,6 +20,5 @@ class Slip extends Model
     public function transactions()
     {
         return $this->belongsTo(Transaction::class, 'transaction_id');
-    
     }
 }
