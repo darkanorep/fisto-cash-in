@@ -54,7 +54,7 @@ class TransactionRequest extends FormRequest
                 $this->filled('sync_id') ? null : Rule::unique('transactions', 'reference_no')
                     ->where(fn ($query) => $query->where('customer_name', $this->input('customer.name')))
                     ->ignore($transactionId, 'id'),
-            ]),
+            ]),//test
             'transaction_date'           => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
             'payment_date'               => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
             'customer.id'                => 'nullable',
