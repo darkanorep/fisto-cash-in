@@ -88,6 +88,7 @@ class TransactionResource extends JsonResource
                     : null
             ],
             'amount' => $this->amount,
+            'service_charge' => $this->service_charge ?? null,
             'remaining_balance' => $this->remaining_balance,
             'amount_paid' => $amountPaid,
             'total_amount' => $totalAmount,

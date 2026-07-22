@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('account_group')->nullable();
             $table->string('sub_group')->nullable();
             $table->string('financial_statement')->nullable();
-            $table->string('normal_balances')->nullable();
+            $table->string('normal_balance')->nullable();
             $table->string('unit')->nullable();
             $table->string('allocation')->nullable();
             $table->timestamps();

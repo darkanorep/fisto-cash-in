@@ -18,22 +18,20 @@ class EntryResource extends JsonResource
         return [
             'id' => $this->id,
             'description' => $this->description,
-            'account_titles' => $this->whenLoaded('accountTitles', function () {
-                return $this->accountTitles->map(function ($accountTitle) {
-                    return [
-                        'id'                  => $accountTitle->id,
-                        'code'                => $accountTitle->code,
-                        'title'               => $accountTitle->name,
-                        'account_type'        => $accountTitle->account_type,
-                        'account_group'       => $accountTitle->account_group,
-                        'sub_group'           => $accountTitle->sub_group,
-                        'financial_statement' => $accountTitle->financial_statement,
-                        'normal_balance'     => $accountTitle->normal_balance,
-                        'unit'                => $accountTitle->unit,
-                        'allocation'          => $accountTitle->allocation,
-                    ];
-                });
-            }),
+            'account_titles' => collect($this->account_title_entries ?? [])->map(function ($row) {
+                return [
+                    'id'                  => $row->account_title_id,
+                    'code'                => $row->code,
+                    'title'               => $row->title,
+                    'account_type'        => $row->account_type,
+                    'account_group'       => $row->account_group,
+                    'sub_group'           => $row->sub_group,
+                    'financial_statement' => $row->financial_statement,
+                    'normal_balance'     => $row->normal_balance,
+                    'unit'                => $row->unit,
+                    'allocation'          => $row->allocation,
+                ];
+            })->values(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,

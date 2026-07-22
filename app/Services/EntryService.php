@@ -14,8 +14,30 @@ class EntryService
         $this->entry = $entry;
     }
 
-    public function getEntry() {
-        return $this->entry->with(['accountTitles'])->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();;
+//    public function getEntry() {
+//        return $this->entry->with(['accountTitles'])->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();;
+//    }
+
+    public function getEntry()
+    {
+        $entries = $this->entry
+            ->orderBy('updated_at', 'desc')
+            ->useFilters()
+            ->dynamicPaginate();
+
+        $entryIds = collect($entries->items())->pluck('id');
+
+        $accountTitleEntries = DB::table('account_title_entry')
+            ->whereIn('entry_id', $entryIds)
+            ->get()
+            ->groupBy('entry_id');
+
+        $entries->getCollection()->transform(function ($entry) use ($accountTitleEntries) {
+            $entry->account_title_entries = $accountTitleEntries->get($entry->id, collect());
+            return $entry;
+        });
+
+        return $entries;
     }
 
     public function createEntry(array $data): Entry
@@ -30,7 +52,7 @@ class EntryService
                     'account_group',
                     'sub_group',
                     'financial_statement',
-                    'normal_balances',
+                    'normal_balance',
                     'unit',
                     'allocation',
                 ]))
