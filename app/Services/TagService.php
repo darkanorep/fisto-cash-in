@@ -88,6 +88,7 @@ class TagService
         $status = $request->input('status');
         $depositDate = $request->input('deposit_date');
         $bankDeposit = $request->input('bank_deposit');
+        $serviceCharge = $request->input('service_charge');
         $bankCodeDeposit = $request->input('bank_code_deposit');
         $depositRemarks = $request->input('deposit_remarks');
         $series = $request->input('series');
@@ -114,6 +115,7 @@ class TagService
                     $transaction->bank_deposit = $bankDeposit ?? null;
                     $transaction->deposit_remarks = $depositRemarks ?? null;
                     $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+                    $transaction->service_charge = $serviceCharge ?? null;
 
                     if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
                         if ($transaction->mode_of_payment === 'cheque') {
@@ -196,6 +198,7 @@ class TagService
                 'deposit_date' => $depositDate,
                 'bank_deposit' => $bankDeposit,
                 'bank_code_deposit' => $bankCodeDeposit,
+                'service_charge' => $serviceCharge,
                 'deposit_remarks' => $depositRemarks,
                 'tag_number' => $transaction->tag_number,
                 'reason' => $reason,

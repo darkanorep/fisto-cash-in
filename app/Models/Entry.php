@@ -2,27 +2,26 @@
 
 namespace App\Models;
 
-use App\Filters\AccountTitleFilter;
+use App\Filters\EntryFilter;
 use Essa\APIToolKit\Filters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AccountTitle extends Model
+class Entry extends Model
 {
     use HasFactory, SoftDeletes, Filterable;
 
-    protected string $default_filters = AccountTitleFilter::class;
-
     protected $guarded = [];
+    protected string $default_filters = EntryFilter::class;
 
-    public function entries(): BelongsToMany {
+    public function accountTitles(): BelongsToMany {
         return $this->belongsToMany(
-            Entry::class,
+            AccountTitle::class,
             'account_title_entry',
-            'account_title_id',
-            'entry_id'
+            'entry_id',
+            'account_title_id'
         )->withTimestamps();
     }
 }

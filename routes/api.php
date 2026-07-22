@@ -6,6 +6,7 @@ use App\Http\Controllers\BankController;
 use App\Http\Controllers\ChargesController;
 use App\Http\Controllers\ClearController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EntryController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SlipController;
@@ -67,6 +68,9 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
             //Banks
             Route::resource('banks', BankController::class);
+
+            //Entries
+            Route::resource('entries', EntryController::class);
         });
     });
 
@@ -75,6 +79,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('banks', [BankController::class, 'index']);
         Route::get('customers', [CustomerController::class, 'index']);
         Route::get('charges', [ChargesController::class, 'index']);
+        Route::get('account-titles', [AccountTitleController::class, 'index']);
     });
 
 
