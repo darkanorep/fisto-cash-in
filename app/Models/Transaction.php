@@ -42,6 +42,10 @@ class Transaction extends Model
         return $this->hasMany(Slip::class, 'transaction_id');
     }
 
+    public function voucherAccountEntries() {
+        return $this->hasMany(VoucherEntry::class, 'transaction_id');
+    }
+
     public function scopeStatus($query, $status)
     {
         return $query->when($status, function ($q) use ($status) {

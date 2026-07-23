@@ -17,15 +17,38 @@ use Illuminate\Http\Request;
 class TagService
 {
     use ActivityLogTrait;
-    protected $transaction;
+    protected Transaction $transaction;
     private mixed $arcanaApiKey;
     private mixed $arcanaUrl;
 
-    public function __construct(Transaction $transaction)
+    public function __construct(
+        Transaction $transaction,
+        private readonly VoucherEntryService $voucherEntryService,
+    )
     {
         $this->transaction = $transaction;
         $this->arcanaApiKey = config('app.arcana_api_key');
         $this->arcanaUrl = config('app.arcana_url');
+    }
+
+    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
+    {
+        $entries = $this->voucherEntryService->syncEntries(
+            $transaction,
+            $accountTitles,
+            $status
+        );
+
+        foreach ($entries as $accountTitle) {
+            $this->logActivityOn(
+                $transaction,
+                'Transaction ' . ucfirst($status),
+                [$accountTitle],
+                $status . ':accountingEntries'
+            );
+        }
+
+        return $entries;
     }
 
     public function getTransactions($request) {
@@ -93,6 +116,7 @@ class TagService
         $depositRemarks = $request->input('deposit_remarks');
         $series = $request->input('series');
         $reason = $request->input('reason');
+        $accountTitles = $request->input('account_titles');
 
         $tagNumber = [];
 
@@ -165,6 +189,11 @@ class TagService
                             ]);
                         }
                     }
+
+                    if (!empty($accountTitles)) {
+                        $this->processVoucherEntries($transaction, $accountTitles, $status);
+                    }
+
                     break;
 
                 case 'deposit':
