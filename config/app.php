@@ -189,6 +189,7 @@ return [
     ])->toArray(),
 
     'arcana_url' => env('ARCANA_URL'),
-    'arcana_api_key' => env('ARCANA_API_KEY')
+    'arcana_api_key' => env('ARCANA_API_KEY'),
+    'api_key' => env('API_KEY')
 
 ];

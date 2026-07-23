@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EntryController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SlipController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\FileController;
@@ -72,6 +73,9 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             //Entries
             Route::resource('entries', EntryController::class);
         });
+
+        Route::patch('toggle/{id}', [SettingController::class, 'toggle']);
+        Route::resource('settings', SettingController::class);
     });
 
     //Dropdown
@@ -82,17 +86,11 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('account-titles', [AccountTitleController::class, 'index']);
     });
 
-
     //Transactions
     Route::get('transactions/export', [TransactionController::class, 'export']);
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);
     Route::get('transactions-status-count', [TransactionController::class, 'statusCount']);
-
-    // Route::post('transactions', [TransactionController::class, 'store'])->middleware('can:create-transaction');
-    // Route::get('transactions', [TransactionController::class, 'index'])->middleware('can:my-transaction');
-    // Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('can:my-transaction,transaction');
-    // Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->middleware('can:my-transaction,transaction');
 
     //Tagging
     Route::get('tag-transactions', [TagController::class, 'index']);
@@ -117,4 +115,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::post('change-password', [AuthController::class, 'changePassword']);
     //Logout
     Route::post('logout', [AuthController::class, 'logout']);
+});
+
+Route::middleware('api_key')->group(function () {
+    Route::post('transactions/external', [TransactionController::class, 'store']);
 });

@@ -164,6 +164,7 @@ class TransactionResource extends JsonResource
                                 'financial_statement' => $entry->financial_statement,
                                 'normal_balance' => $entry->normal_balance,
                                 'unit' => $entry->unit,
+                                'charge_name' => $entry->charge_name,
                                 'company_code' => $entry->company_code,
                                 'company_name' => $entry->company_name,
                                 'business_unit_code' => $entry->business_unit_code,
@@ -176,7 +177,7 @@ class TransactionResource extends JsonResource
                                 'sub_unit_name' => $entry->sub_unit_name,
                                 'location_code' => $entry->location_code,
                                 'location_name' => $entry->location_name,
-                                'amount' => $entry->amount,
+                                'amount' => (float) $entry->amount,
                             ];
                         });
                     });
