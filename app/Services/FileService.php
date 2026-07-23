@@ -16,10 +16,33 @@ class FileService
     private mixed $arcanaApiKey;
     private mixed $arcanaUrl;
 
-    public function __construct(Transaction $transaction) {
+    public function __construct(
+        Transaction $transaction,
+        private readonly VoucherEntryService $voucherEntryService,
+    ) {
         $this->transaction = $transaction;
         $this->arcanaApiKey = config('app.arcana_api_key');
         $this->arcanaUrl = config('app.arcana_url');
+    }
+
+    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
+    {
+        $entries = $this->voucherEntryService->syncEntries(
+            $transaction,
+            $accountTitles,
+            $status
+        );
+
+        foreach ($entries as $accountTitle) {
+            $this->logActivityOn(
+                $transaction,
+                'Transaction ' . ucfirst($status),
+                [$accountTitle],
+                $status . ':accountingEntries'
+            );
+        }
+
+        return $entries;
     }
 
     public function getTransactions($request) {
@@ -68,7 +91,12 @@ class FileService
 
         $query->orderBy('updated_at', 'desc');
 
-        return $query->with(['bank'])->useFilters()->dynamicPaginate();
+        return $query->with([
+            'bank',
+            'customer',
+            'slips',
+            'tagVoucherEntries'
+        ])->useFilters()->dynamicPaginate();
     }
 
     public function action($request) {
@@ -83,6 +111,7 @@ class FileService
         $transactions = [];
 
         foreach ($transactionIds as $transactionId) {
+            $accountTitles = $request->input('account_titles');
             $transaction = $this->transaction->findOrFail($transactionId);
 
             if (!$transaction) {
@@ -116,6 +145,10 @@ class FileService
                 'status' => $status,
                 'date_filed' => $dateFiled,
             ], 'file:'.$status);
+
+            if (!empty($accountTitles)) {
+                $this->processVoucherEntries($transaction, $accountTitles, $status);
+            }
 
             $transactions[] = $transaction;
         }

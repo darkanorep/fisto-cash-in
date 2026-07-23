@@ -24,7 +24,8 @@ class TransactionService
         $query = $this->transaction->query()->with([
             'bank',
             'customer',
-            'slips'
+            'slips',
+            'tagVoucherEntries'
         ])->where('user_id', auth()->id());
 
         $status      = $request->input('status');
@@ -142,7 +143,8 @@ class TransactionService
         return $this->transaction->with([
             'slips',
             'bank',
-            'customer'
+            'customer',
+            'tagVoucherEntries'
             ])->find($id);
     }
     public function updateTransaction($transaction, $data)

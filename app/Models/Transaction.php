@@ -46,6 +46,12 @@ class Transaction extends Model
         return $this->hasMany(VoucherEntry::class, 'transaction_id');
     }
 
+    public function tagVoucherEntries()
+    {
+        return $this->hasMany(VoucherEntry::class, 'transaction_id')
+            ->where('module', 'tag');
+    }
+
     public function scopeStatus($query, $status)
     {
         return $query->when($status, function ($q) use ($status) {

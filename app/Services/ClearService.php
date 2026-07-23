@@ -11,9 +11,32 @@ class ClearService
 {
     use ActivityLogTrait;
     protected $transaction;
-    public function __construct(Transaction $transaction)
+    public function __construct(
+        Transaction $transaction,
+        private readonly VoucherEntryService $voucherEntryService,
+    )
     {
         $this->transaction = $transaction;
+    }
+
+    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
+    {
+        $entries = $this->voucherEntryService->syncEntries(
+            $transaction,
+            $accountTitles,
+            $status
+        );
+
+        foreach ($entries as $accountTitle) {
+            $this->logActivityOn(
+                $transaction,
+                'Transaction ' . ucfirst($status),
+                [$accountTitle],
+                $status . ':accountingEntries'
+            );
+        }
+
+        return $entries;
     }
 
     public function getTransactions($request) {
@@ -69,7 +92,12 @@ class ClearService
 
         $query->orderBy('updated_at', 'desc');
 
-        return $query->useFilters()->dynamicPaginate();
+        return $query->with([
+            'bank',
+            'customer',
+            'slips',
+            'tagVoucherEntries'
+        ])->useFilters()->dynamicPaginate();
     }
 
     public function action($request) {
@@ -86,6 +114,7 @@ class ClearService
 
         foreach ($transactionIds as $transactionId) {
             $transaction = $this->transaction->find($transactionId);
+            $accountTitles = $request->input('account_titles');
 
             if (!$transaction) {
                 continue; // Skip if transaction not found
@@ -118,6 +147,10 @@ class ClearService
                 'date_cleared' => $transaction->date_cleared,
                 'reason' => $reason,
             ], 'clear:'.$status);
+
+            if (!empty($accountTitles)) {
+                $this->processVoucherEntries($transaction, $accountTitles, $status);
+            }
 
             $transactions[] = $transaction;
         }

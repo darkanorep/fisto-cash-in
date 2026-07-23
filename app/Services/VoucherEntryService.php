@@ -23,10 +23,16 @@ class VoucherEntryService
 
     public function syncEntries(Transaction $transaction, array $accountTitles, string $module): Collection
     {
+        if (!$transaction->exists) {
+            throw new InvalidArgumentException('Cannot sync voucher entries: transaction is not persisted.');
+        }
+
         $this->validateEntries($accountTitles);
 
         return DB::transaction(function () use ($transaction, $accountTitles, $module) {
-            $transaction->voucherAccountEntries()->delete();
+            $transaction->voucherAccountEntries()
+                ->where('module', $module)
+                ->delete();
 
             return collect($accountTitles)->map(
                 fn (array $accountTitle) => $transaction->voucherAccountEntries()->create(
@@ -38,6 +44,10 @@ class VoucherEntryService
 
     public function appendEntries(Transaction $transaction, array $accountTitles, string $module): Collection
     {
+        if (!$transaction->exists) {
+            throw new InvalidArgumentException('Cannot append voucher entries: transaction is not persisted.');
+        }
+
         $this->validateEntries($accountTitles);
 
         return DB::transaction(fn () => collect($accountTitles)->map(
@@ -45,6 +55,20 @@ class VoucherEntryService
                 $this->mapEntryFields($accountTitle, $module)
             )
         ));
+    }
+
+    public function getEntriesForModule(Transaction $transaction, string $module): Collection
+    {
+        return $transaction->voucherAccountEntries()
+            ->where('module', $module)
+            ->get();
+    }
+
+    public function deleteEntriesForModule(Transaction $transaction, string $module): int
+    {
+        return $transaction->voucherAccountEntries()
+            ->where('module', $module)
+            ->delete();
     }
 
     private function mapEntryFields(array $accountTitle, string $module): array
@@ -64,7 +88,7 @@ class VoucherEntryService
             foreach (['code', 'title', 'normal_balance', 'amount'] as $required) {
                 if (!array_key_exists($required, $accountTitle) || $accountTitle[$required] === null) {
                     throw new InvalidArgumentException(
-                        "Account Title entry at index {$index} is missing required field '{$required}'."
+                        "Voucher entry at index {$index} is missing required field '{$required}'."
                     );
                 }
             }

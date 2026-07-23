@@ -102,7 +102,12 @@ class TagService
 
         $query->orderBy('updated_at', 'desc');
 
-        return $query->with(['bank'])->useFilters()->dynamicPaginate();
+        return $query->with([
+            'bank',
+            'customer',
+            'slips',
+            'tagVoucherEntries'
+        ])->useFilters()->dynamicPaginate();
     }
 
     public function action($request) {
@@ -190,10 +195,6 @@ class TagService
                         }
                     }
 
-                    if (!empty($accountTitles)) {
-                        $this->processVoucherEntries($transaction, $accountTitles, $status);
-                    }
-
                     break;
 
                 case 'deposit':
@@ -232,6 +233,10 @@ class TagService
                 'tag_number' => $transaction->tag_number,
                 'reason' => $reason,
             ], 'tag:'.$status);
+
+            if (!empty($accountTitles)) {
+                $this->processVoucherEntries($transaction, $accountTitles, $status);
+            }
         }
     }
 

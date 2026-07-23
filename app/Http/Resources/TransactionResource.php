@@ -148,7 +148,35 @@ class TransactionResource extends JsonResource
                     'causer' => $log->causer?->getFullNameAttribute(),
                     'logged_at' => \Carbon\Carbon::parse($log->created_at)->format('l, d M Y h:i:s A'),
                 ];
-            })
+            }),
+            'tag_voucher_entries' => $this->whenLoaded('tagVoucherEntries', function () {
+                return $this->tagVoucherEntries->map(function ($entry) {
+                    return [
+                        'id' => $entry->id,
+                        'code' => $entry->code,
+                        'title' => $entry->title,
+                        'account_type' => $entry->account_type,
+                        'account_group' => $entry->account_group,
+                        'sub_group' => $entry->sub_group,
+                        'financial_statement' => $entry->financial_statement,
+                        'normal_balance' => $entry->normal_balance,
+                        'unit' => $entry->unit,
+                        'company_code' => $entry->company_code,
+                        'company_name' => $entry->company_name,
+                        'business_unit_code' => $entry->business_unit_code,
+                        'business_unit_name' => $entry->business_unit_name,
+                        'department_code' => $entry->department_code,
+                        'department_name' => $entry->department_name,
+                        'unit_code' => $entry->unit_code,
+                        'unit_name' => $entry->unit_name,
+                        'sub_unit_code' => $entry->sub_unit_code,
+                        'sub_unit_name' => $entry->sub_unit_name,
+                        'location_code' => $entry->location_code,
+                        'location_name' => $entry->location_name,
+                        'amount' => $entry->amount,
+                    ];
+                });
+            }),
         ];
     }
 }
