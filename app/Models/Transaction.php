@@ -46,10 +46,15 @@ class Transaction extends Model
         return $this->hasMany(VoucherEntry::class, 'transaction_id');
     }
 
-    public function tagVoucherEntries()
+//    public function tagVoucherEntries()
+//    {
+//        return $this->hasMany(VoucherEntry::class, 'transaction_id')
+//            ->where('module', 'tag');
+//    }
+
+    public function voucherEntriesFor(string $module): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(VoucherEntry::class, 'transaction_id')
-            ->where('module', 'tag');
+        return $this->voucherAccountEntries()->where('module', $module);
     }
 
     public function scopeStatus($query, $status)

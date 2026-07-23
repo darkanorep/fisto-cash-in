@@ -25,7 +25,7 @@ class TransactionService
             'bank',
             'customer',
             'slips',
-            'tagVoucherEntries'
+            'voucherAccountEntries'
         ])->where('user_id', auth()->id());
 
         $status      = $request->input('status');
@@ -144,7 +144,7 @@ class TransactionService
             'slips',
             'bank',
             'customer',
-            'tagVoucherEntries'
+            'voucherAccountEntries'
             ])->find($id);
     }
     public function updateTransaction($transaction, $data)

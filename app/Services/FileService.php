@@ -95,7 +95,7 @@ class FileService
             'bank',
             'customer',
             'slips',
-            'tagVoucherEntries'
+            'voucherAccountEntries'
         ])->useFilters()->dynamicPaginate();
     }
 
