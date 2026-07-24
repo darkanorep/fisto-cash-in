@@ -287,6 +287,7 @@ class TagService
                 'online' => (int) ($grouped['online'] ?? 0),
                 'cheque' => (int) ($grouped['cheque'] ?? 0),
                 'advance_payment' => (int) ($grouped['advance payment'] ?? 0),
+                'gcash' => (int) ($grouped['gcash'] ?? 0),
                 'total' => (int) $grouped->sum(),
             ],
             'return' => $returnQuery->count(),

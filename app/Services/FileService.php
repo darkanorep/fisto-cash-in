@@ -58,7 +58,7 @@ class FileService
                         $query->where('status', 'clear')
                             ->orWhere(function ($query) {
                                 $query->where('status', 'pending')
-                                    ->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque']);
+                                    ->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque', 'advance payment', 'gcash']);
                             });
                     });
                     break;
@@ -72,7 +72,7 @@ class FileService
                                 'status' => 'receive',
                                 'is_tagged' => false,
                                 'is_cleared' => false,
-                            ])->whereNull('tag_number')->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque']);
+                            ])->whereNull('tag_number')->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque', 'advance payment', 'gcash']);
                         });
                     });
                     break;
