@@ -3532,3 +3532,5 @@ LINE 1: ...EN settings.value1::bigint END = \"users\".\"id\" and \"settings\"...
 #49 /var/www/html/public/index.php(60): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
 #50 {main}
 "} 
+[2026-07-24 16:08:42] local.INFO: Arcana tag payload for transaction 162 {"paymentRecordId":26,"paymentMethod":"cash","paymentAmount":"1000.00","aTag":"A-2026-07-0003"} 
+[2026-07-24 16:08:45] local.INFO: Arcana tag response for transaction 162 {"status":200,"body":"{\"isSuccess\":true,\"isFailure\":false,\"error\":{\"code\":\"\",\"message\":\"\"}}"} 
