@@ -74,7 +74,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             Route::resource('entries', EntryController::class);
         });
 
-        Route::patch('toggle/{id}', [SettingController::class, 'toggle']);
+        Route::patch('settings/{id}/toggle', [SettingController::class, 'toggle']);
         Route::resource('settings', SettingController::class);
     });
 

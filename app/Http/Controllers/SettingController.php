@@ -13,7 +13,26 @@ class SettingController extends Controller
 
     public function index()
     {
-        $settings = $this->db->select('id', 'key', 'value', 'value1', 'value2')->get();
+        $settings = DB::table('settings')
+            ->leftJoin('users', function ($join) {
+                $join->on(
+                    DB::raw("CASE WHEN settings.value1 ~ '^[0-9]+$' THEN settings.value1::bigint END"),
+                    '=',
+                    'users.id'
+                )
+                    ->whereNotNull('settings.value2')
+                    ->where('settings.value2', '!=', ''); // treat empty string as "not present" too
+            })
+            ->select(
+                'settings.id',
+                'settings.key',
+                'settings.value',
+                'settings.value1',
+                'settings.value2',
+                DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+            )
+            ->get();
+
         return response()->json($settings);
     }
 
@@ -34,7 +53,7 @@ class SettingController extends Controller
             return response()->json(['message' => 'Setting not found or no changes applied.'], 404);
         }
 
-        return response()->json(['message' => 'Settings updated successfully']);
+        return response()->json(['message' => 'Settings updated successfully.']);
     }
 
     public function toggle($id)
@@ -51,7 +70,7 @@ class SettingController extends Controller
                 ->update(['value' => 1]);
         }
 
-        return response()->json(['message' => 'Status updated']);
+        return response()->json(['message' => 'Status updated.']);
     }
 }
 
