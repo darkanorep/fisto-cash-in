@@ -7,6 +7,7 @@ use App\Http\Controllers\ChargesController;
 use App\Http\Controllers\ClearController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EntryController;
+use App\Http\Controllers\PendingUserController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
@@ -72,10 +73,16 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
             //Entries
             Route::resource('entries', EntryController::class);
+
+            //Pending Users
+            Route::resource('pending-requests', PendingUserController::class);
+            Route::patch('change-pass/{id_prefix_id_no}', [PendingUserController::class, 'changePassword']);
+            Route::patch('reset/{id_prefix_id_no}', [PendingUserController::class, 'resetPassword']);
         });
 
         Route::patch('settings/{id}/toggle', [SettingController::class, 'toggle']);
         Route::resource('settings', SettingController::class);
+
     });
 
     //Dropdown

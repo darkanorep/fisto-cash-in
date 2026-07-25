@@ -39,8 +39,8 @@ class SettingController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'value1' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'value2' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'value1' => ['sometimes', 'nullable'],
+            'value2' => ['sometimes', 'nullable'],
         ]);
 
         if (empty($validated)) {
