@@ -58,7 +58,7 @@ class TransactionController extends Controller
             if ($resolvedUserId === null) {
                 // Fail fast with a clear 422 instead of letting this fall
                 // through to a DB NOT NULL violation on transactions.user_id.
-                return $this->responseError(
+                return $this->responseNotFound(
                     'Unable to resolve user_id for this synced transaction. Check the mode_of_payment value and the external_cash_transaction / external_non_cash_transaction settings.',
                     422
                 );
@@ -81,7 +81,7 @@ class TransactionController extends Controller
         $this->authorize('transaction', $transaction);
 
         if (!$transaction) {
-            return $this->responseError('Transaction not found', 404);
+            return $this->responseNotFound('Transaction not found', 404);
         }
 
         return $this->responseSuccess('Transaction fetched successfully', new TransactionResource($transaction));
@@ -95,7 +95,7 @@ class TransactionController extends Controller
         $transaction = $this->transactionService->getTransactionById($id);
 
         if (!$transaction) {
-            return $this->responseError('Transaction not found', 404);
+            return $this->responseNotFound('Transaction not found', 404);
         }
 
         $data = $request->validated();
@@ -121,7 +121,7 @@ class TransactionController extends Controller
         $transaction = $this->transactionService->getTransactionById($id);
 
         if (!$transaction) {
-            return $this->responseError('Transaction not found', 404);
+            return $this->responseNotFound('Transaction not found', 404);
         }
         $this->transactionService->voidTransaction($transaction, $request);
 
