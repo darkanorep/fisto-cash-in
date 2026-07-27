@@ -13,15 +13,18 @@ class SettingController extends Controller
 
     public function index()
     {
+        $driver = DB::connection()->getDriverName();
+
+        $numericJoinExpr = match ($driver) {
+            'pgsql' => "CASE WHEN settings.value1 ~ '^[0-9]+$' THEN settings.value1::bigint END",
+            default => "CASE WHEN settings.value1 REGEXP '^[0-9]+$' THEN CAST(settings.value1 AS UNSIGNED) END",
+        };
+
         $settings = DB::table('settings')
-            ->leftJoin('users', function ($join) {
-                $join->on(
-                    DB::raw("CASE WHEN settings.value1 ~ '^[0-9]+$' THEN settings.value1::bigint END"),
-                    '=',
-                    'users.id'
-                )
+            ->leftJoin('users', function ($join) use ($numericJoinExpr) {
+                $join->on(DB::raw($numericJoinExpr), '=', 'users.id')
                     ->whereNotNull('settings.value2')
-                    ->where('settings.value2', '!=', ''); // treat empty string as "not present" too
+                    ->where('settings.value2', '!=', '');
             })
             ->select(
                 'settings.id',
