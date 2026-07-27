@@ -6,6 +6,7 @@ use App\Events\TagNotificationCount;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Services\TransactionService;
+use App\Services\TransactionSyncService;
 use Essa\APIToolKit\Api\ApiResponse;
 use Illuminate\Http\Request;
 
@@ -13,10 +14,14 @@ class TransactionController extends Controller
 {
     use ApiResponse;
     protected $transactionService;
+    protected $transactionSyncService;
 
-    public function __construct(TransactionService $transactionService)
-    {
+    public function __construct(
+        TransactionService $transactionService,
+        TransactionSyncService $transactionSyncService
+    ) {
         $this->transactionService = $transactionService;
+        $this->transactionSyncService = $transactionSyncService;
     }
 
     public function index(Request $request) {
@@ -42,6 +47,26 @@ class TransactionController extends Controller
         // $this->authorize('create-transaction');
 
         $data = $request->validated();
+
+        // user_id is resolved ONLY at creation time, from the Aranca sync
+        // settings mapping (cash/non-cash -> settings.value1). It is
+        // intentionally never re-resolved or overwritten on update, even
+        // if mode_of_payment changes later.
+        if ($this->transactionSyncService->isSyncTransaction($request->input('sync_id'), $request->input('sync_payment_record_id'))) {
+            $resolvedUserId = $this->transactionSyncService->resolveSyncUserId($data['mode_of_payment'] ?? null);
+
+            if ($resolvedUserId === null) {
+                // Fail fast with a clear 422 instead of letting this fall
+                // through to a DB NOT NULL violation on transactions.user_id.
+                return $this->responseError(
+                    'Unable to resolve user_id for this synced transaction. Check the mode_of_payment value and the external_cash_transaction / external_non_cash_transaction settings.',
+                    422
+                );
+            }
+
+            $data['user_id'] = $resolvedUserId;
+        }
+
         $transaction = $this->transactionService->createTransaction($data);
 
         event(new TagNotificationCount());
@@ -74,6 +99,10 @@ class TransactionController extends Controller
         }
 
         $data = $request->validated();
+
+        // Deliberately NOT resolving/overwriting user_id here — it's set
+        // once at creation time only (see store()).
+
         $updatedTransaction = $this->transactionService->updateTransaction($transaction, $data);
 
         event(new TagNotificationCount());

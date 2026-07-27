@@ -88,7 +88,7 @@ class TransactionService
     private function buildTransactionData($data, $additionalFields = [])
     {
         $baseData = [
-            'user_id' => auth()->id(),
+            'user_id' => $data['user_id'] ?? auth()->id(),
             'type' => $data['type'],
             'category' => $data['category'] ?? null,
             'sync_id' => $data['sync_id'] ?? null,
