@@ -47,6 +47,7 @@ class TransactionRequest extends FormRequest
             'category'                   => $allowEdit ? 'string|required' : 'string|nullable',
             'sync_id'                    => 'nullable',
             'sync_payment_record_id'     => 'integer|nullable',
+            'sync_transaction_number'    => 'integer|nullable',
             'distribution_type'          => 'string|nullable|max:255',
             'reference_no' => array_filter([
                 'string',
@@ -54,7 +55,7 @@ class TransactionRequest extends FormRequest
                 $this->filled('sync_id') ? null : Rule::unique('transactions', 'reference_no')
                     ->where(fn ($query) => $query->where('customer_name', $this->input('customer.name')))
                     ->ignore($transactionId, 'id'),
-            ]),//test
+            ]),
             'transaction_date'           => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
             'payment_date'               => $allowEdit ? 'required|date|date_format:Y-m-d H:i:s' : 'nullable|date|date_format:Y-m-d H:i:s',
             'customer.id'                => 'nullable',

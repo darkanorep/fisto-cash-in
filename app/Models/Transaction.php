@@ -17,6 +17,8 @@ class Transaction extends Model
     protected string $default_filters = TransactionFilter::class;
 
     const modeOfPaymentOptions = ['online', 'cash', 'cheque', 'advance payment', 'gcash'];
+    const nonCashPaymentOptions = ['with holding', 'listing fee', 'sales return', 'rebate']; //ARCANA Payment Options
+    const cashPaymentOptions = ['advance payment', 'cash', 'cheque', 'online', 'gcash']; //ARCANA Payment Options
 
     public function logs() {
         return $this->morphMany(Activity::class, 'subject')->orderBy('id', 'desc');
