@@ -97,31 +97,31 @@ class TransactionResource extends JsonResource
             'remarks' => $this->remarks,
             'deposit_remarks' => $this->deposit_remarks,
             'charge' => [
-                'id' => $this->charge->id,
-                'name' => $this->charge->name,
+                'id' => $this->charge->id ?? null,
+                'name' => $this->charge->name ?? null,
                 'company' => [
-                    'code' => $this->charge->company_code,
-                    'name' => $this->charge->company_name,
+                    'code' => $this->charge->company_code ?? null,
+                    'name' => $this->charge->company_name ?? null,
                 ],
                 'business_unit' => [
-                    'code' => $this->charge->business_unit_code,
-                    'name' => $this->charge->business_unit_name,
+                    'code' => $this->charge->business_unit_code ?? null,
+                    'name' => $this->charge->business_unit_name ?? null,
                 ],
                 'department' => [
-                    'code' => $this->charge->department_code,
-                    'name' => $this->charge->department_name,
+                    'code' => $this->charge->department_code ?? null,
+                    'name' => $this->charge->department_name ?? null,
                 ],
                 'unit' => [
-                    'code' => $this->charge->unit_code,
-                    'name' => $this->charge->unit_name,
+                    'code' => $this->charge->unit_code ?? null,
+                    'name' => $this->charge->unit_name ?? null,
                 ],
                 'sub_unit' => [
-                    'code' => $this->charge->sub_unit_code,
-                    'name' => $this->charge->sub_unit_name,
+                    'code' => $this->charge->sub_unit_code ?? null,
+                    'name' => $this->charge->sub_unit_name ?? null,
                 ],
                 'location' => [
-                    'code' => $this->charge->location_code,
-                    'name' => $this->charge->location_name,
+                    'code' => $this->charge->location_code ?? null,
+                    'name' => $this->charge->location_name ?? null,
                 ]
             ],
             'user' => [
