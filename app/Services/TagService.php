@@ -167,9 +167,10 @@ class TagService
 
                     if ($transaction->sync_payment_record_id) {
                         $payload = [
-                            'paymentRecordId' => $transaction->sync_payment_record_id,
-                            'paymentMethod' => $transaction->mode_of_payment,
-                            'paymentAmount' => $transaction->amount,
+                            'paymentTransactionId' => $transaction->sync_id,
+//                            'paymentRecordId' => $transaction->sync_payment_record_id,
+//                            'paymentMethod' => $transaction->mode_of_payment,
+//                            'paymentAmount' => $transaction->amount,
                             'aTag' => $transaction->tag_number,
                         ];
 
