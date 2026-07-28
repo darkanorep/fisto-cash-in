@@ -4105,7 +4105,7 @@ DETAIL:  Key (user_id)=(100) is not present in table \"users\". at /var/www/html
 #30 /var/www/html/public/index.php(60): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
 #31 {main}
 "} 
-[2026-07-27 16:57:09] local.ERROR: Attempt to read property "id" on null {"exception":"[object] (ErrorException(code: 0): Attempt to read property \"id\" on null at /var/www/html/app/Http/Resources/TransactionResource.php:100)
+
 [stacktrace]
 #0 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError(2, 'Attempt to read...', '/var/www/html/a...', 100)
 #1 /var/www/html/app/Http/Resources/TransactionResource.php(100): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->Illuminate\\Foundation\\Bootstrap\\{closure}(2, 'Attempt to read...', '/var/www/html/a...', 100)
@@ -4114,23 +4114,7 @@ DETAIL:  Key (user_id)=(100) is not present in table \"users\". at /var/www/html
 #4 [internal function]: Illuminate\\Http\\Resources\\Json\\JsonResource->jsonSerialize()
 #5 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/JsonResponse.php(84): json_encode(Array, 0)
 #6 /var/www/html/vendor/symfony/http-foundation/JsonResponse.php(49): Illuminate\\Http\\JsonResponse->setData(Array)
-#7 /var/www/html/vendor/laravel/framework/src/Illuminate/Http/JsonResponse.php(32): Symfony\\Component\\HttpFoundation\\JsonResponse->__construct(Array, 201, Array, false)
-#8 /var/www/html/vendor/essa/api-tool-kit/src/Api/ApiResponse.php(149): Illuminate\\Http\\JsonResponse->__construct(Array, 201)
-#9 /var/www/html/app/Http/Controllers/TransactionController.php(74): App\\Http\\Controllers\\TransactionController->responseCreated('Transaction cre...', Object(App\\Http\\Resources\\TransactionResource))
-#10 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(54): App\\Http\\Controllers\\TransactionController->store(Object(App\\Http\\Requests\\TransactionRequest))
-#11 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction('store', Array)
-#12 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\TransactionController), 'store')
-#13 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(205): Illuminate\\Routing\\Route->runController()
-#14 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(806): Illuminate\\Routing\\Route->run()
-#15 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
-#16 /var/www/html/app/Http/Middleware/ExternalTransaction.php(25): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
-#17 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): App\\Http\\Middleware\\ExternalTransaction->handle(Object(Illuminate\\Http\\Request), Object(Closure))
-#18 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
-#19 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
-#20 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Middleware/ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
-#21 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Middleware/ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
-#22 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Middleware/ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
-#23 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+
 #24 /var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
 #25 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
 #26 /var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
