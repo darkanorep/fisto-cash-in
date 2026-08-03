@@ -115,7 +115,7 @@ class TransactionService
             'customer_id'             => $data['customer']['id'] ?? null,
             'customer_code'           => $data['customer']['code'] ?? $data['customer_code'] ?? null,
             'customer_name'           => $data['customer']['name'] ?? $data['customer_name'] ?? null,
-            'mode_of_payment'         => $data['mode_of_payment'] ?? null,
+            'mode_of_payment'         => strtolower($data['mode_of_payment']) ?? null,
             'payment_type'            => $data['payment_type'] ?? null,
             'bank_id'                 => $data['bank']['id'] ?? null,
             'bank_code'               => $data['bank']['code'] ?? $data['bank_code'] ?? null,
