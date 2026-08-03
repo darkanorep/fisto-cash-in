@@ -8,16 +8,27 @@ use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
+use Illuminate\Http\Client\ConnectionException;
 
 class TransactionService
 {
     use ActivityLogTrait;
 
+    /**
+     * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed
+     */
+    private mixed $arcanaApiKey;
+    private mixed $arcanaUrl;
+
     public function __construct(protected Transaction $transaction)
     {
+        $this->arcanaApiKey = config('app.arcana_api_key');
+        $this->arcanaUrl = config('app.arcana_url');
     }
 
     public function getAllTransactions(Request $request): Collection
@@ -210,6 +221,40 @@ class TransactionService
         $transaction->update($transactionData);
 
         $this->logActivityOn($transaction, 'Transaction Voided', $transactionData, 'voided');
+
+        // The Arcana push is a side effect, not the source of truth — the
+        // transaction is voided locally regardless of whether the remote
+        // call succeeds. We catch both transport-level failures (timeouts,
+        // DNS, connection refused) and non-2xx responses so a flaky
+        // gateway never turns a successful void into a 500, while still
+        // surfacing the failure for reconciliation/alerting.
+        try {
+            $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])
+                ->post($this->arcanaUrl . 'void', [
+                    'paymentTransactionId' => $transaction->sync_transaction_number,
+                ]);
+
+            if ($response->failed()) {
+                Log::warning('Arcana void call returned an error response', [
+                    'transaction_id' => $transaction->id,
+                    'sync_transaction_number' => $transaction->sync_transaction_number,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (ConnectionException $e) {
+            Log::error('Arcana void call failed: connection error', [
+                'transaction_id' => $transaction->id,
+                'sync_transaction_number' => $transaction->sync_transaction_number,
+                'message' => $e->getMessage(),
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Arcana void call failed unexpectedly', [
+                'transaction_id' => $transaction->id,
+                'sync_transaction_number' => $transaction->sync_transaction_number,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return $transaction;
     }
