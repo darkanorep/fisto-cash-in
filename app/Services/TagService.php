@@ -8,9 +8,11 @@ use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
@@ -32,25 +34,25 @@ class TagService
         $this->arcanaUrl = config('app.arcana_url');
     }
 
-    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
-    {
-        $entries = $this->voucherEntryService->syncEntries(
-            $transaction,
-            $accountTitles,
-            $status
-        );
-
-        foreach ($entries as $accountTitle) {
-            $this->logActivityOn(
-                $transaction,
-                'Transaction ' . ucfirst($status),
-                [$accountTitle],
-                $status . ':accountingEntries'
-            );
-        }
-
-        return $entries;
-    }
+//    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
+//    {
+//        $entries = $this->voucherEntryService->syncEntries(
+//            $transaction,
+//            $accountTitles,
+//            $status
+//        );
+//
+//        foreach ($entries as $accountTitle) {
+//            $this->logActivityOn(
+//                $transaction,
+//                'Transaction ' . ucfirst($status),
+//                [$accountTitle],
+//                $status . ':accountingEntries'
+//            );
+//        }
+//
+//        return $entries;
+//    }
 
     public function getTransactions($request) {
         $query = $this->transaction->query();
@@ -111,25 +113,45 @@ class TagService
         ])->useFilters()->dynamicPaginate();
     }
 
-    public function action($request) {
-
-        $transactionIds = $request->input('transaction_id');
-        $status = $request->input('status');
-        $depositDate = $request->input('deposit_date');
-        $bankDeposit = $request->input('bank_deposit');
-        $serviceCharge = $request->input('service_charge');
+    public function action($request)
+    {
+        $transactionIds  = $request->input('transaction_id');
+        $status          = $request->input('status');
+        $depositDate     = $request->input('deposit_date');
+        $bankDeposit     = $request->input('bank_deposit'); // bank name, e.g. "METROBANK" — not an amount
+        $serviceCharge   = $request->input('service_charge');
         $bankCodeDeposit = $request->input('bank_code_deposit');
-        $depositRemarks = $request->input('deposit_remarks');
-        $series = $request->input('series');
-        $reason = $request->input('reason');
-        $accountTitles = $request->input('account_titles');
+        $depositRemarks  = $request->input('deposit_remarks');
+        $series          = $request->input('series');
+        $reason          = $request->input('reason');
+        $accountTitles   = $request->input('account_titles');
 
-        $tagNumber = [];
+        $tagNumber     = [];
+        $runningTotals = [];
 
-        foreach ($transactionIds as $transactionId) {
-            $transaction = $this->transaction->findOrFail($transactionId);
+        // Prefetch all selected transactions once (avoids N+1 inside the loop,
+        // and lets us compute deposit allocations up front).
+        $transactions = $this->transaction
+            ->whereIn('id', $transactionIds)
+            ->get()
+            ->keyBy('id');
 
-            switch($status) {
+        $depositAllocations = [];
+        $depositTotal       = 0.0;
+
+        if ($status === 'deposit') {
+            $resolved           = $this->resolveDepositAllocations($transactions);
+            $depositAllocations = $resolved['allocations'];
+            $depositTotal       = $resolved['total']; // SUM(amount - service_charge) across the batch
+        }
+
+        $transactionCount = count($transactionIds);
+
+        foreach ($transactionIds as $index => $transactionId) {
+            $transaction = $transactions->get($transactionId)
+                ?? $this->transaction->findOrFail($transactionId); // fallback safety net
+
+            switch ($status) {
 
                 case 'receive':
                     $transaction->reason = null;
@@ -159,9 +181,6 @@ class TagService
                             $transaction->tag_number = $this->generateTagNumber($series);
                         }
                     } elseif ($transaction->mode_of_payment === 'cheque') {
-                        // keep the cheque group cache in sync even when this transaction
-                        // already had a valid tag_number, so later transactions in the
-                        // same reference_no group reuse it instead of generating a new one
                         $refKey = 'cheque_' . ($transaction->reference_no ?? 'null');
                         $tagNumber[$refKey] = $transaction->tag_number;
                     }
@@ -169,9 +188,6 @@ class TagService
                     if ($transaction->sync_payment_record_id) {
                         $payload = [
                             'paymentTransactionId' => $transaction->sync_id,
-//                            'paymentRecordId' => $transaction->sync_payment_record_id,
-//                            'paymentMethod' => $transaction->mode_of_payment,
-//                            'paymentAmount' => $transaction->amount,
                             'aTag' => $transaction->tag_number,
                         ];
 
@@ -189,7 +205,6 @@ class TagService
 
                             $response->throw();
 
-
                         } catch (\Throwable $e) {
                             Log::error('Arcana tag sync failed for transaction ' . $transaction->id, [
                                 'message' => $e->getMessage(),
@@ -200,10 +215,15 @@ class TagService
                     break;
 
                 case 'deposit':
-                    $transaction->deposit_date = $depositDate ?? null;
-                    $transaction->bank_deposit = $bankDeposit ?? null;
+                    $transaction->deposit_date      = $depositDate ?? null;
+                    $transaction->bank_deposit      = $bankDeposit ?? null; // bank name — same for every transaction in the batch
                     $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
-                    $transaction->deposit_remarks = $depositRemarks ?? null;
+                    $transaction->deposit_remarks    = $depositRemarks ?? null;
+                    // NOTE: $depositAllocations[$transactionId] (this transaction's computed
+                    // amount - service_charge share) is used below purely as the ratio weight
+                    // for splitting account_titles. If you also need to persist that per-
+                    // transaction net amount on the transaction row itself, tell me which
+                    // column it belongs to and I'll add the assignment here.
                     event(new ClearNotificationCount());
                     break;
 
@@ -226,21 +246,244 @@ class TagService
 
             $transaction->status = $status;
             $transaction->save();
+
             $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
-                'status' => $status,
-                'deposit_date' => $depositDate,
-                'bank_deposit' => $bankDeposit,
+                'status'            => $status,
+                'deposit_date'      => $depositDate,
+                'bank_deposit'      => $bankDeposit,
+                'deposit_allocation'=> $depositAllocations[$transactionId] ?? null,
                 'bank_code_deposit' => $bankCodeDeposit,
-                'service_charge' => $serviceCharge,
-                'deposit_remarks' => $depositRemarks,
-                'tag_number' => $transaction->tag_number,
-                'reason' => $reason,
-            ], 'tag:'.$status);
+                'service_charge'    => $transaction->service_charge,
+                'deposit_remarks'   => $depositRemarks,
+                'tag_number'        => $transaction->tag_number,
+                'reason'            => $reason,
+            ], 'tag:' . $status);
 
             if (!empty($accountTitles)) {
-                $this->processVoucherEntries($transaction, $accountTitles, $status);
+                if ($status === 'deposit') {
+                    $ratio = $depositTotal > 0
+                        ? ($depositAllocations[$transactionId] / $depositTotal)
+                        : 0.0;
+
+                    $this->processVoucherEntries(
+                        $transaction,
+                        $accountTitles,
+                        $status,
+                        $ratio,
+                        isLastInBatch: $index === $transactionCount - 1,
+                        runningTotals: $runningTotals
+                    );
+                } else {
+                    $this->processVoucherEntries($transaction, $accountTitles, $status);
+                }
             }
         }
+    }
+
+//    public function action($request) {
+//
+//        $transactionIds = $request->input('transaction_id');
+//        $status = $request->input('status');
+//        $depositDate = $request->input('deposit_date');
+//        $bankDeposit = $request->input('bank_deposit');
+//        $serviceCharge = $request->input('service_charge');
+//        $bankCodeDeposit = $request->input('bank_code_deposit');
+//        $depositRemarks = $request->input('deposit_remarks');
+//        $series = $request->input('series');
+//        $reason = $request->input('reason');
+//        $accountTitles = $request->input('account_titles');
+//
+//        $tagNumber = [];
+//
+//        foreach ($transactionIds as $transactionId) {
+//            $transaction = $this->transaction->findOrFail($transactionId);
+//
+//            switch($status) {
+//
+//                case 'receive':
+//                    $transaction->reason = null;
+//                    $transaction->deposit_date = null;
+//                    $transaction->bank_deposit = null;
+//                    $transaction->deposit_remarks = null;
+//                    $transaction->is_tagged = false;
+//                    break;
+//
+//                case 'tag':
+//                    $transaction->is_tagged = true;
+//                    $transaction->deposit_date = $depositDate ?? null;
+//                    $transaction->bank_deposit = $bankDeposit ?? null;
+//                    $transaction->deposit_remarks = $depositRemarks ?? null;
+//                    $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+//                    $transaction->service_charge = $serviceCharge ?? null;
+//
+//                    if (!$transaction->tag_number || !str_starts_with($transaction->tag_number, $series)) {
+//                        if ($transaction->mode_of_payment === 'cheque') {
+//                            $refKey = 'cheque_' . ($transaction->reference_no ?? 'null');
+//
+//                            if (!isset($tagNumber[$refKey]) || !str_starts_with($tagNumber[$refKey], $series)) {
+//                                $tagNumber[$refKey] = $this->generateTagNumber($series);
+//                            }
+//                            $transaction->tag_number = $tagNumber[$refKey];
+//                        } else {
+//                            $transaction->tag_number = $this->generateTagNumber($series);
+//                        }
+//                    } elseif ($transaction->mode_of_payment === 'cheque') {
+//                        // keep the cheque group cache in sync even when this transaction
+//                        // already had a valid tag_number, so later transactions in the
+//                        // same reference_no group reuse it instead of generating a new one
+//                        $refKey = 'cheque_' . ($transaction->reference_no ?? 'null');
+//                        $tagNumber[$refKey] = $transaction->tag_number;
+//                    }
+//
+//                    if ($transaction->sync_payment_record_id) {
+//                        $payload = [
+//                            'paymentTransactionId' => $transaction->sync_id,
+////                            'paymentRecordId' => $transaction->sync_payment_record_id,
+////                            'paymentMethod' => $transaction->mode_of_payment,
+////                            'paymentAmount' => $transaction->amount,
+//                            'aTag' => $transaction->tag_number,
+//                        ];
+//
+//                        Log::info('Arcana tag payload for transaction ' . $transaction->id, $payload);
+//
+//                        try {
+//                            $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
+//                                $this->arcanaUrl . 'tag', $payload
+//                            );
+//
+//                            Log::info('Arcana tag response for transaction ' . $transaction->id, [
+//                                'status' => $response->status(),
+//                                'body' => $response->body(),
+//                            ]);
+//
+//                            $response->throw();
+//
+//
+//                        } catch (\Throwable $e) {
+//                            Log::error('Arcana tag sync failed for transaction ' . $transaction->id, [
+//                                'message' => $e->getMessage(),
+//                            ]);
+//                        }
+//                    }
+//
+//                    break;
+//
+//                case 'deposit':
+//                    $transaction->deposit_date = $depositDate ?? null;
+//                    $transaction->bank_deposit = $bankDeposit ?? null;
+//                    $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+//                    $transaction->deposit_remarks = $depositRemarks ?? null;
+//                    event(new ClearNotificationCount());
+//                    break;
+//
+//                case 'return':
+//                    $transaction->is_tagged = false;
+//                    $transaction->reason = $reason;
+//                    $transaction->deposit_date = $transaction->deposit_date ?? null;
+//                    $transaction->bank_deposit = $transaction->bank_deposit ?? null;
+//                    $transaction->bank_code_deposit = $bankCodeDeposit ?? null;
+//                    $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
+//                    $transaction->tag_number = $transaction->tag_number ?? null;
+//                    event(new RequestNotificationCount($transaction->user));
+//                    break;
+//
+//                case 'void':
+//                    $transaction->reason = $reason;
+//                    $this->transactionService->voidTransaction($transaction, ['reason' => $reason]);
+//                    break;
+//            }
+//
+//            $transaction->status = $status;
+//            $transaction->save();
+//            $this->logActivityOn($transaction, 'Transaction ' . ucfirst($status), [
+//                'status' => $status,
+//                'deposit_date' => $depositDate,
+//                'bank_deposit' => $bankDeposit,
+//                'bank_code_deposit' => $bankCodeDeposit,
+//                'service_charge' => $serviceCharge,
+//                'deposit_remarks' => $depositRemarks,
+//                'tag_number' => $transaction->tag_number,
+//                'reason' => $reason,
+//            ], 'tag:'.$status);
+//
+//            if (!empty($accountTitles)) {
+//                $this->processVoucherEntries($transaction, $accountTitles, $status);
+//            }
+//        }
+//    }
+
+    /**
+     * Resolve per-transaction deposit allocations automatically from each
+     * transaction's own amount and service_charge, rather than trusting a
+     * manually entered total. Logs (but does not block) any mismatch between
+     * the entered bank_deposit and the computed sum.
+     *
+     * @return array{allocations: array<int,float>, total: float}
+     */
+    /**
+     * Resolve per-transaction deposit allocations automatically from each
+     * transaction's own amount and service_charge, rather than trusting the
+     * manually entered bank_deposit total.
+     *
+     * Logs (but does not block the request) when the entered total diverges
+     * from the computed sum by more than a 1-cent rounding tolerance.
+     *
+     * @return array{allocations: array<int,float>, total: float}
+     */
+    protected function resolveDepositAllocations(\Illuminate\Support\Collection $transactions): array
+    {
+        $allocations = [];
+        $computedTotal = 0.0;
+
+        foreach ($transactions as $transaction) {
+            if ($transaction->amount === null) {
+                throw new \InvalidArgumentException(
+                    "Cannot compute deposit allocation: transaction {$transaction->id} has no amount."
+                );
+            }
+
+            $net = round((float) $transaction->amount - (float) ($transaction->service_charge ?? 0), 2);
+            $allocations[$transaction->id] = $net;
+            $computedTotal += $net;
+        }
+
+        return [
+            'allocations' => $allocations,
+            'total'       => round($computedTotal, 2),
+        ];
+    }
+
+    /**
+     * Sync voucher account entries for a transaction and log the resulting
+     * entries as an activity record.
+     */
+    public function processVoucherEntries(
+        Transaction $transaction,
+        array $accountTitles,
+        string $status,
+        ?float $ratio = null,
+        bool $isLastInBatch = false,
+        array &$runningTotals = []
+    ): \Illuminate\Support\Collection {
+        $entries = $this->voucherEntryService->syncEntries(
+            $transaction,
+            $accountTitles,
+            $status,
+            $ratio,
+            $isLastInBatch,
+            $runningTotals
+        );
+
+        foreach ($entries as $accountTitle) {
+            $this->logActivityOn(
+                $transaction,
+                'Transaction ' . ucfirst($status),
+                [$accountTitle],
+                $status . ':accountingEntries'
+            );
+        }
+
+        return $entries;
     }
 
     public function generateTagNumber($series) {
