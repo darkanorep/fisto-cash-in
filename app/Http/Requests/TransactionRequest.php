@@ -69,7 +69,7 @@ class TransactionRequest extends FormRequest
             'bank.code'                  => 'nullable',
             'bank_code'                   => 'string|nullable',
             'bank.name'                  => 'string|nullable|required_if:mode_of_payment,cheque',
-            'bank'                      => 'string|nullable',
+            'bank'                      => 'nullable',
             'cheque.no'                  => [
                 'string',
                 'nullable',

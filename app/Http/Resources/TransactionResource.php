@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Slip;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -65,10 +66,10 @@ class TransactionResource extends JsonResource
             'distribution_type' => $this->distribution_type,
             'reference_no' => $this->reference_no,
             'transaction_date' => $this->transaction_date
-                ? \Carbon\Carbon::parse($this->transaction_date)->format('Y-m-d H:i:s')
+                ? Carbon::parse($this->transaction_date)->format('Y-m-d H:i:s')
                 : null,
             'payment_date' => $this->payment_date
-                ? \Carbon\Carbon::parse($this->payment_date)->format('Y-m-d H:i:s')
+                ? Carbon::parse($this->payment_date)->format('Y-m-d H:i:s')
                 : null,
             'customer' => [
                 'id' => $this->customer_id ?? null,
@@ -85,11 +86,12 @@ class TransactionResource extends JsonResource
             'cheque' => [
                 'no' => $this->check_no,
                 'date' => $this->check_date
-                    ? \Carbon\Carbon::parse($this->check_date)->format('Y-m-d H:i:s')
+                    ? Carbon::parse($this->check_date)->format('Y-m-d H:i:s')
                     : null
             ],
             'amount' => $this->amount,
             'service_charge' => $this->service_charge ?? null,
+            'net_amount' => $this->amount - ($this->service_charge ?? 0),
             'remaining_balance' => $this->remaining_balance,
             'amount_paid' => $amountPaid,
             'total_amount' => $totalAmount,
@@ -132,22 +134,22 @@ class TransactionResource extends JsonResource
             'slips' => SlipResource::collection($this->whenLoaded('slips')),
             'tag_number' => $this->tag_number,
             'date_cleared' => $this->date_cleared
-                ? \Carbon\Carbon::parse($this->date_cleared)->format('Y-m-d H:i:s')
+                ? Carbon::parse($this->date_cleared)->format('Y-m-d H:i:s')
                 : null,
             'date_filed' => $this->date_filed
-                ? \Carbon\Carbon::parse($this->date_filed)->format('Y-m-d H:i:s')
+                ? Carbon::parse($this->date_filed)->format('Y-m-d H:i:s')
                 : null,
             'bank_deposit' => $this->bank_deposit,
             'bank_code_deposit' => $this->bank_code_deposit,
             'deposit_date' => $this->deposit_date
-                ? \Carbon\Carbon::parse($this->deposit_date)->format('Y-m-d H:i:s')
+                ? Carbon::parse($this->deposit_date)->format('Y-m-d H:i:s')
                 : null,
             'reason' => $this->reason,
             'logs' => $this->logs->map(function ($log) {
                 return [
                     'description' => $log->description,
                     'causer' => $log->causer?->getFullNameAttribute(),
-                    'logged_at' => \Carbon\Carbon::parse($log->created_at)->format('l, d M Y h:i:s A'),
+                    'logged_at' => Carbon::parse($log->created_at)->format('l, d M Y h:i:s A'),
                 ];
             }),
             'voucher_entries' => $this->whenLoaded('voucherAccountEntries', function () {
