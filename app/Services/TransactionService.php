@@ -230,9 +230,10 @@ class TransactionService
         // surfacing the failure for reconciliation/alerting.
         try {
             $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])
-                ->post($this->arcanaUrl . 'void', [
+                ->withQueryParameters([
                     'paymentTransactionId' => $transaction->sync_id,
-                ]);
+                ])
+                ->post($this->arcanaUrl . 'void');
 
             if ($response->failed()) {
                 Log::warning('Arcana void call returned an error response', [
