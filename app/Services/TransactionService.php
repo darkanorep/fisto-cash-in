@@ -231,7 +231,7 @@ class TransactionService
         try {
             $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])
                 ->post($this->arcanaUrl . 'void', [
-                    'paymentTransactionId' => $transaction->sync_transaction_number,
+                    'paymentTransactionId' => $transaction->sync_id,
                 ]);
 
             if ($response->failed()) {
