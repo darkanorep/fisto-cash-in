@@ -45,7 +45,8 @@ class FileService
         return $entries;
     }
 
-    public function getTransactions($request) {
+    public function getTransactions($request)
+    {
         $query = $this->transaction->query();
 
         $filters = $request instanceof Request ? $request->all() : $request;
@@ -77,9 +78,13 @@ class FileService
                     });
                     break;
                 default:
-                    $query->status($filters['status']);;
+                    $query->status($filters['status']);
                     break;
             }
+        }
+
+        if (isset($filters['mode_of_payment'])) {
+            $query->modeOfPayment($filters['mode_of_payment']);
         }
 
         if (isset($filters['clear_date_from']) && isset($filters['clear_date_to'])) {

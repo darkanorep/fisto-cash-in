@@ -14,6 +14,7 @@ class ClearService
     public function __construct(
         Transaction $transaction,
         private readonly VoucherEntryService $voucherEntryService,
+        private readonly TransactionService $transactionService
     )
     {
         $this->transaction = $transaction;
@@ -137,6 +138,7 @@ class ClearService
 
                 case 'void':
                     $transaction->reason = $reason;
+                    $this->transactionService->voidTransaction($transaction, ['reason' => $reason]);
                     break;
             }
             $transaction->status = $status;

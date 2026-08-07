@@ -31,7 +31,7 @@ class TransactionService
         $this->arcanaUrl = config('app.arcana_url');
     }
 
-    public function getAllTransactions(Request $request): Collection
+    public function getAllTransactions(Request $request)
     {
         $query = $this->transaction->query()
             ->with(['bank', 'customer', 'slips', 'voucherAccountEntries'])
@@ -61,14 +61,14 @@ class TransactionService
             ]);
         }
 
-        $query->orderBy('updated_at', 'desc');
+        $paginated = $query->orderBy('updated_at', 'desc')
+            ->useFilters()
+            ->dynamicPaginate();
 
-        $transactions = $query->get();
+        // Distribute payment per transaction's slips — operate on the paginated items
+        $paginated->getCollection()->each(fn ($transaction) => $this->applySlipDistribution($transaction));
 
-        // Distribute payment per transaction's slips
-        $transactions->each(fn ($transaction) => $this->applySlipDistribution($transaction));
-
-        return $transactions;
+        return $paginated;
     }
 
     /**
