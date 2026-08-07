@@ -7,6 +7,7 @@ use Essa\APIToolKit\Filters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Spatie\Activitylog\Models\Activity;
 
 class Transaction extends Model
@@ -106,5 +107,18 @@ class Transaction extends Model
         return $query->when($paymentType, function ($q) use ($paymentType) {
             $q->where('payment_type', $paymentType);
         });
+    }
+
+    public function scopeModeOfPayment($query, $modeOfPayment)
+    {
+        if (!is_array($modeOfPayment)) {
+            $decoded = json_decode($modeOfPayment, true);
+
+            $modeOfPayment = (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
+                ? $decoded
+                : array_filter(array_map('trim', explode(',', $modeOfPayment)));
+        }
+
+        $query->whereIn('mode_of_payment', $modeOfPayment); // confirm correct column
     }
 }

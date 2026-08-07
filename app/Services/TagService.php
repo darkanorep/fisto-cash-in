@@ -34,26 +34,6 @@ class TagService
         $this->arcanaUrl = config('app.arcana_url');
     }
 
-//    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
-//    {
-//        $entries = $this->voucherEntryService->syncEntries(
-//            $transaction,
-//            $accountTitles,
-//            $status
-//        );
-//
-//        foreach ($entries as $accountTitle) {
-//            $this->logActivityOn(
-//                $transaction,
-//                'Transaction ' . ucfirst($status),
-//                [$accountTitle],
-//                $status . ':accountingEntries'
-//            );
-//        }
-//
-//        return $entries;
-//    }
-
     public function getTransactions($request) {
         $query = $this->transaction->query();
 
