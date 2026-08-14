@@ -243,14 +243,15 @@ class TransactionService
         // surfacing the failure for reconciliation/alerting.
         try {
             $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])
-                ->post($this->arcanaUrl . 'void', [
-                    'paymentTransactionId' => $transaction->sync_transaction_number,
-                ]);
+                ->withQueryParameters([
+                    'paymentTransactionId' => $transaction->sync_id,
+                ])
+                ->post($this->arcanaUrl . 'void');
 
             if ($response->failed()) {
                 Log::warning('Arcana void call returned an error response', [
                     'transaction_id' => $transaction->id,
-                    'sync_transaction_number' => $transaction->sync_transaction_number,
+                    'paymentTransactionId' => $transaction->sync_id,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -258,13 +259,13 @@ class TransactionService
         } catch (ConnectionException $e) {
             Log::error('Arcana void call failed: connection error', [
                 'transaction_id' => $transaction->id,
-                'sync_transaction_number' => $transaction->sync_transaction_number,
+                'paymentTransactionId' => $transaction->sync_id,
                 'message' => $e->getMessage(),
             ]);
         } catch (Throwable $e) {
             Log::error('Arcana void call failed unexpectedly', [
                 'transaction_id' => $transaction->id,
-                'sync_transaction_number' => $transaction->sync_transaction_number,
+                'paymentTransactionId' => $transaction->sync_id,
                 'message' => $e->getMessage(),
             ]);
         }
