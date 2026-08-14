@@ -93,6 +93,20 @@ class TransactionRequest extends FormRequest
             'slip.*.amount'              => 'numeric|nullable',
             'slip.*.actual_amount_paid'  => 'numeric|nullable',
             'remarks'                    => 'string|nullable',
+            'charge_code'                 => 'string|nullable',
+            'charge_name'                 => 'string|nullable',
+            'company_code'                => 'string|nullable',
+            'company_name'                => 'string|nullable',
+            'business_unit_code'          => 'string|nullable',
+            'business_unit_name'          => 'string|nullable',
+            'department_code'             => 'string|nullable',
+            'department_name'             => 'string|nullable',
+            'unit_code'                   => 'string|nullable',
+            'unit_name'                   => 'string|nullable',
+            'sub_unit_code'               => 'string|nullable',
+            'sub_unit_name'               => 'string|nullable',
+            'location_code'               => 'string|nullable',
+            'location_name'               => 'string|nullable'
         ];
     }
 
