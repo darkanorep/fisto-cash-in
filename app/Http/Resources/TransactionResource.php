@@ -123,8 +123,8 @@ class TransactionResource extends JsonResource
                     'name' => $this->charge->sub_unit_name ?? $this->sub_unit_name ?? null,
                 ],
                 'location' => [
-                    'code' => $this->charge->location_code ?? $this->location_code ?? null,
-                    'name' => $this->charge->location_name ?? $this->location_name ?? null,
+                    'code' => $this->charge->location_code ?? null,
+                    'name' => $this->charge->location_name ?? null,
                 ]
             ],
             'user' => [
