@@ -33,12 +33,21 @@ class TransactionService
 
     public function getAllTransactions(Request $request)
     {
+
+        $status      = $request->input('status');
+        $paymentType = $request->input('payment_type');
+        $modeOfPayment = $request->input('mode_of_payment');
+
+
         $query = $this->transaction->query()
             ->with(['bank', 'customer', 'slips', 'voucherAccountEntries'])
             ->where('user_id', auth()->id());
 
-        $status      = $request->input('status');
-        $paymentType = $request->input('payment_type');
+        $query->paymentType($paymentType);
+
+        if (isset($modeOfPayment)) {
+            $query->modeOfPayment($modeOfPayment);
+        }
 
         if ($status) {
             match ($status) {
@@ -51,8 +60,6 @@ class TransactionService
             // No status filter requested -> hide voided transactions by default
             $query->whereNotIn('status', ['void']);
         }
-
-        $query->paymentType($paymentType);
 
         if (isset($request['date_from']) && isset($request['date_to'])) {
             $query->date([
