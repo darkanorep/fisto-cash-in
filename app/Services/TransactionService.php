@@ -233,7 +233,7 @@ class TransactionService
         // sync_transaction_number, not just the sibling rows intended.
         if (filled($transaction->sync_id)) {
             $this->transaction->newQuery()
-                ->where('sync_id', $transaction->sync_id)
+                ->where('sync_payment_record_id', $transaction->sync_payment_record_id)
                 ->update($transactionData);
         }
 
