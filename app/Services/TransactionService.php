@@ -44,10 +44,7 @@ class TransactionService
             ->where('user_id', auth()->id());
 
         $query->paymentType($paymentType);
-
-        if (isset($modeOfPayment)) {
-            $query->modeOfPayment($modeOfPayment);
-        }
+        $query->modeOfPayment($modeOfPayment);
 
         if ($status) {
             match ($status) {
