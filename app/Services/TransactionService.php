@@ -248,7 +248,14 @@ class TransactionService
                 ])
                 ->post($this->arcanaUrl . 'void');
 
-            if ($response->failed()) {
+            if ($response->successful()) {
+                Log::info('Arcana void call succeeded', [
+                    'transaction_id' => $transaction->id,
+                    'paymentTransactionId' => $transaction->sync_id,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            } else {
                 Log::warning('Arcana void call returned an error response', [
                     'transaction_id' => $transaction->id,
                     'paymentTransactionId' => $transaction->sync_id,
