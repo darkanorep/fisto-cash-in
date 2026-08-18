@@ -165,7 +165,7 @@ class TagService
                         $tagNumber[$refKey] = $transaction->tag_number;
                     }
 
-                    if ($transaction->sync_payment_record_id) {
+                    if ($transaction->sync_id) {
                         $payload = [
                             'paymentTransactionId' => $transaction->sync_id,
                             'aTag' => $transaction->tag_number,
