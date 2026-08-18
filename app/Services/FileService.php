@@ -127,12 +127,10 @@ class FileService
                 case 'file':
                     $transaction->date_filed = $dateFiled;
 
-                    if ($transaction->sync_payment_record_id) {
+                    if ($transaction->sync_id) {
                         Http::withHeaders(['api-key' => $this->arcanaApiKey])->post(
                             $this->arcanaUrl . 'file', [
-                            'paymentRecordId' => $transaction->sync_payment_record_id,
-                            'paymentMethod' => $transaction->mode_of_payment,
-                            'paymentAmount' => $transaction->amount
+                            'paymentTransactionId' => $transaction->sync_id
                         ]);
                     }
                     break;
