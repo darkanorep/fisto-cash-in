@@ -76,6 +76,10 @@ class TagService
             }
         }
 
+        if (isset($filters['mode_of_payment'])) {
+            $query->modeOfPayment($filters['mode_of_payment']);
+        }
+
         if (isset($filters['date_from']) && isset($filters['date_to'])) {
             $query->date([
                 'date_from' => $filters['date_from'],
