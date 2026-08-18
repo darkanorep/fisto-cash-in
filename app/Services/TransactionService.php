@@ -36,7 +36,6 @@ class TransactionService
 
         $status      = $request->input('status');
         $paymentType = $request->input('payment_type');
-        $modeOfPayment = $request->input('mode_of_payment');
 
 
         $query = $this->transaction->query()
@@ -44,7 +43,6 @@ class TransactionService
             ->where('user_id', auth()->id());
 
         $query->paymentType($paymentType);
-        $query->modeOfPayment($modeOfPayment);
 
         if ($status) {
             match ($status) {
@@ -56,6 +54,10 @@ class TransactionService
         } else {
             // No status filter requested -> hide voided transactions by default
             $query->whereNotIn('status', ['void']);
+        }
+
+        if (isset($request['mode_of_payment'])) {
+            $query->modeOfPayment($request['mode_of_payment']);
         }
 
         if (isset($request['date_from']) && isset($request['date_to'])) {
