@@ -231,7 +231,19 @@ class TransactionService
         // Eloquent compiles where('col', null) to "IS NULL", so the old code
         // would cascade-void every transaction with a null
         // sync_transaction_number, not just the sibling rows intended.
+
+
+
         if (filled($transaction->sync_id)) {
+
+            $status = $this->transaction->newQuery()
+                ->where('sync_payment_record_id', $transaction->sync_payment_record_id)
+                ->pluck('status');
+
+            if (in_array('file', $status->toArray())) {
+                throw new \Exception('Transaction cannot be voided.');
+            }
+
             $this->transaction->newQuery()
                 ->where('sync_payment_record_id', $transaction->sync_payment_record_id)
                 ->update($transactionData);
