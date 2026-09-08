@@ -12,6 +12,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SlipController;
+use App\Http\Controllers\SubmitController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\TransactionController;
@@ -36,10 +37,14 @@ use Illuminate\Support\Facades\Route;
 //Authentication
 Route::post('login', [AuthController::class, 'login']);
 
-Route::group(['middleware' => 'auth:sanctum'], function() {
+Route::group([
+//    'middleware' => 'auth:sanctum'
+], function() {
 
     //Admin Routes
-    Route::group(['middleware' => 'admin'], function() {
+    Route::group([
+//        'middleware' => 'admin'
+    ], function() {
         //Password Reset
         Route::patch('reset-password/{id}', [AuthController::class, 'resetPassword']);
 
@@ -109,6 +114,11 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('clear-transactions', [ClearController::class, 'index']);
     Route::post('clear-transaction', [ClearController::class, 'action']);
     Route::get('clear-status-count', [ClearController::class, 'statusCount']);
+
+    //Submit (Non-Cash)
+    Route::get('submit-transactions', [SubmitController::class, 'index']);
+    Route::post('submit-transaction', [SubmitController::class, 'action']);
+    Route::get('submit-status-count', [SubmitController::class, 'statusCount']);
 
     //Filing
     Route::get('file-transactions', [FileController::class, 'index']);

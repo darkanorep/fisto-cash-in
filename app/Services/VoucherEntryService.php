@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\Transaction;
+use App\Traits\ActivityLogTrait;
 use http\Exception\InvalidArgumentException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class VoucherEntryService
 {
+    use ActivityLogTrait;
     private const FILLABLE_FIELDS = [
         'code', 'title', 'account_type', 'account_group', 'sub_group',
         'financial_statement', 'normal_balance', 'unit',
@@ -154,5 +156,34 @@ class VoucherEntryService
                 }
             }
         }
+    }
+
+    public function processVoucherEntries(
+        Transaction $transaction,
+        array $accountTitles,
+        string $status,
+        ?float $ratio = null,
+        bool $isLastInBatch = false,
+        array &$runningTotals = []
+    ): \Illuminate\Support\Collection {
+        $entries = $this->syncEntries(
+            $transaction,
+            $accountTitles,
+            $status,
+            $ratio,
+            $isLastInBatch,
+            $runningTotals
+        );
+
+        foreach ($entries as $accountTitle) {
+            $this->logActivityOn(
+                $transaction,
+                'Transaction ' . ucfirst($status),
+                [$accountTitle],
+                $status . ':accountingEntries'
+            );
+        }
+
+        return $entries;
     }
 }

@@ -25,25 +25,25 @@ class FileService
         $this->arcanaUrl = config('app.arcana_url');
     }
 
-    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
-    {
-        $entries = $this->voucherEntryService->syncEntries(
-            $transaction,
-            $accountTitles,
-            $status
-        );
-
-        foreach ($entries as $accountTitle) {
-            $this->logActivityOn(
-                $transaction,
-                'Transaction ' . ucfirst($status),
-                [$accountTitle],
-                $status . ':accountingEntries'
-            );
-        }
-
-        return $entries;
-    }
+//    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
+//    {
+//        $entries = $this->voucherEntryService->syncEntries(
+//            $transaction,
+//            $accountTitles,
+//            $status
+//        );
+//
+//        foreach ($entries as $accountTitle) {
+//            $this->logActivityOn(
+//                $transaction,
+//                'Transaction ' . ucfirst($status),
+//                [$accountTitle],
+//                $status . ':accountingEntries'
+//            );
+//        }
+//
+//        return $entries;
+//    }
 
     public function getTransactions($request)
     {
@@ -58,8 +58,8 @@ class FileService
                     $query->where(function ($query) {
                         $query->where('status', 'clear')
                             ->orWhere(function ($query) {
-                                $query->where('status', 'pending')
-                                    ->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque', 'Cheque', 'advance payment', 'gcash']);
+                                $query->where('status', 'submit')
+                                    ->whereNotIn('mode_of_payment', Transaction::modeOfPaymentOptions);
                             });
                     });
                     break;
@@ -73,7 +73,8 @@ class FileService
                                 'status' => 'receive',
                                 'is_tagged' => false,
                                 'is_cleared' => false,
-                            ])->whereNull('tag_number')->whereNotIn('mode_of_payment', ['online', 'cash', 'cheque', 'Cheque', 'advance payment', 'gcash']);
+                                'is_submitted' => true,
+                            ])->whereNull('tag_number')->whereNotIn('mode_of_payment', Transaction::modeOfPaymentOptions);
                         });
                     });
                     break;
@@ -150,7 +151,7 @@ class FileService
             ], 'file:'.$status);
 
             if (!empty($accountTitles)) {
-                $this->processVoucherEntries($transaction, $accountTitles, $status);
+                $this->voucherEntryService->processVoucherEntries($transaction, $accountTitles, $status);
             }
 
             $transactions[] = $transaction;
@@ -168,7 +169,7 @@ class FileService
                 })
                 ->orWhere(function ($query) {
                     $query->whereNotIn('mode_of_payment', Transaction::modeOfPaymentOptions)
-                        ->where('status', 'pending');
+                        ->where('status', 'submit');
                 })
                 ->count(),
         ];

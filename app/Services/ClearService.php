@@ -20,25 +20,25 @@ class ClearService
         $this->transaction = $transaction;
     }
 
-    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
-    {
-        $entries = $this->voucherEntryService->syncEntries(
-            $transaction,
-            $accountTitles,
-            $status
-        );
-
-        foreach ($entries as $accountTitle) {
-            $this->logActivityOn(
-                $transaction,
-                'Transaction ' . ucfirst($status),
-                [$accountTitle],
-                $status . ':accountingEntries'
-            );
-        }
-
-        return $entries;
-    }
+//    public function processVoucherEntries(Transaction $transaction, array $accountTitles, string $status): \Illuminate\Support\Collection
+//    {
+//        $entries = $this->voucherEntryService->syncEntries(
+//            $transaction,
+//            $accountTitles,
+//            $status
+//        );
+//
+//        foreach ($entries as $accountTitle) {
+//            $this->logActivityOn(
+//                $transaction,
+//                'Transaction ' . ucfirst($status),
+//                [$accountTitle],
+//                $status . ':accountingEntries'
+//            );
+//        }
+//
+//        return $entries;
+//    }
 
     public function getTransactions($request) {
         $query = $this->transaction->with(['bank']);
@@ -151,7 +151,7 @@ class ClearService
             ], 'clear:'.$status);
 
             if (!empty($accountTitles)) {
-                $this->processVoucherEntries($transaction, $accountTitles, $status);
+                $this->voucherEntryService->processVoucherEntries($transaction, $accountTitles, $status);
             }
 
             $transactions[] = $transaction;
