@@ -37,14 +37,10 @@ use Illuminate\Support\Facades\Route;
 //Authentication
 Route::post('login', [AuthController::class, 'login']);
 
-Route::group([
-//    'middleware' => 'auth:sanctum'
-], function() {
+Route::group(['middleware' => 'auth:sanctum'], function() {
 
     //Admin Routes
-    Route::group([
-//        'middleware' => 'admin'
-    ], function() {
+    Route::group(['middleware' => 'admin'], function() {
         //Password Reset
         Route::patch('reset-password/{id}', [AuthController::class, 'resetPassword']);
 
