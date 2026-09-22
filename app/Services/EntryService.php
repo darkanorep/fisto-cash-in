@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Entry;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EntryService
 {
@@ -14,10 +15,6 @@ class EntryService
         $this->entry = $entry;
     }
 
-//    public function getEntry() {
-//        return $this->entry->with(['accountTitles'])->orderBy('updated_at', 'desc')->useFilters()->dynamicPaginate();;
-//    }
-
     public function getEntry()
     {
         $entries = $this->entry
@@ -25,15 +22,26 @@ class EntryService
             ->useFilters()
             ->dynamicPaginate();
 
-        $entryIds = collect($entries->items())->pluck('id');
+        $collection = $entries instanceof LengthAwarePaginator
+            ? $entries->getCollection()
+            : $entries;
 
-        $accountTitleEntries = DB::table('account_title_entry')
-            ->whereIn('entry_id', $entryIds)
-            ->get()
-            ->groupBy('entry_id');
+        $entryIds = $collection->pluck('id');
 
-        $entries->getCollection()->transform(function ($entry) use ($accountTitleEntries) {
-            $entry->account_title_entries = $accountTitleEntries->get($entry->id, collect());
+        $accountTitleEntriesByEntryId = [];
+
+        if ($entryIds->isNotEmpty()) {
+            $accountTitleEntryRows = DB::table('account_title_entry')
+                ->whereIn('entry_id', $entryIds)
+                ->get();
+
+            foreach ($accountTitleEntryRows as $row) {
+                $accountTitleEntriesByEntryId[$row->entry_id][] = $row;
+            }
+        }
+
+        $collection->transform(function ($entry) use ($accountTitleEntriesByEntryId) {
+            $entry->account_title_entries = collect($accountTitleEntriesByEntryId[$entry->id] ?? []);
             return $entry;
         });
 
@@ -44,8 +52,8 @@ class EntryService
     {
         return DB::transaction(function () use ($data) {
             $accountTitles = collect(Arr::pull($data, 'account_titles'))
-                ->keyBy('account_title_id')
                 ->map(fn (array $row) => Arr::only($row, [
+                    'account_title_id',
                     'code',
                     'title',
                     'account_type',
@@ -55,17 +63,25 @@ class EntryService
                     'normal_balance',
                     'unit',
                     'allocation',
-                ]))
+                ]));
+
+            $entry = $this->entry->create($data);
+
+            $now = now();
+
+            $rows = $accountTitles
+                ->map(fn (array $row) => $row + [
+                        'entry_id'   => $entry->id,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ])
                 ->all();
 
-            $entry = $this->entry->create($data); // only 'description'
-
-            $entry->accountTitles()->attach($accountTitles);
+            DB::table('account_title_entry')->insert($rows);
 
             return $entry;
         });
     }
-
     public function getEntryById($entryId) {
         return $this->entry->with(['accountTitles'])->find($entryId);
     }
@@ -74,30 +90,45 @@ class EntryService
     {
         return DB::transaction(function () use ($entry, $data) {
             $accountTitles = collect(Arr::pull($data, 'account_titles'))
-                ->keyBy('account_title_id')
                 ->map(fn (array $row) => Arr::only($row, [
+                    'account_title_id',
                     'code',
                     'title',
                     'account_type',
                     'account_group',
                     'sub_group',
                     'financial_statement',
-                    'normal_balances',
+                    'normal_balance',
                     'unit',
                     'allocation',
-                ]))
-                ->all();
+                ]));
 
             $entry->update($data); // only 'description'
 
-            $entry->accountTitles()->sync($accountTitles);
+            DB::table('account_title_entry')
+                ->where('entry_id', $entry->id)
+                ->delete();
+
+            if ($accountTitles->isNotEmpty()) {
+                $now = now();
+
+                $rows = $accountTitles
+                    ->map(fn (array $row) => $row + [
+                            'entry_id'   => $entry->id,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ])
+                    ->all();
+
+                DB::table('account_title_entry')->insert($rows);
+            }
 
             return $entry;
         });
     }
 
     public function changeStatus($id) {
-        $entry = $this->entry->getEntryById($id);
+        $entry = $this->entry->where('id', $id)->withTrashed()->first();
 
         if ($entry->trashed()) {
             $entry->restore();

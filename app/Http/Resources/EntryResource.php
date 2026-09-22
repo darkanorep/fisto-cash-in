@@ -17,7 +17,7 @@ class EntryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'description' => $this->description,
+            'payment_mode' => $this->payment_mode,
             'account_titles' => collect($this->account_title_entries ?? [])->map(function ($row) {
                 return [
                     'id'                  => $row->account_title_id,
