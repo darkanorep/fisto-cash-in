@@ -6,9 +6,9 @@ use Essa\APIToolKit\Filters\QueryFilters;
 
 class EntryFilter extends QueryFilters
 {
-    protected array $allowedFilters = ['description'];
+    protected array $allowedFilters = ['payment_mode'];
 
-    protected array $columnSearch = ['description'];
+    protected array $columnSearch = ['payment_mode'];
 
     public function status($status) {
         return $this->builder->withTrashed()->when(!$status, function ($query) {

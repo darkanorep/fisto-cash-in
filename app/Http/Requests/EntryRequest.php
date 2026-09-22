@@ -22,7 +22,7 @@ class EntryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => ['required', 'string', 'max:255'],
+            'payment_mode' => ['required', 'string', 'max:255'],
             'account_titles' => ['required', 'array', 'min:1']
         ];
     }
