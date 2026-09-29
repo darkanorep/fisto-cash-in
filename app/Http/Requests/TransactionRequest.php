@@ -85,6 +85,7 @@ class TransactionRequest extends FormRequest
             'cheque.date'                => 'nullable|date_format:Y-m-d H:i:s',
             'cheque_date'                => 'nullable|date_format:Y-m-d H:i:s',
             'amount'                     => $allowEdit ? 'numeric|required' : 'numeric|nullable',
+            'applied_amount'              => 'numeric|nullable',
             'remaining_balance'          => 'numeric|nullable',
             'charge.id'                  => 'integer|nullable',
             'charge.name'                => 'string|nullable',

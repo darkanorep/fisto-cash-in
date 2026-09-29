@@ -129,6 +129,7 @@ class TransactionService
             'check_no'                => $data['cheque']['no'] ?? $data['check']['no'] ?? $data['cheque_no'] ?? null,
             'check_date'              => $data['cheque']['date'] ?? $data['check']['date'] ?? $data['cheque_date'] ?? null,
             'amount'                  => $data['amount'] ?? null,
+            'applied_amount'          => $data['applied_amount'] ?? null,
             'remaining_balance'       => $data['remaining_balance'] ?? 0,
             'charge_id'               => $data['charge']['id'] ?? null,
             'charge_name'             => $data['charge']['name'] ?? $data['charge_name'] ?? null,

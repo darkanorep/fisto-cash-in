@@ -89,9 +89,9 @@ class TransactionResource extends JsonResource
                     ? Carbon::parse($this->check_date)->format('Y-m-d H:i:s')
                     : null
             ],
-            'amount' => $this->amount,
+            'amount' => $this->applied_amount ?? $this->amount,
             'service_charge' => $this->service_charge ?? null,
-            'net_amount' => $this->amount - ($this->service_charge ?? 0),
+            'net_amount' => ($this->applied_amount ?? $this->amount) - ($this->service_charge ?? 0),
             'remaining_balance' => $this->remaining_balance,
             'amount_paid' => $amountPaid,
             'total_amount' => $totalAmount,
