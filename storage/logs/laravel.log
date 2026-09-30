@@ -5429,3 +5429,99 @@ Did you mean one of these?
 #42 /home/jperona/projects/fisto-cash-in/public/index.php(60): Illuminate\\Foundation\\Http\\Kernel->handle()
 #43 {main}
 "} 
+[2026-09-29 14:26:45] local.ERROR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sync_payment_group_id' in 'transactions' (Connection: mysql, SQL: alter table `transactions` add `payment_group_id` varchar(255) null after `sync_payment_group_id`, add `harvest_ids` json null after `payment_group_id`) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S22): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sync_payment_group_id' in 'transactions' (Connection: mysql, SQL: alter table `transactions` add `payment_group_id` varchar(255) null after `sync_payment_group_id`, add `harvest_ids` json null after `payment_group_id`) at /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php:829)
+[stacktrace]
+#0 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php(783): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php(576): Illuminate\\Database\\Connection->run()
+#2 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(110): Illuminate\\Database\\Connection->statement()
+#3 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(602): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(444): Illuminate\\Database\\Schema\\Builder->build()
+#5 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\\Database\\Schema\\Builder->table()
+#6 /home/jperona/projects/fisto-cash-in/database/migrations/2026_09_29_142501_add_payment_group_id_and_harvest_ids_column.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(501): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(418): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#9 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(427): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():414}()
+#10 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(224): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#11 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(37): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():224}()
+#12 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(783): Illuminate\\Console\\View\\Components\\Task->render()
+#13 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(224): Illuminate\\Database\\Migrations\\Migrator->write()
+#14 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(189): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#15 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(132): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#16 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(90): Illuminate\\Database\\Migrations\\Migrator->run()
+#17 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(641): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::handle():83}()
+#18 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(83): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#20 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#21 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure()
+#22 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#23 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call()
+#24 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#25 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute()
+#26 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#27 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run()
+#28 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand()
+#29 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun()
+#30 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run()
+#31 /home/jperona/projects/fisto-cash-in/artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42S22): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sync_payment_group_id' in 'transactions' at /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php:587)
+[stacktrace]
+#0 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php(587): PDOStatement->execute()
+#1 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php(816): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():576}()
+#2 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php(783): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Connection.php(576): Illuminate\\Database\\Connection->run()
+#4 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(110): Illuminate\\Database\\Connection->statement()
+#5 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(602): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(444): Illuminate\\Database\\Schema\\Builder->build()
+#7 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\\Database\\Schema\\Builder->table()
+#8 /home/jperona/projects/fisto-cash-in/database/migrations/2026_09_29_142501_add_payment_group_id_and_harvest_ids_column.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(501): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(418): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#11 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(427): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():414}()
+#12 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(224): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#13 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(37): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():224}()
+#14 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(783): Illuminate\\Console\\View\\Components\\Task->render()
+#15 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(224): Illuminate\\Database\\Migrations\\Migrator->write()
+#16 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(189): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#17 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(132): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#18 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(90): Illuminate\\Database\\Migrations\\Migrator->run()
+#19 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(641): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::handle():83}()
+#20 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(83): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#21 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call()
+#26 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute()
+#28 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run()
+#30 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /home/jperona/projects/fisto-cash-in/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun()
+#32 /home/jperona/projects/fisto-cash-in/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run()
+#33 /home/jperona/projects/fisto-cash-in/artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+"} 
+[2026-09-30 14:17:56] local.INFO: Flock Fortress tag response for transaction 2 {"status":401,"body":"{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}"} 
+[2026-09-30 14:17:56] local.ERROR: Flock Fortress tag sync failed for transaction 2 {"message":"HTTP request returned status code 401:
+{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}
+"} 
+[2026-09-30 14:33:45] local.INFO: Flock Fortress tag response for transaction 3 {"status":401,"body":"{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}"} 
+[2026-09-30 14:33:45] local.ERROR: Flock Fortress tag sync failed for transaction 3 {"message":"HTTP request returned status code 401:
+{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}
+"} 
+[2026-09-30 15:57:38] local.INFO: Flock Fortress tag response for transaction 2 {"status":401,"body":"{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}"} 
+[2026-09-30 15:57:38] local.ERROR: Flock Fortress tag sync failed for transaction 2 {"message":"HTTP request returned status code 401:
+{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}
+"} 
+[2026-09-30 15:59:34] local.INFO: Flock Fortress tag response for transaction 2 {"status":401,"body":"{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}"} 
+[2026-09-30 15:59:34] local.ERROR: Flock Fortress tag sync failed for transaction 2 {"message":"HTTP request returned status code 401:
+{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}
+"} 
+[2026-09-30 16:00:06] local.INFO: Flock Fortress tag response for transaction 2 {"status":401,"body":"{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}"} 
+[2026-09-30 16:00:06] local.ERROR: Flock Fortress tag sync failed for transaction 2 {"message":"HTTP request returned status code 401:
+{\"errors\":[{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid API Key\"}]}
+"} 
+[2026-09-30 16:02:09] local.INFO: Flock Fortress tag response for transaction 2 {"status":200,"body":"hello"} 
+[2026-09-30 16:05:26] local.INFO: Flock Fortress tag response for transaction 2 {"status":200,"body":"{\"status\":200,\"message\":\"Harvest updated successfully.\",\"data\":{\"a_tag_number\":\"A-2026-09-0001\",\"a_tag_date\":\"2026-09-30 16:05:26\",\"harvests\":[{\"harvest_id\":67,\"a_tag\":\"A-2026-09-0001\",\"fisto_tagged\":\"2026-09-30 16:05:26\",\"fisto_status\":\"completed\"},{\"harvest_id\":68,\"a_tag\":\"A-2026-09-0001\",\"fisto_tagged\":\"2026-09-30 16:05:26\",\"fisto_status\":\"completed\"}]}}"} 

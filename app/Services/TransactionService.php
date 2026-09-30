@@ -114,6 +114,8 @@ class TransactionService
             'sync_id'                 => $data['sync_id'] ?? null,
             'sync_payment_record_id'  => $data['sync_payment_record_id'] ?? null,
             'sync_transaction_number' => $data['sync_transaction_number'] ?? null,
+            'payment_group_id'        => $data['payment_group_id'] ?? null,
+            'harvest_ids'              => $data['harvest_ids'] ?? null,
             'distribution_type'       => $data['distribution_type'] ?? null,
             'reference_no'            => $data['reference_no'] ?? null,
             'transaction_date'        => $data['transaction_date'] ?? null,

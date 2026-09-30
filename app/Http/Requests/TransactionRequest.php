@@ -48,6 +48,8 @@ class TransactionRequest extends FormRequest
             'sync_id'                    => 'nullable',
             'sync_payment_record_id'     => 'integer|nullable',
             'sync_transaction_number'    => 'integer|nullable',
+            'payment_group_id'           => 'string|nullable',
+            'harvest_ids'                => 'array|nullable',
             'distribution_type'          => 'string|nullable|max:255',
             'reference_no' => array_filter([
                 'string',

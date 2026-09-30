@@ -190,6 +190,9 @@ return [
 
     'arcana_url' => env('ARCANA_URL'),
     'arcana_api_key' => env('ARCANA_API_KEY'),
+    'flock_fortress_url' => env('FLOCK_FORTRESS_URL'),
+    'flock_fortress_api_key' => env('FLOCK_FORTRESS_API_KEY'),
+
     'api_key' => env('API_KEY')
 
 ];

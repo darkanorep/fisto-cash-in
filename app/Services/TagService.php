@@ -32,6 +32,8 @@ class TagService
         $this->transaction = $transaction;
         $this->arcanaApiKey = config('app.arcana_api_key');
         $this->arcanaUrl = config('app.arcana_url');
+        $this->flockFortressApiKey = config('app.flock_fortress_api_key');
+        $this->flockFortressUrl = config('app.flock_fortress_url');
     }
 
     public function getTransactions($request) {
@@ -169,7 +171,7 @@ class TagService
                         $tagNumber[$refKey] = $transaction->tag_number;
                     }
 
-                    if ($transaction->sync_id) {
+                    if ($transaction->sync_id && $transaction->type == Transaction::ARCANA) {
                         $payload = [
                             'paymentTransactionId' => $transaction->sync_id,
                             'aTag' => $transaction->tag_number,
@@ -190,7 +192,52 @@ class TagService
                             $response->throw();
 
                         } catch (\Throwable $e) {
-                            Log::error('Arcana tag sync failed for transaction ' . $transaction->id, [
+                            Log::error('Arcana tag sync fa5iled for transaction ' . $transaction->id, [
+                                'message' => $e->getMessage(),
+                            ]);
+                        }
+                    }
+
+                    if (
+                        $transaction->sync_id
+                        && $transaction->payment_group_id
+                        && $transaction->type == Transaction::FLOCK_FORTRESS
+                    ) {
+                        $existingTagNumber = $this->transaction->newQuery()
+                            ->where('payment_group_id', $transaction->payment_group_id)
+                            ->where('type', Transaction::FLOCK_FORTRESS)
+                            ->whereNotNull('tag_number')
+                            ->where('tag_number', '!=', '')
+                            ->when(
+                                $transaction->exists,
+                                fn ($query) => $query->whereKeyNot($transaction->getKey())
+                            )
+                            ->orderBy('id') // deterministic: always inherit from the earliest record
+                            ->value('tag_number');
+
+                        if ($existingTagNumber !== null) {
+                            $transaction->tag_number = $existingTagNumber;
+                        }
+
+                        $payload = [
+                            'payment_group_id' => $transaction->payment_group_id,
+                            'a_tag_number'     => $transaction->tag_number,
+                            'a_tag_date'       => Carbon::now()->format('Y-m-d H:i:s'),
+                        ];
+
+                        try {
+                            $response = Http::withHeaders(['API-Key' => $this->flockFortressApiKey])
+                                ->timeout(10)
+                                ->post($this->flockFortressUrl . 'fisto/a-tag', $payload);
+
+                            Log::info('Flock Fortress tag response for transaction ' . $transaction->id, [
+                                'status' => $response->status(),
+                                'body'   => $response->body(),
+                            ]);
+
+                            $response->throw();
+                        } catch (\Throwable $e) {
+                            Log::error('Flock Fortress tag sync failed for transaction ' . $transaction->id, [
                                 'message' => $e->getMessage(),
                             ]);
                         }

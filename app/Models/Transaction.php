@@ -22,6 +22,13 @@ class Transaction extends Model
     const nonCashPaymentOptions = ['with holding', 'listing fee', 'sales return', 'rebate', 'withholding']; //ARCANA Payment Options
     const cashPaymentOptions = ['advance payment', 'cash', 'cheque', 'online', 'gcash']; //ARCANA Payment Options
 
+    const ARCANA = 'arcana';
+    const FLOCK_FORTRESS = 'flock-fortress';
+
+    protected $casts = [
+        'harvest_ids' => 'array',
+    ];
+
     public function logs() {
         return $this->morphMany(Activity::class, 'subject')->orderBy('id', 'desc');
     }
