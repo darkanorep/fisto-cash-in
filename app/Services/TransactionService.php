@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Events\RequestNotificationCount;
 use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -30,6 +32,11 @@ class TransactionService
         $this->arcanaApiKey = config('app.arcana_api_key');
         $this->arcanaUrl = config('app.arcana_url');
     }
+
+    private const GROUP_COLUMN_BY_TYPE = [
+        Transaction::ARCANA         => 'sync_payment_record_id',
+        Transaction::FLOCK_FORTRESS => 'payment_group_id',
+    ];
 
     public function getAllTransactions(Request $request)
     {
@@ -115,7 +122,6 @@ class TransactionService
             'sync_payment_record_id'  => $data['sync_payment_record_id'] ?? null,
             'sync_transaction_number' => $data['sync_transaction_number'] ?? null,
             'payment_group_id'        => $data['payment_group_id'] ?? null,
-            'harvest_ids'              => $data['harvest_ids'] ?? null,
             'distribution_type'       => $data['distribution_type'] ?? null,
             'reference_no'            => $data['reference_no'] ?? null,
             'transaction_date'        => $data['transaction_date'] ?? null,
@@ -219,88 +225,149 @@ class TransactionService
 
     public function voidTransaction(Transaction $transaction, array|Request $data): Transaction
     {
-        // Controller passes the Request object directly (not ->validated()
-        // or ->all()), so normalize here rather than assuming array.
-        $data = $data instanceof Request ? $data->all() : $data;
+        $reason = $data instanceof Request
+            ? $data->input('reason')
+            : ($data['reason'] ?? null);
 
-        $transactionData = [
-            'status' => 'void',
-            'reason' => $data['reason'] ?? null,
-        ];
+        $payload     = ['status' => 'void', 'reason' => $reason];
+        $groupColumn = self::GROUP_COLUMN_BY_TYPE[$transaction->type] ?? null;
 
-        // Fixed: previously re-fetched $transaction from the DB just to read
-        // a column already available on the model — removed the redundant
-        // query. Also guarded against sync_transaction_number being null:
-        // Eloquent compiles where('col', null) to "IS NULL", so the old code
-        // would cascade-void every transaction with a null
-        // sync_transaction_number, not just the sibling rows intended.
-
-
-
-        if (filled($transaction->sync_id)) {
-
-            $status = $this->transaction->newQuery()
-                ->where('sync_payment_record_id', $transaction->sync_payment_record_id)
-                ->pluck('status');
-
-            if (in_array('file', $status->toArray())) {
-                throw new \Exception('Transaction cannot be voided.');
-            }
-
-            $this->transaction->newQuery()
-                ->where('sync_payment_record_id', $transaction->sync_payment_record_id)
-                ->update($transactionData);
+        if (blank($transaction->sync_id) || $groupColumn === null) {
+            return $transaction;
         }
 
-        $transaction->update($transactionData);
+        DB::transaction(function () use ($transaction, $payload, $groupColumn) {
+            $groupId = $transaction->{$groupColumn};
 
-        $this->logActivityOn($transaction, 'Transaction Voided', $transactionData, 'voided');
+            if (filled($groupId)) {
+                $statuses = $this->transaction->newQuery()
+                    ->where($groupColumn, $groupId)
+                    ->lockForUpdate()
+                    ->pluck('status');
 
-        // The Arcana push is a side effect, not the source of truth — the
-        // transaction is voided locally regardless of whether the remote
-        // call succeeds. We catch both transport-level failures (timeouts,
-        // DNS, connection refused) and non-2xx responses so a flaky
-        // gateway never turns a successful void into a 500, while still
-        // surfacing the failure for reconciliation/alerting.
-        try {
-            $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])
-                ->withQueryParameters([
-                    'paymentTransactionId' => $transaction->sync_id,
-                ])
-                ->post($this->arcanaUrl . 'void');
+                if ($statuses->contains('file')) {
+                    throw ValidationException::withMessages([
+                        'transaction' => 'Transaction cannot be voided.',
+                    ]);
+                }
 
-            if ($response->successful()) {
-                Log::info('Arcana void call succeeded', [
-                    'transaction_id' => $transaction->id,
-                    'paymentTransactionId' => $transaction->sync_id,
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-            } else {
-                Log::warning('Arcana void call returned an error response', [
-                    'transaction_id' => $transaction->id,
-                    'paymentTransactionId' => $transaction->sync_id,
-                    'status' => $response->status(),
-                    'body' => $response->body(),
+                $this->transaction->newQuery()
+                    ->where($groupColumn, $groupId)
+                    ->whereKeyNot($transaction->getKey())
+                    ->update($payload);
+            } elseif ($transaction->status === 'file') {
+                throw ValidationException::withMessages([
+                    'transaction' => 'Transaction cannot be voided.',
                 ]);
             }
-        } catch (ConnectionException $e) {
-            Log::error('Arcana void call failed: connection error', [
-                'transaction_id' => $transaction->id,
-                'paymentTransactionId' => $transaction->sync_id,
-                'message' => $e->getMessage(),
-            ]);
-        } catch (Throwable $e) {
-            Log::error('Arcana void call failed unexpectedly', [
-                'transaction_id' => $transaction->id,
-                'paymentTransactionId' => $transaction->sync_id,
-                'message' => $e->getMessage(),
-            ]);
-        }
+
+            $transaction->update($payload);
+
+            $this->logActivityOn($transaction, 'Transaction Voided', $payload, 'voided');
+
+            if ($transaction->type === Transaction::ARCANA) {
+                // Runs only if the surrounding DB transaction commits.
+                DB::afterCommit(fn () => $this->pushVoidToArcana($transaction));
+            }
+        });
 
         return $transaction;
     }
 
+    /**
+     * Side effect only: the local void is the source of truth, so failures
+     * here are logged for reconciliation and never bubble up to the caller.
+     */
+    private function pushVoidToArcana(Transaction $transaction): void
+    {
+        $context = [
+            'transaction_id'       => $transaction->id,
+            'paymentTransactionId' => $transaction->sync_id,
+        ];
+
+        try {
+            $response = Http::withHeaders(['api-key' => $this->arcanaApiKey])
+                ->timeout(10)
+                ->withQueryParameters(['paymentTransactionId' => $transaction->sync_id])
+                ->post($this->arcanaUrl . 'void');
+
+            $response->successful()
+                ? Log::info('Arcana void call succeeded', $context + ['status' => $response->status()])
+                : Log::warning('Arcana void call returned an error response', $context + [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+        } catch (ConnectionException $e) {
+            Log::error('Arcana void call failed: connection error', $context + ['message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            Log::error('Arcana void call failed unexpectedly', $context + ['message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Returns every row in a multi-row Flock Fortress payment group.
+     *
+     * @return bool true if the group was returned; false if the transaction is
+     *              not part of a multi-row group (caller handles it as a single).
+     */
+    public function returnFlockFortressGroup(
+        Transaction $transaction,
+        ?string $reason,
+        ?string $bankCodeDeposit = null
+    ): bool {
+        // No group id means no group. Never query where('payment_group_id', null).
+        if (blank($transaction->payment_group_id)) {
+            return false;
+        }
+
+        $payload = [
+            'status'            => 'return',
+            'is_tagged'         => false,
+            'reason'            => $reason,
+            'bank_code_deposit' => $bankCodeDeposit,
+        ];
+
+        return DB::transaction(function () use ($transaction, $payload) {
+            $group = $this->transaction->newQuery()
+                ->where('type', Transaction::FLOCK_FORTRESS)
+                ->where('payment_group_id', $transaction->payment_group_id)
+                ->lockForUpdate()
+                ->get();
+
+            // Single-row "group": let the normal return flow handle it.
+            if ($group->count() < 2) {
+                return false;
+            }
+
+            $notReady = $group->filter(
+                fn (Transaction $t) => ! $t->is_tagged || ! $t->is_cleared
+            );
+
+            if ($notReady->isNotEmpty()) {
+                throw ValidationException::withMessages([
+                    'transaction' => 'All transactions in the group must be tagged and cleared before they can be returned.',
+                ]);
+            }
+
+            $this->transaction->newQuery()
+                ->whereKey($group->modelKeys())
+                ->update($payload);
+
+            $transaction->refresh();
+
+            $this->logActivityOn($transaction, 'Transaction Returned', $payload, 'returned');
+
+            $group->load('user');
+
+            DB::afterCommit(function () use ($group) {
+                $group->unique('user_id')->each(
+                    fn (Transaction $t) => event(new RequestNotificationCount($t->user))
+                );
+            });
+
+            return true;
+        });
+    }
     public function export(Request $request): BinaryFileResponse
     {
         $dateFrom      = $request->input('date_from');

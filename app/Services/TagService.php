@@ -198,29 +198,26 @@ class TagService
                         }
                     }
 
-                    if (
-                        $transaction->sync_id
-                        && $transaction->payment_group_id
-                        && $transaction->type == Transaction::FLOCK_FORTRESS
-                    ) {
-                        $existingTagNumber = $this->transaction->newQuery()
-                            ->where('payment_group_id', $transaction->payment_group_id)
-                            ->where('type', Transaction::FLOCK_FORTRESS)
-                            ->whereNotNull('tag_number')
-                            ->where('tag_number', '!=', '')
-                            ->when(
-                                $transaction->exists,
-                                fn ($query) => $query->whereKeyNot($transaction->getKey())
-                            )
-                            ->orderBy('id') // deterministic: always inherit from the earliest record
-                            ->value('tag_number');
-
-                        if ($existingTagNumber !== null) {
-                            $transaction->tag_number = $existingTagNumber;
-                        }
+                    if ($transaction->sync_id && $transaction->type == Transaction::FLOCK_FORTRESS) {
+//                        $existingTagNumber = $this->transaction->newQuery()
+//                            ->where('payment_group_id', $transaction->payment_group_id)
+//                            ->where('type', Transaction::FLOCK_FORTRESS)
+//                            ->whereNotNull('tag_number')
+//                            ->where('tag_number', '!=', '')
+//                            ->when(
+//                                $transaction->exists,
+//                                fn ($query) => $query->whereKeyNot($transaction->getKey())
+//                            )
+//                            ->orderBy('id') // deterministic: always inherit from the earliest record
+//                            ->value('tag_number');
+//
+//                        if ($existingTagNumber !== null) {
+//                            $transaction->tag_number = $existingTagNumber;
+//                        }
 
                         $payload = [
-                            'payment_group_id' => $transaction->payment_group_id,
+//                            'payment_group_id' => $transaction->payment_group_id,
+                            'harvest_ids' => array($transaction->sync_id),
                             'a_tag_number'     => $transaction->tag_number,
                             'a_tag_date'       => Carbon::now()->format('Y-m-d H:i:s'),
                         ];
@@ -259,6 +256,13 @@ class TagService
                     break;
 
                 case 'return':
+//                    if (
+//                        $transaction->type === Transaction::FLOCK_FORTRESS
+//                        && $this->transactionService->returnFlockFortressGroup($transaction, $reason, $bankCodeDeposit ?? null)
+//                    ) {
+//                        break;
+//                    }
+
                     $transaction->is_tagged = false;
                     $transaction->reason = $reason;
                     $transaction->deposit_date = $transaction->deposit_date ?? null;
@@ -267,7 +271,6 @@ class TagService
                     $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
                     $transaction->tag_number = $transaction->tag_number ?? null;
                     event(new RequestNotificationCount($transaction->user));
-                    break;
 
                 case 'void':
                     $transaction->reason = $reason;

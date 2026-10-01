@@ -25,10 +25,6 @@ class Transaction extends Model
     const ARCANA = 'arcana';
     const FLOCK_FORTRESS = 'flock-fortress';
 
-    protected $casts = [
-        'harvest_ids' => 'array',
-    ];
-
     public function logs() {
         return $this->morphMany(Activity::class, 'subject')->orderBy('id', 'desc');
     }
