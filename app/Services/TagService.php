@@ -256,13 +256,6 @@ class TagService
                     break;
 
                 case 'return':
-//                    if (
-//                        $transaction->type === Transaction::FLOCK_FORTRESS
-//                        && $this->transactionService->returnFlockFortressGroup($transaction, $reason, $bankCodeDeposit ?? null)
-//                    ) {
-//                        break;
-//                    }
-
                     $transaction->is_tagged = false;
                     $transaction->reason = $reason;
                     $transaction->deposit_date = $transaction->deposit_date ?? null;
@@ -271,6 +264,7 @@ class TagService
                     $transaction->deposit_remarks = $transaction->deposit_remarks ?? null;
                     $transaction->tag_number = $transaction->tag_number ?? null;
                     event(new RequestNotificationCount($transaction->user));
+                    break;
 
                 case 'void':
                     $transaction->reason = $reason;

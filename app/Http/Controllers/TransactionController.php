@@ -113,6 +113,14 @@ class TransactionController extends Controller
         );
     }
 
+    public function return($id) {
+
+        $transaction = $this->transactionService->getTransactionById($id);
+        $this->transactionService->returnRequest($transaction);
+
+        return $this->responseSuccess('Transaction returned successfully.');
+    }
+
     public function void(Request $request, $id)
     {
         //Gate authorization

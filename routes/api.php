@@ -96,6 +96,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     });
 
     //Transactions
+    Route::post('transactions/return/{transaction}', [TransactionController::class, 'return']);
     Route::get('transactions/export', [TransactionController::class, 'export']);
     Route::delete('transactions/void/{transaction}', [TransactionController::class, 'void']);
     Route::resource('transactions', TransactionController::class);

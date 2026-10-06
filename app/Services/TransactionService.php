@@ -6,9 +6,11 @@ use App\Events\RequestNotificationCount;
 use App\Exports\ActivityExport;
 use App\Models\Transaction;
 use App\Traits\ActivityLogTrait;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -21,16 +23,17 @@ class TransactionService
 {
     use ActivityLogTrait;
 
-    /**
-     * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed
-     */
     private mixed $arcanaApiKey;
     private mixed $arcanaUrl;
+    private mixed $flockFortressApiKey;
+    private mixed $flockFortressUrl;
 
     public function __construct(protected Transaction $transaction)
     {
         $this->arcanaApiKey = config('app.arcana_api_key');
         $this->arcanaUrl = config('app.arcana_url');
+        $this->flockFortressApiKey = config('app.flock_fortress_api_key');
+        $this->flockFortressUrl = config('app.flock_fortress_url');
     }
 
     private const GROUP_COLUMN_BY_TYPE = [
@@ -115,6 +118,7 @@ class TransactionService
     private function buildTransactionData(array $data, array $additionalFields = []): array
     {
         $baseData = [
+            'transaction_number'      => $this->issueTransactionNumber(),
             'user_id'                 => $data['user_id'] ?? auth()->id(),
             'type'                    => $data['type'] ?? null,
             'category'                => $data['category'] ?? null,
@@ -193,6 +197,21 @@ class TransactionService
         return $transaction;
     }
 
+    private function issueTransactionNumber(): string
+    {
+        $prefix = 'TXN-' . now()->year . '-';
+
+        $last = $this->transaction->newQuery()
+            ->withTrashed() // remove if the model doesn't use SoftDeletes
+            ->where('transaction_number', 'like', $prefix . '%')
+            ->orderByDesc('transaction_number') // safe because the number is zero-padded
+            ->value('transaction_number');
+
+        $next = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
+
+        return $prefix . str_pad((string) $next, 6, '0', STR_PAD_LEFT);
+    }
+
     /**
      * Scoped to the authenticated user — previously this had no user_id
      * filter, which let any authenticated user fetch any transaction by id
@@ -221,6 +240,73 @@ class TransactionService
         $this->logActivityOn($transaction, 'Transaction Updated', $transactionData, 'updated');
 
         return $transaction;
+    }
+
+    public function returnRequest(Transaction $transaction) {
+        if (
+            $transaction->type == Transaction::FLOCK_FORTRESS
+            && $transaction->payment_group_id
+        ) {
+            $this->ensureGroupIsReturnRequested($transaction);
+        }
+
+        return $transaction;
+    }
+
+    private function ensureGroupIsReturnRequested(Transaction $transaction): void {
+        $blockingIds = $this->transaction->newQuery()
+            ->where('payment_group_id', $transaction->payment_group_id)
+            ->where('type', Transaction::FLOCK_FORTRESS)
+            ->where(function ($query) {
+                // NULL must be handled explicitly: `status != 'x'` is never true for NULL in SQL
+                $query->whereNull('status')
+                    ->orWhere('status', '!=', 'return');
+            })
+            ->where([
+                'is_tagged' => false,
+                'is_cleared' => false,
+                'is_submitted' => false,
+            ])
+            ->pluck('transaction_number');
+
+        if ($blockingIds->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'transaction' => 'All transactions in this payment group must have the status "return" before you can return it. '
+                    . 'Transaction No not yet in that status: ' . $blockingIds->implode(', ') . '.',
+            ]);
+        }
+
+        $payload = [
+            'payment_group_id' => $transaction->payment_group_id,
+            'reason'           => $transaction->reason,
+        ];
+
+        $context = [
+            'transaction_id'     => $transaction->id,
+            'transaction_number' => $transaction->transaction_number,
+            'payment_group_id'   => $transaction->payment_group_id,
+        ];
+
+        try {
+            $response = Http::withHeaders(['API-Key' => $this->flockFortressApiKey])
+                ->timeout(10)
+                ->post($this->flockFortressUrl . 'return', $payload);
+
+            $this->transaction->newQuery()
+                ->where('payment_group_id', $transaction->payment_group_id)
+                ->update(['status' => 'canceled']);
+
+            Log::info('Flock Fortress return response', $context + [
+                    'status' => $response->status(),
+                    'body'   => Str::limit($response->body(), 500),
+                ]);
+
+            $response->throw();
+        } catch (\Throwable $e) {
+            Log::error('Flock Fortress return sync failed', $context + [
+                    'message' => $e->getMessage(),
+                ]);
+        }
     }
 
     public function voidTransaction(Transaction $transaction, array|Request $data): Transaction
