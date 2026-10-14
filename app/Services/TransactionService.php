@@ -278,7 +278,7 @@ class TransactionService
 
         $payload = [
             'payment_group_id' => $transaction->payment_group_id,
-            'reason'           => $transaction->reason,
+            'reason'           => request()->input('remarks'),
         ];
 
         $context = [
@@ -296,14 +296,14 @@ class TransactionService
                 ->where('payment_group_id', $transaction->payment_group_id)
                 ->update(['status' => 'canceled']);
 
-            Log::info('Flock Fortress return response', $context + [
+            Log::info('Flock Fortress return response', $payload + [
                     'status' => $response->status(),
                     'body'   => Str::limit($response->body(), 500),
                 ]);
 
             $response->throw();
         } catch (\Throwable $e) {
-            Log::error('Flock Fortress return sync failed', $context + [
+            Log::error('Flock Fortress return sync failed', $payload + [
                     'message' => $e->getMessage(),
                 ]);
         }

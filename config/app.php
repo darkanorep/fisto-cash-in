@@ -187,12 +187,18 @@ return [
         // 'Example' => App\Facades\Example::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ])->toArray(),
+    'api_key' => env('API_KEY'),
 
+    #ARCANA
     'arcana_url' => env('ARCANA_URL'),
     'arcana_api_key' => env('ARCANA_API_KEY'),
+
+    #FLOCK FORTRESS
     'flock_fortress_url' => env('FLOCK_FORTRESS_URL'),
     'flock_fortress_api_key' => env('FLOCK_FORTRESS_API_KEY'),
 
-    'api_key' => env('API_KEY')
+    #SWINE FORTRESS
+    'swine_fortress_url' => env('SWINE_FORTRESS_URL'),
+    'swine_fortress_api_key' => env('SWINE_FORTRESS_API_KEY'),
 
 ];

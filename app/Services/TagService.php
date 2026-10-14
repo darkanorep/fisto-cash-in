@@ -240,6 +240,30 @@ class TagService
                         }
                     }
 
+                    if ($transaction->sync_id && $transaction->type == Transaction::SWINE_FORTRESS) {
+                        $payload = [
+                            'sync_id' => $transaction->sync_id,
+                            'a_tag'     => $transaction->tag_number,
+                        ];
+
+                        try {
+                            $response = Http::withHeaders(['x-api-key' => config('app.swine_fortress_api_key')])
+                                ->timeout(10)
+                                ->post(config('app.swine_fortress_url') . $transaction->sync_transaction_number . '/a-tag', $payload);
+
+                            Log::info('Swine Fortress tag response for transaction ' . $transaction->id, [
+                                'status' => $response->status(),
+                                'body'   => $response->body(),
+                            ]);
+
+                            $response->throw();
+                        } catch (\Throwable $e) {
+                            Log::error('Swine Fortress tag sync failed for transaction ' . $transaction->id, [
+                                'message' => $e->getMessage(),
+                            ]);
+                        }
+                    }
+
                     break;
 
                 case 'deposit':

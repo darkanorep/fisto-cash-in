@@ -24,6 +24,7 @@ class Transaction extends Model
 
     const ARCANA = 'arcana';
     const FLOCK_FORTRESS = 'flock-fortress';
+    const SWINE_FORTRESS = 'swine-fortress';
 
     public function logs() {
         return $this->morphMany(Activity::class, 'subject')->orderBy('id', 'desc');
