@@ -379,6 +379,9 @@ class TransactionService
                 ->withQueryParameters(['paymentTransactionId' => $transaction->sync_id])
                 ->post($this->arcanaUrl . 'void');
 
+            $this->transaction->newQuery()->where('sync_id', $transaction->sync_id)
+                ->update(['status' => 'void']);
+
             $response->successful()
                 ? Log::info('Arcana void call succeeded', $context + ['status' => $response->status()])
                 : Log::warning('Arcana void call returned an error response', $context + [
