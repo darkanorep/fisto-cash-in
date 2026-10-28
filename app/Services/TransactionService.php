@@ -82,7 +82,9 @@ class TransactionService
             ->dynamicPaginate();
 
         // Distribute payment per transaction's slips — operate on the paginated items
-        $paginated->getCollection()->each(fn ($transaction) => $this->applySlipDistribution($transaction));
+        $paginated->each(
+            fn ($transaction) => $this->applySlipDistribution($transaction)
+        );
 
         return $paginated;
     }
