@@ -225,7 +225,7 @@ class TagService
                         try {
                             $response = Http::withHeaders(['API-Key' => $this->flockFortressApiKey])
                                 ->timeout(10)
-                                ->post($this->flockFortressUrl . 'fisto/a-tag', $payload);
+                                ->post($this->flockFortressUrl . 'a-tag', $payload);
 
                             Log::info('Flock Fortress tag response for transaction ' . $transaction->id, [
                                 'status' => $response->status(),

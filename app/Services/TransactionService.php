@@ -260,7 +260,7 @@ class TransactionService
             ->where(function ($query) {
                 // NULL must be handled explicitly: `status != 'x'` is never true for NULL in SQL
                 $query->whereNull('status')
-                    ->orWhere('status', '!=', 'return');
+                    ->orWhereNotIn('status', ['return', 'canceled']);
             })
             ->where([
                 'is_tagged' => false,
