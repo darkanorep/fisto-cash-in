@@ -88,10 +88,10 @@ class SubmitService
                     $transaction->is_submitted = true;
                     break;
 
-//                case 'return':
-//                    $transaction->reason = $reason;
-//                    $transaction->date_filed = null;
-//                    break;
+                case 'return':
+                    $transaction->reason = $reason;
+                    $transaction->date_filed = null;
+                    break;
             }
 
             $transaction->status = $status;
