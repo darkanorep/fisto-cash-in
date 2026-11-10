@@ -26,7 +26,9 @@ class BankRequest extends FormRequest
             'code' => ['required', 'string', 'max:255', Rule::unique('banks')->ignore($this->bank)],
             'name' => ['required', 'string', 'max:255'],
             'branch' => ['required', 'string', 'max:255'],
-            'account_number' => ['required', 'max:255']
+            'account_number' => ['required', 'max:255'],
+            'tagging_account_title_id' => ['nullable', 'exists:account_titles,id'],
+            'deposit_account_title_id' => ['nullable', 'exists:account_titles,id'],
         ];
     }
 }

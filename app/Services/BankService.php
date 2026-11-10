@@ -16,7 +16,9 @@ class BankService
 
     public function getBanks(Request $request)
     {
-        $query = $this->bank->orderBy('updated_at', 'desc')->useFilters();
+        $query = $this->bank
+            ->with(['taggingAccountTitle', 'depositAccountTitle'])
+            ->orderBy('updated_at', 'desc')->useFilters();
 
         if ($request->pagination === 'none') {
             return $query->get();
@@ -32,7 +34,10 @@ class BankService
 
     public function getBankById($id)
     {
-        return $this->bank->find($id);
+        return $this->bank->with([
+            'taggingAccountTitle',
+            'depositAccountTitle'
+        ])->find($id);
     }
 
     public function updateBank($bank, $data)

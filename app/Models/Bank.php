@@ -6,6 +6,7 @@ use App\Filters\BankFilter;
 use Essa\APIToolKit\Filters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bank extends Model
@@ -19,5 +20,17 @@ class Bank extends Model
         'name',
         'account_number',
         'branch',
+        'tagging_account_title_id',
+        'deposit_account_title_id'
     ];
+
+    public function taggingAccountTitle(): BelongsTo
+    {
+        return $this->belongsTo(AccountTitle::class, 'tagging_account_title_id');
+    }
+
+    public function depositAccountTitle(): BelongsTo
+    {
+        return $this->belongsTo(AccountTitle::class, 'deposit_account_title_id');
+    }
 }

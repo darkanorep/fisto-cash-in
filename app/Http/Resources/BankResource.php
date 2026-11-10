@@ -19,6 +19,8 @@ class BankResource extends JsonResource
             'code' => $this->code,
             'name' => $this->name,
             'account_number' => $this->account_number,
+            'tagging_account_title' =>  new AccountTitleResource($this->whenLoaded('taggingAccountTitle')),
+            'deposit_account_title' =>  new AccountTitleResource($this->whenLoaded('depositAccountTitle')),
             'branch' => $this->branch,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
