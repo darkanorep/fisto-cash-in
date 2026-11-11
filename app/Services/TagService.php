@@ -220,6 +220,7 @@ class TagService
                             'harvest_ids' => array($transaction->sync_id),
                             'a_tag_number'     => $transaction->tag_number,
                             'a_tag_date'       => Carbon::now()->format('Y-m-d H:i:s'),
+                            'sync_transaction_number' => $transaction->sync_transaction_number,
                         ];
 
                         try {

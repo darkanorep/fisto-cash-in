@@ -20,7 +20,7 @@ class Transaction extends Model
 
     const modeOfPaymentOptions = ['online', 'cash', 'cheque', 'advance payment', 'gcash'];
     const nonCashPaymentOptions = ['with holding', 'listing fee', 'sales return', 'rebate', 'withholding', 'others']; //ARCANA Payment Options
-    const cashPaymentOptions = ['advance payment', 'cash', 'cheque', 'online', 'gcash']; //ARCANA Payment Options
+    const cashPaymentOptions = ['advance payment', 'cash', 'cheque', 'online', 'gcash', 'online payment,', 'cashbond']; //ARCANA Payment Options
 
     const ARCANA = 'arcana';
     const FLOCK_FORTRESS = 'flock-fortress';
