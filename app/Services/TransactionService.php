@@ -34,6 +34,8 @@ class TransactionService
         $this->arcanaUrl = config('app.arcana_url');
         $this->flockFortressApiKey = config('app.flock_fortress_api_key');
         $this->flockFortressUrl = config('app.flock_fortress_url');
+        $this->swineFortressApiKey = config('app.swine_fortress_api_key');
+        $this->swineFortressUrl = config('app.swine_fortress_url');
     }
 
     private const GROUP_COLUMN_BY_TYPE = [
@@ -250,6 +252,10 @@ class TransactionService
             && $transaction->payment_group_id
         ) {
             $this->ensureGroupIsReturnRequested($transaction);
+        }
+
+        if ($transaction->type == 'swine-fortress') {
+            $this->returnSwineFortress($transaction);
         }
 
         return $transaction;
@@ -537,5 +543,68 @@ class TransactionService
                 ->whereNotNull('reason')
                 ->count(),
         ];
+    }
+
+    private function returnSwineFortress(Transaction $transaction)
+    {
+        $payload = [
+            'status'    => 'canceled',
+            'is_tagged' => false,
+            'reason'    => request()->input('reason'),
+            'sync_id'   => $transaction->sync_id,
+        ];
+
+        try {
+            DB::transaction(function () use ($transaction, $payload) {
+                $group = $this->transaction->newQuery()
+                    ->where('type', 'swine-fortress')
+                    ->where('sync_id', $transaction->sync_id)
+                    ->lockForUpdate()
+                    ->get();
+
+                $this->transaction->newQuery()
+                    ->whereKey($group->modelKeys())
+                    ->update($payload);
+
+                $transaction->refresh();
+
+                $this->logActivityOn($transaction, 'Transaction Returned', $payload, 'returned');
+
+                $group->load('user');
+
+                DB::afterCommit(function () use ($group) {
+                    $group->unique('user_id')->each(
+                        fn (Transaction $t) => event(new RequestNotificationCount($t->user))
+                    );
+                });
+
+                return true;
+            });
+
+            $response = Http::withHeaders(['X-Api-Key' => $this->swineFortressApiKey])
+                ->timeout(10)
+                ->post($this->swineFortressUrl . $transaction->sync_transaction_number . '/return' , $payload);
+
+            $response->throw();
+
+            Log::info('Swine Fortress return response', [
+                'transaction_id' => $transaction->id,
+                'sync_id'        => $transaction->sync_id,
+                'status'         => $response->status(),
+                'body'           => Str::limit($response->body(), 500),
+            ]);
+
+
+        } catch (Throwable $e) {
+            Log::error('Swine Fortress return failed', [
+                'transaction_id' => $transaction->id,
+                'sync_id'        => $transaction->sync_id,
+                'message'        => $e->getMessage(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'transaction' => 'Failed to return the transaction. Please try again later.',
+            ]);
+        }
     }
 }

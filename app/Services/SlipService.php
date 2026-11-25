@@ -73,42 +73,42 @@ class SlipService
         $transactions = $this->transaction->newQuery()
             ->whereIn('id', $transactionIDs)
             ->where('status', '!=', 'void')
+            ->where(function ($query) {
+                $query->where('status', '!=', 'return')
+                    ->orWhere('is_tagged', true);
+            })
             ->select('id', 'amount')
             ->get();
 
         $validTransactionIDs = $transactions->pluck('id');
 
-        // 5. Get unique slips ordered so consumption is consistent
         $transactionSlips = $this->slip->newQuery()
             ->whereIn('transaction_id', $validTransactionIDs)
             ->get()
             ->unique('number')
-            ->sortBy('number')  // ensure consistent order
+            ->sortBy('number')
             ->values();
 
-        // 6. Compute totals
-        $totalSlipAmount        = $transactionSlips->sum('amount');
+        $totalSlipAmount = $transactionSlips->sum('amount');
         $totalTransactionAmount = $transactions->sum('amount');
 
-        // 7. Distribute payment across slips in order
         $remainingPayment = $totalTransactionAmount;
 
         $slips = $transactionSlips->map(function ($slip) use (&$remainingPayment) {
-            $actualPaid      = min($slip->amount, max(0, $remainingPayment));
-            $remainingAmount = $slip->amount - $actualPaid;
+            $actualPaid = min($slip->amount, max(0, $remainingPayment));
             $remainingPayment -= $actualPaid;
 
             $slip->actual_amount_paid = $actualPaid;
-            $slip->remaining_amount   = $remainingAmount;
+            $slip->remaining_amount = $slip->amount - $actualPaid;
 
             return $slip;
         });
 
         return [
-            'total_slip_amount'  => $totalSlipAmount,
-            'total_amount_paid'  => $totalTransactionAmount,
-            'remaining_amount'   => max(0, $totalSlipAmount - $totalTransactionAmount),
-            'slips'              => SlipResource::collection($slips),
+            'total_slip_amount' => $totalSlipAmount,
+            'total_amount_paid' => $totalTransactionAmount,
+            'remaining_amount' => $slips->sum('remaining_amount'),
+            'slips' => SlipResource::collection($slips),
         ];
     }
 }

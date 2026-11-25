@@ -18,9 +18,6 @@ class SlipController extends Controller
 
     public function getRemainingSlipAmount(Request $request)
     {
-        $type = $request->input('type');
-        $slipNumber = $request->input('slip_number');
-
         return $this->responseSuccess('Remaining slip amount fetched successfully', $this->slipService->remainingSlipAmount($request));
     }
 }
